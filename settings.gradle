@@ -11,5 +11,10 @@ pluginManagement {
 rootProject.name = "kross2d"
 
 include(":kross2d-core")
+project(":kross2d-core").name = "kross2d"
+
+def exColorCanvas = ":examples:colorcanvas"
+include("$exColorCanvas:colorcanvas-common")
+include("$exColorCanvas:colorcanvas-jvm")
 
 enableFeaturePreview("GRADLE_METADATA")

@@ -1,18 +1,21 @@
 if (typeof kotlin === 'undefined') {
-  throw new Error("Error loading module 'common'. Its dependency 'kotlin' was not found. Please, check whether 'kotlin' is loaded prior to 'common'.");
+  throw new Error("Error loading module 'colorcanvas-common'. Its dependency 'kotlin' was not found. Please, check whether 'kotlin' is loaded prior to 'colorcanvas-common'.");
 }
 if (typeof kross2d === 'undefined') {
-  throw new Error("Error loading module 'common'. Its dependency 'kross2d' was not found. Please, check whether 'kross2d' is loaded prior to 'common'.");
+  throw new Error("Error loading module 'colorcanvas-common'. Its dependency 'kross2d' was not found. Please, check whether 'kross2d' is loaded prior to 'colorcanvas-common'.");
 }
-var common = function (_, Kotlin, $module$kross2d) {
+this['colorcanvas-common'] = function (_, Kotlin, $module$kross2d) {
   'use strict';
   var numberToInt = Kotlin.numberToInt;
   var Key = $module$kross2d.bitspittle.kross2d.engine.input.Key;
+  var GameState = $module$kross2d.bitspittle.kross2d.engine.GameState;
   var Color = $module$kross2d.bitspittle.kross2d.core.graphics.Color;
   var Duration = $module$kross2d.bitspittle.kross2d.core.time.Duration;
   var Kind_CLASS = Kotlin.Kind.CLASS;
-  var GameState = $module$kross2d.bitspittle.kross2d.engine.GameState;
+  ColorCanvasState.prototype = Object.create(GameState.prototype);
+  ColorCanvasState.prototype.constructor = ColorCanvasState;
   function ColorCanvasState() {
+    GameState.call(this);
     this.clearColor_0 = new Color(0, 0, 0);
     this.elapsed_0 = Duration.Companion.zero();
   }
@@ -39,6 +42,6 @@ var common = function (_, Kotlin, $module$kross2d) {
     interfaces: [GameState]
   };
   _.ColorCanvasState = ColorCanvasState;
-  Kotlin.defineModule('common', _);
+  Kotlin.defineModule('colorcanvas-common', _);
   return _;
-}(typeof common === 'undefined' ? {} : common, kotlin, kross2d);
+}(typeof this['colorcanvas-common'] === 'undefined' ? {} : this['colorcanvas-common'], kotlin, kross2d);

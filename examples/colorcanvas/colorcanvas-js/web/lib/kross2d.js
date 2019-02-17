@@ -16,6 +16,7 @@ var kross2d = function (_, Kotlin) {
   var defineInlineFunction = Kotlin.defineInlineFunction;
   var wrapFunction = Kotlin.wrapFunction;
   var throwCCE = Kotlin.throwCCE;
+  var equals = Kotlin.equals;
   Event.prototype = Object.create(ObservableEvent.prototype);
   Event.prototype.constructor = Event;
   Key.prototype = Object.create(Enum.prototype);
@@ -801,7 +802,7 @@ var kross2d = function (_, Kotlin) {
   function GameState() {
   }
   GameState.$metadata$ = {
-    kind: Kind_INTERFACE,
+    kind: Kind_CLASS,
     simpleName: 'GameState',
     interfaces: []
   };
@@ -1062,15 +1063,49 @@ var kross2d = function (_, Kotlin) {
   function ApplicationBackend(params) {
     var tmp$;
     this.gl_0 = Kotlin.isType(tmp$ = params.canvasElement.getContext('webgl'), WebGLRenderingContext) ? tmp$ : throwCCE();
+    var handleKeyEvent = ApplicationBackend_init$handleKeyEvent(this);
+    window.onkeydown = ApplicationBackend_init$lambda(handleKeyEvent);
+    window.onkeyup = ApplicationBackend_init$lambda_0(handleKeyEvent);
     this.drawSurface = new ApplicationBackend$drawSurface$ObjectLiteral(this, params);
-    this.keyPressed = new Event();
-    this.keyReleased = new Event();
+    this._keyPressed_0 = new Event();
+    this.keyPressed = this._keyPressed_0;
+    this._keyReleased_0 = new Event();
+    this.keyReleased = this._keyReleased_0;
   }
-  ApplicationBackend.prototype.runForever_o14v8n$ = function (block) {
-    window.setInterval(block, 16);
+  ApplicationBackend.prototype.runForever_o14v8n$ = function (frameStep) {
+    window.setInterval(frameStep, 16);
   };
   ApplicationBackend.prototype.quit = function () {
   };
+  function ApplicationBackend_init$handleKeyEvent(this$ApplicationBackend) {
+    return function (keyEvent, isDown) {
+      var tmp$;
+      if (equals(keyEvent.code, 'Escape'))
+        tmp$ = Key$ESC_getInstance();
+      else
+        tmp$ = null;
+      if (tmp$ != null) {
+        var $receiver = tmp$;
+        var this$ApplicationBackend_0 = this$ApplicationBackend;
+        if (isDown)
+          this$ApplicationBackend_0._keyPressed_0.invoke_11rb$($receiver);
+        else
+          this$ApplicationBackend_0._keyReleased_0.invoke_11rb$($receiver);
+      }
+    };
+  }
+  function ApplicationBackend_init$lambda(closure$handleKeyEvent) {
+    return function (it) {
+      closure$handleKeyEvent(it, true);
+      return Unit;
+    };
+  }
+  function ApplicationBackend_init$lambda_0(closure$handleKeyEvent) {
+    return function (it) {
+      closure$handleKeyEvent(it, false);
+      return Unit;
+    };
+  }
   function ApplicationBackend$drawSurface$ObjectLiteral(this$ApplicationBackend, closure$params) {
     this.this$ApplicationBackend = this$ApplicationBackend;
     var it = closure$params.canvasElement;
