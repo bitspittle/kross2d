@@ -4,6 +4,9 @@ pluginManagement {
             if (requested.id.id == "kotlin-multiplatform") {
                 useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
             }
+            else if (requested.id.id == "kotlin2js") {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+            }
         }
     }
 }
@@ -16,5 +19,6 @@ project(":kross2d-core").name = "kross2d"
 def exColorCanvas = ":examples:colorcanvas"
 include("$exColorCanvas:colorcanvas-common")
 include("$exColorCanvas:colorcanvas-jvm")
+include("$exColorCanvas:colorcanvas-js")
 
 enableFeaturePreview("GRADLE_METADATA")

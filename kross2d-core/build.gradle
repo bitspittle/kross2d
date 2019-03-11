@@ -13,8 +13,7 @@ repositories {
 
 kotlin {
     jvm()
-    // TODO: Implement JS support
-//    js()
+    js()
     sourceSets {
         commonMain {
             dependencies {
@@ -39,17 +38,15 @@ kotlin {
                 implementation kotlin("test-junit")
              }
         }
-        // TODO: Implement JS support
-//        jsMain {
-//            dependencies {
-//                implementation kotlin("stdlib-js")
-//            }
-//        }
-//        jsTest {
-//            dependencies {
-//                implementation kotlin("test-js")
-//                implementation "bitspittle:truthish-js:$truthish"
-//            }
-//        }
+        jsMain {
+            dependencies {
+                implementation kotlin("stdlib-js")
+            }
+        }
+        jsTest {
+            dependencies {
+                implementation kotlin("test-js")
+            }
+        }
     }
 }

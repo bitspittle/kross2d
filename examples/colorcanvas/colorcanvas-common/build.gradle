@@ -12,6 +12,7 @@ repositories {
 
 kotlin {
     jvm()
+    js()
     sourceSets {
         commonMain {
             dependencies {
@@ -22,6 +23,12 @@ kotlin {
         jvmMain {
             dependencies {
                 api kotlin("stdlib-jdk8")
+                api project(":kross2d")
+            }
+        }
+        jsMain {
+            dependencies {
+                api kotlin("stdlib-js")
                 api project(":kross2d")
             }
         }
