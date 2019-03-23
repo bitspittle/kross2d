@@ -3,7 +3,9 @@ package bitspittle.kross2d.engine.app
 import bitspittle.kross2d.core.event.ObservableEvent
 import bitspittle.kross2d.core.time.Instant
 import bitspittle.kross2d.engine.GameState
+import bitspittle.kross2d.engine.assets.AssetLoader
 import bitspittle.kross2d.engine.context.DrawContext
+import bitspittle.kross2d.engine.context.InitContext
 import bitspittle.kross2d.engine.context.UpdateContext
 import bitspittle.kross2d.engine.graphics.DrawSurface
 import bitspittle.kross2d.engine.graphics.ImmutableDrawSurface
@@ -26,7 +28,9 @@ interface ApplicationFacade {
  * Note: It is up for each platform-specific implementation to declare the fields they need and
  * then read them from the associated [ApplicationBackend]
  */
-expect class AppParams
+expect class AppParams {
+    val assetsRoot: String
+}
 
 /**
  * The game's owning window. When instantiated, it should run forever, blocking the current thread
@@ -51,8 +55,16 @@ internal class Application internal constructor(params: AppParams, initialState:
 
         val timer = DefaultTimer()
 
+        val assetLoader = AssetLoader(params.assetsRoot)
+        val initContext = object : InitContext {
+            override val assetLoader: AssetLoader = assetLoader
+            override val screen: ImmutableDrawSurface = backend.drawSurface
+            override val timer: Timer = timer
+        }
+
         val updateContext = object : UpdateContext {
             override val app: ApplicationFacade = appFacade
+            override val assetLoader: AssetLoader = assetLoader
             override val screen: ImmutableDrawSurface = backend.drawSurface
             override val keyboard: Keyboard = keyboard
             override val timer: Timer = timer
@@ -62,6 +74,8 @@ internal class Application internal constructor(params: AppParams, initialState:
             override val screen: DrawSurface = backend.drawSurface
             override val timer: Timer = timer
         }
+
+        currentState.init(initContext)
 
         var frameStart = Instant.now()
         backend.runForever {

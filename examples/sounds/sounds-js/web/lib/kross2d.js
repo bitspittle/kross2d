@@ -6,35 +6,69 @@ var kross2d = function (_, Kotlin) {
   var $$importsForInline$$ = _.$$importsForInline$$ || (_.$$importsForInline$$ = {});
   var Kind_CLASS = Kotlin.Kind.CLASS;
   var Unit = Kotlin.kotlin.Unit;
-  var Kind_INTERFACE = Kotlin.Kind.INTERFACE;
   var Kind_OBJECT = Kotlin.Kind.OBJECT;
+  var Kind_INTERFACE = Kotlin.Kind.INTERFACE;
   var numberToInt = Kotlin.numberToInt;
+  var hashCode = Kotlin.hashCode;
   var Comparable = Kotlin.kotlin.Comparable;
   var kotlin_js_internal_DoubleCompanionObject = Kotlin.kotlin.js.internal.DoubleCompanionObject;
   var Enum = Kotlin.kotlin.Enum;
   var throwISE = Kotlin.throwISE;
+  var IllegalStateException_init = Kotlin.kotlin.IllegalStateException_init_pdl1vj$;
   var defineInlineFunction = Kotlin.defineInlineFunction;
   var wrapFunction = Kotlin.wrapFunction;
+  var getCallableRef = Kotlin.getCallableRef;
+  var get_lastIndex = Kotlin.kotlin.collections.get_lastIndex_55thoc$;
+  var IllegalArgumentException_init = Kotlin.kotlin.IllegalArgumentException_init_pdl1vj$;
+  var take = Kotlin.kotlin.collections.take_ba2ldo$;
+  var last = Kotlin.kotlin.collections.last_2p1efm$;
+  var listOf = Kotlin.kotlin.collections.listOf_i5x0yv$;
+  var math = Kotlin.kotlin.math;
+  var to = Kotlin.kotlin.to_ujzrz7$;
   var throwCCE = Kotlin.throwCCE;
   var println = Kotlin.kotlin.io.println_s8jyv4$;
   Event.prototype = Object.create(ObservableEvent.prototype);
   Event.prototype.constructor = Event;
+  Rect$Companion$EMPTY$ObjectLiteral.prototype = Object.create(ImmutableRect.prototype);
+  Rect$Companion$EMPTY$ObjectLiteral.prototype.constructor = Rect$Companion$EMPTY$ObjectLiteral;
+  Rect.prototype = Object.create(ImmutableRect.prototype);
+  Rect.prototype.constructor = Rect;
+  Pt2$Companion$ZERO$ObjectLiteral.prototype = Object.create(ImmutablePt2.prototype);
+  Pt2$Companion$ZERO$ObjectLiteral.prototype.constructor = Pt2$Companion$ZERO$ObjectLiteral;
+  Pt2.prototype = Object.create(ImmutablePt2.prototype);
+  Pt2.prototype.constructor = Pt2;
+  Vec2$Companion$ZERO$ObjectLiteral.prototype = Object.create(ImmutableVec2.prototype);
+  Vec2$Companion$ZERO$ObjectLiteral.prototype.constructor = Vec2$Companion$ZERO$ObjectLiteral;
+  Vec2.prototype = Object.create(ImmutableVec2.prototype);
+  Vec2.prototype.constructor = Vec2;
+  Duration$Companion$MAX$ObjectLiteral.prototype = Object.create(ImmutableDuration.prototype);
+  Duration$Companion$MAX$ObjectLiteral.prototype.constructor = Duration$Companion$MAX$ObjectLiteral;
+  Duration$Companion$MIN$ObjectLiteral.prototype = Object.create(ImmutableDuration.prototype);
+  Duration$Companion$MIN$ObjectLiteral.prototype.constructor = Duration$Companion$MIN$ObjectLiteral;
+  Duration.prototype = Object.create(ImmutableDuration.prototype);
+  Duration.prototype.constructor = Duration;
+  Asset$State.prototype = Object.create(Enum.prototype);
+  Asset$State.prototype.constructor = Asset$State;
   Key.prototype = Object.create(Enum.prototype);
   Key.prototype.constructor = Key;
   var ArrayList_init = Kotlin.kotlin.collections.ArrayList_init_287e2$;
-  function ObservableEvent() {
+  function ObservableEvent(onAdded) {
+    this.onAdded_tlnqc7$_0 = onAdded;
     this.observers = ArrayList_init();
   }
   ObservableEvent.prototype.plusAssign_qlkmfe$ = function (observer) {
     this.observers.add_11rb$(observer);
+    this.onAdded_tlnqc7$_0();
   };
   ObservableEvent.$metadata$ = {
     kind: Kind_CLASS,
     simpleName: 'ObservableEvent',
     interfaces: []
   };
-  function Event() {
-    ObservableEvent.call(this);
+  function Event(onAdded) {
+    if (onAdded === void 0)
+      onAdded = Event_init$lambda;
+    ObservableEvent.call(this, onAdded);
   }
   Event.prototype.invoke_11rb$ = function (params) {
     var tmp$;
@@ -44,11 +78,222 @@ var kross2d = function (_, Kotlin) {
       element(params);
     }
   };
+  Event.prototype.clear = function () {
+    this.observers.clear();
+  };
+  function Event_init$lambda() {
+    return Unit;
+  }
   Event.$metadata$ = {
     kind: Kind_CLASS,
     simpleName: 'Event',
     interfaces: [ObservableEvent]
   };
+  function ImmutableRect() {
+  }
+  Object.defineProperty(ImmutableRect.prototype, 'x', {
+    get: function () {
+      return this.pos.x;
+    }
+  });
+  Object.defineProperty(ImmutableRect.prototype, 'y', {
+    get: function () {
+      return this.pos.y;
+    }
+  });
+  Object.defineProperty(ImmutableRect.prototype, 'w', {
+    get: function () {
+      return this.size.x;
+    }
+  });
+  Object.defineProperty(ImmutableRect.prototype, 'h', {
+    get: function () {
+      return this.size.y;
+    }
+  });
+  Object.defineProperty(ImmutableRect.prototype, 'center', {
+    get: function () {
+      return new Pt2(this.x + this.w / 2.0, this.y + this.h / 2.0);
+    }
+  });
+  Object.defineProperty(ImmutableRect.prototype, 'area', {
+    get: function () {
+      return this.size.x * this.size.y;
+    }
+  });
+  ImmutableRect.prototype.intersects_np3yo7$ = function (other) {
+    var tmp$;
+    if (this.x + this.w < other.x)
+      tmp$ = false;
+    else if (this.x > other.x + other.w)
+      tmp$ = false;
+    else if (this.y + this.h < other.y)
+      tmp$ = false;
+    else if (this.y > other.y + other.h)
+      tmp$ = false;
+    else
+      tmp$ = true;
+    return tmp$;
+  };
+  var Math_0 = Math;
+  ImmutableRect.prototype.intersection_np3yo7$ = function (other) {
+    if (!this.intersects_np3yo7$(other)) {
+      return Rect_init();
+    }
+    var a = this.x;
+    var b = other.x;
+    var x0 = Math_0.max(a, b);
+    var a_0 = this.y;
+    var b_0 = other.y;
+    var y0 = Math_0.max(a_0, b_0);
+    var a_1 = this.x + this.w;
+    var b_1 = other.x + other.w;
+    var x1 = Math_0.min(a_1, b_1);
+    var a_2 = this.y + this.h;
+    var b_2 = other.y + this.h;
+    var y1 = Math_0.min(a_2, b_2);
+    return Rect_init_1(x0, y0, x1 - x0, y1 - y0);
+  };
+  ImmutableRect.prototype.equals = function (other) {
+    var tmp$, tmp$_0;
+    if (Kotlin.isType(other, ImmutableRect)) {
+      return ((tmp$ = this.pos) != null ? tmp$.equals(other.pos) : null) && ((tmp$_0 = this.size) != null ? tmp$_0.equals(other.size) : null);
+    }
+    return false;
+  };
+  ImmutableRect.prototype.hashCode = function () {
+    return this.pos.hashCode() + (31 * this.size.hashCode() | 0) | 0;
+  };
+  ImmutableRect.prototype.toString = function () {
+    return 'Rect { (' + this.x + ', ' + this.y + '), (' + this.w + ', ' + this.h + ') }';
+  };
+  ImmutableRect.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'ImmutableRect',
+    interfaces: []
+  };
+  function centerIn($receiver, rect) {
+    var center = Pt2_init_1(rect.center);
+    center.minusAssign_nvqvy9$($receiver.div_mx4ult$(2.0));
+    return center;
+  }
+  function Rect(pos, size) {
+    Rect$Companion_getInstance();
+    ImmutableRect.call(this);
+    this.pos_d5paeb$_0 = Pt2_init_1(pos);
+    this.size_i8cnes$_0 = Vec2_init_1(size);
+  }
+  function Rect$Companion() {
+    Rect$Companion_instance = this;
+    this.EMPTY = new Rect$Companion$EMPTY$ObjectLiteral();
+  }
+  function Rect$Companion$EMPTY$ObjectLiteral() {
+    ImmutableRect.call(this);
+    this.pos_w4h4dn$_0 = Pt2$Companion_getInstance().ZERO;
+    this.size_1gpq7o$_0 = Vec2$Companion_getInstance().ZERO;
+  }
+  Object.defineProperty(Rect$Companion$EMPTY$ObjectLiteral.prototype, 'pos', {
+    get: function () {
+      return this.pos_w4h4dn$_0;
+    }
+  });
+  Object.defineProperty(Rect$Companion$EMPTY$ObjectLiteral.prototype, 'size', {
+    get: function () {
+      return this.size_1gpq7o$_0;
+    }
+  });
+  Rect$Companion$EMPTY$ObjectLiteral.$metadata$ = {
+    kind: Kind_CLASS,
+    interfaces: [ImmutableRect]
+  };
+  Rect$Companion.$metadata$ = {
+    kind: Kind_OBJECT,
+    simpleName: 'Companion',
+    interfaces: []
+  };
+  var Rect$Companion_instance = null;
+  function Rect$Companion_getInstance() {
+    if (Rect$Companion_instance === null) {
+      new Rect$Companion();
+    }
+    return Rect$Companion_instance;
+  }
+  Object.defineProperty(Rect.prototype, 'pos', {
+    get: function () {
+      return this.pos_d5paeb$_0;
+    }
+  });
+  Object.defineProperty(Rect.prototype, 'size', {
+    get: function () {
+      return this.size_i8cnes$_0;
+    }
+  });
+  Object.defineProperty(Rect.prototype, 'x', {
+    get: function () {
+      return Kotlin.callGetter(this, ImmutableRect.prototype, 'x');
+    },
+    set: function (value) {
+      this.pos.x = value;
+    }
+  });
+  Object.defineProperty(Rect.prototype, 'y', {
+    get: function () {
+      return Kotlin.callGetter(this, ImmutableRect.prototype, 'y');
+    },
+    set: function (value) {
+      this.pos.y = value;
+    }
+  });
+  Object.defineProperty(Rect.prototype, 'w', {
+    get: function () {
+      return Kotlin.callGetter(this, ImmutableRect.prototype, 'w');
+    },
+    set: function (value) {
+      this.size.x = value;
+    }
+  });
+  Object.defineProperty(Rect.prototype, 'h', {
+    get: function () {
+      return Kotlin.callGetter(this, ImmutableRect.prototype, 'h');
+    },
+    set: function (value) {
+      this.size.y = value;
+    }
+  });
+  Rect.prototype.set_np3yo7$ = function (other) {
+    this.pos.set_cz6rql$(other.pos);
+    this.size.set_nvqvy9$(other.size);
+  };
+  Rect.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'Rect',
+    interfaces: [ImmutableRect]
+  };
+  function Rect_init($this) {
+    $this = $this || Object.create(Rect.prototype);
+    Rect.call($this, Pt2$Companion_getInstance().ZERO, Vec2$Companion_getInstance().ZERO);
+    return $this;
+  }
+  function Rect_init_0(size, $this) {
+    $this = $this || Object.create(Rect.prototype);
+    Rect.call($this, Pt2$Companion_getInstance().ZERO, size);
+    return $this;
+  }
+  function Rect_init_1(x, y, w, h, $this) {
+    $this = $this || Object.create(Rect.prototype);
+    Rect.call($this, new Pt2(x, y), new Vec2(w, h));
+    return $this;
+  }
+  function Rect_init_2(x, y, w, h, $this) {
+    $this = $this || Object.create(Rect.prototype);
+    Rect.call($this, Pt2_init_0(x, y), Vec2_init_0(w, h));
+    return $this;
+  }
+  function Rect_init_3(other, $this) {
+    $this = $this || Object.create(Rect.prototype);
+    Rect.call($this, other.pos, other.size);
+    return $this;
+  }
   function ImmutableColor() {
   }
   ImmutableColor.$metadata$ = {
@@ -56,7 +301,6 @@ var kross2d = function (_, Kotlin) {
     simpleName: 'ImmutableColor',
     interfaces: []
   };
-  var Math_0 = Math;
   function Color(r, g, b, a) {
     Color$Companion_getInstance();
     if (a === void 0)
@@ -219,13 +463,23 @@ var kross2d = function (_, Kotlin) {
   ImmutablePt2.prototype.div_mx4ult$ = function (value) {
     return new Pt2(this.x / value, this.y / value);
   };
+  ImmutablePt2.prototype.equals = function (other) {
+    return Kotlin.isType(other, ImmutablePt2) ? this.x === other.x && this.y === other.y : false;
+  };
+  ImmutablePt2.prototype.hashCode = function () {
+    return hashCode(this.x) + (31 * hashCode(this.y) | 0) | 0;
+  };
+  ImmutablePt2.prototype.toString = function () {
+    return 'Pt2 { (' + this.x + ', ' + this.y + ') }';
+  };
   ImmutablePt2.$metadata$ = {
-    kind: Kind_INTERFACE,
+    kind: Kind_CLASS,
     simpleName: 'ImmutablePt2',
     interfaces: []
   };
   function Pt2(x, y) {
     Pt2$Companion_getInstance();
+    ImmutablePt2.call(this);
     this.x_6j1ntv$_0 = x;
     this.y_6j1nuq$_0 = y;
   }
@@ -247,8 +501,27 @@ var kross2d = function (_, Kotlin) {
   });
   function Pt2$Companion() {
     Pt2$Companion_instance = this;
-    this.ZERO = Pt2_init();
+    this.ZERO = new Pt2$Companion$ZERO$ObjectLiteral();
   }
+  function Pt2$Companion$ZERO$ObjectLiteral() {
+    ImmutablePt2.call(this);
+    this.x_auz8ho$_0 = 0.0;
+    this.y_auz8gt$_0 = 0.0;
+  }
+  Object.defineProperty(Pt2$Companion$ZERO$ObjectLiteral.prototype, 'x', {
+    get: function () {
+      return this.x_auz8ho$_0;
+    }
+  });
+  Object.defineProperty(Pt2$Companion$ZERO$ObjectLiteral.prototype, 'y', {
+    get: function () {
+      return this.y_auz8gt$_0;
+    }
+  });
+  Pt2$Companion$ZERO$ObjectLiteral.$metadata$ = {
+    kind: Kind_CLASS,
+    interfaces: [ImmutablePt2]
+  };
   Pt2$Companion.$metadata$ = {
     kind: Kind_OBJECT,
     simpleName: 'Companion',
@@ -318,27 +591,6 @@ var kross2d = function (_, Kotlin) {
     Pt2.call($this, vec.x, vec.y);
     return $this;
   }
-  Pt2.prototype.component1 = function () {
-    return this.x;
-  };
-  Pt2.prototype.component2 = function () {
-    return this.y;
-  };
-  Pt2.prototype.copy_dleff0$ = function (x, y) {
-    return new Pt2(x === void 0 ? this.x : x, y === void 0 ? this.y : y);
-  };
-  Pt2.prototype.toString = function () {
-    return 'Pt2(x=' + Kotlin.toString(this.x) + (', y=' + Kotlin.toString(this.y)) + ')';
-  };
-  Pt2.prototype.hashCode = function () {
-    var result = 0;
-    result = result * 31 + Kotlin.hashCode(this.x) | 0;
-    result = result * 31 + Kotlin.hashCode(this.y) | 0;
-    return result;
-  };
-  Pt2.prototype.equals = function (other) {
-    return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && (Kotlin.equals(this.x, other.x) && Kotlin.equals(this.y, other.y)))));
-  };
   function ImmutableVec2() {
   }
   ImmutableVec2.prototype.isZero = function () {
@@ -375,13 +627,23 @@ var kross2d = function (_, Kotlin) {
   ImmutableVec2.prototype.div_mx4ult$ = function (value) {
     return new Vec2(this.x / value, this.y / value);
   };
+  ImmutableVec2.prototype.equals = function (other) {
+    return Kotlin.isType(other, ImmutableVec2) ? this.x === other.x && this.y === other.y : false;
+  };
+  ImmutableVec2.prototype.hashCode = function () {
+    return hashCode(this.x) + (31 * hashCode(this.y) | 0) | 0;
+  };
+  ImmutableVec2.prototype.toString = function () {
+    return 'Vec2 { (' + this.x + ', ' + this.y + ') }';
+  };
   ImmutableVec2.$metadata$ = {
-    kind: Kind_INTERFACE,
+    kind: Kind_CLASS,
     simpleName: 'ImmutableVec2',
     interfaces: []
   };
   function Vec2(x, y) {
     Vec2$Companion_getInstance();
+    ImmutableVec2.call(this);
     this.x_cc33$_0 = x;
     this.y_cc28$_0 = y;
   }
@@ -403,8 +665,27 @@ var kross2d = function (_, Kotlin) {
   });
   function Vec2$Companion() {
     Vec2$Companion_instance = this;
-    this.ZERO = Vec2_init();
+    this.ZERO = new Vec2$Companion$ZERO$ObjectLiteral();
   }
+  function Vec2$Companion$ZERO$ObjectLiteral() {
+    ImmutableVec2.call(this);
+    this.x_bayi7m$_0 = 0.0;
+    this.y_bayi8h$_0 = 0.0;
+  }
+  Object.defineProperty(Vec2$Companion$ZERO$ObjectLiteral.prototype, 'x', {
+    get: function () {
+      return this.x_bayi7m$_0;
+    }
+  });
+  Object.defineProperty(Vec2$Companion$ZERO$ObjectLiteral.prototype, 'y', {
+    get: function () {
+      return this.y_bayi8h$_0;
+    }
+  });
+  Vec2$Companion$ZERO$ObjectLiteral.$metadata$ = {
+    kind: Kind_CLASS,
+    interfaces: [ImmutableVec2]
+  };
   Vec2$Companion.$metadata$ = {
     kind: Kind_OBJECT,
     simpleName: 'Companion',
@@ -481,27 +762,6 @@ var kross2d = function (_, Kotlin) {
     Vec2.call($this, pt.x, pt.y);
     return $this;
   }
-  Vec2.prototype.component1 = function () {
-    return this.x;
-  };
-  Vec2.prototype.component2 = function () {
-    return this.y;
-  };
-  Vec2.prototype.copy_dleff0$ = function (x, y) {
-    return new Vec2(x === void 0 ? this.x : x, y === void 0 ? this.y : y);
-  };
-  Vec2.prototype.toString = function () {
-    return 'Vec2(x=' + Kotlin.toString(this.x) + (', y=' + Kotlin.toString(this.y)) + ')';
-  };
-  Vec2.prototype.hashCode = function () {
-    var result = 0;
-    result = result * 31 + Kotlin.hashCode(this.x) | 0;
-    result = result * 31 + Kotlin.hashCode(this.y) | 0;
-    return result;
-  };
-  Vec2.prototype.equals = function (other) {
-    return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && (Kotlin.equals(this.x, other.x) && Kotlin.equals(this.y, other.y)))));
-  };
   function ImmutableDuration() {
   }
   Object.defineProperty(ImmutableDuration.prototype, 'micros', {
@@ -544,11 +804,23 @@ var kross2d = function (_, Kotlin) {
   ImmutableDuration.prototype.div_14dthe$ = function (value) {
     return new Duration(this.nanos / value);
   };
+  ImmutableDuration.prototype.unaryMinus = function () {
+    return new Duration(-this.nanos);
+  };
   ImmutableDuration.prototype.compareTo_11rb$ = function (other) {
     return Kotlin.compareTo(this.nanos, other.nanos);
   };
+  ImmutableDuration.prototype.equals = function (other) {
+    return Kotlin.isType(other, ImmutableDuration) ? this.nanos === other.nanos : false;
+  };
+  ImmutableDuration.prototype.hashCode = function () {
+    return hashCode(this.nanos);
+  };
+  ImmutableDuration.prototype.toString = function () {
+    return 'Duration { ' + this.nanos + 'ns }';
+  };
   ImmutableDuration.$metadata$ = {
-    kind: Kind_INTERFACE,
+    kind: Kind_CLASS,
     simpleName: 'ImmutableDuration',
     interfaces: [Comparable]
   };
@@ -562,6 +834,7 @@ var kross2d = function (_, Kotlin) {
     Duration$Companion_getInstance();
     if (nanos === void 0)
       nanos = 0.0;
+    ImmutableDuration.call(this);
     this.nanos_x06d89$_0 = nanos;
   }
   Object.defineProperty(Duration.prototype, 'nanos', {
@@ -620,6 +893,7 @@ var kross2d = function (_, Kotlin) {
     return this.ofMinutes_14dthe$(mins.toNumber());
   };
   function Duration$Companion$MAX$ObjectLiteral() {
+    ImmutableDuration.call(this);
     this.nanos_u4knw6$_0 = kotlin_js_internal_DoubleCompanionObject.POSITIVE_INFINITY;
     this.micros_ipb68$_0 = kotlin_js_internal_DoubleCompanionObject.POSITIVE_INFINITY;
     this.millis_dv47b$_0 = kotlin_js_internal_DoubleCompanionObject.POSITIVE_INFINITY;
@@ -656,6 +930,7 @@ var kross2d = function (_, Kotlin) {
     interfaces: [ImmutableDuration]
   };
   function Duration$Companion$MIN$ObjectLiteral() {
+    ImmutableDuration.call(this);
     this.nanos_kjpl7g$_0 = kotlin_js_internal_DoubleCompanionObject.NEGATIVE_INFINITY;
     this.micros_8r1xtq$_0 = kotlin_js_internal_DoubleCompanionObject.NEGATIVE_INFINITY;
     this.millis_8m7qut$_0 = kotlin_js_internal_DoubleCompanionObject.NEGATIVE_INFINITY;
@@ -738,15 +1013,15 @@ var kross2d = function (_, Kotlin) {
   Duration.prototype.setFrom_evd4je$ = function (rhs) {
     this.nanos = rhs.nanos;
   };
-  Duration.prototype.clampToMax_evd4je$ = function (other) {
+  Duration.prototype.clampToMax_evd4je$ = function (possibleMax) {
     var a = this.nanos;
-    var b = other.nanos;
-    this.nanos = Math_0.max(a, b);
-  };
-  Duration.prototype.clampToMin_evd4je$ = function (other) {
-    var a = this.nanos;
-    var b = other.nanos;
+    var b = possibleMax.nanos;
     this.nanos = Math_0.min(a, b);
+  };
+  Duration.prototype.clampToMin_evd4je$ = function (possibleMin) {
+    var a = this.nanos;
+    var b = possibleMin.nanos;
+    this.nanos = Math_0.max(a, b);
   };
   Duration.prototype.plusAssign_evd4je$ = function (rhs) {
     this.nanos = this.nanos + rhs.nanos;
@@ -767,20 +1042,6 @@ var kross2d = function (_, Kotlin) {
     kind: Kind_CLASS,
     simpleName: 'Duration',
     interfaces: [ImmutableDuration]
-  };
-  Duration.prototype.component1 = function () {
-    return this.nanos;
-  };
-  Duration.prototype.copy_14dthe$ = function (nanos) {
-    return new Duration(nanos === void 0 ? this.nanos : nanos);
-  };
-  Duration.prototype.hashCode = function () {
-    var result = 0;
-    result = result * 31 + Kotlin.hashCode(this.nanos) | 0;
-    return result;
-  };
-  Duration.prototype.equals = function (other) {
-    return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && Kotlin.equals(this.nanos, other.nanos))));
   };
   function Instant(nanos) {
     Instant$Companion_getInstance();
@@ -809,6 +1070,9 @@ var kross2d = function (_, Kotlin) {
   };
   Instant.prototype.compareTo_11rb$ = function (other) {
     return this.nanos_0.compareTo_11rb$(other.nanos_0);
+  };
+  Instant.prototype.toString = function () {
+    return 'Instant { ' + this.nanos_0.toString() + 'ns }';
   };
   Instant.$metadata$ = {
     kind: Kind_CLASS,
@@ -840,7 +1104,7 @@ var kross2d = function (_, Kotlin) {
     var appFacade = new Application_init$ObjectLiteral(this);
     var timer = new DefaultTimer();
     var assetLoader = new AssetLoader(params.assetsRoot);
-    var initContext = new Application_init$ObjectLiteral_0(assetLoader, timer);
+    var initContext = new Application_init$ObjectLiteral_0(assetLoader, this, timer);
     var updateContext = new Application_init$ObjectLiteral_1(appFacade, assetLoader, this, keyboard, timer);
     var drawContext = new Application_init$ObjectLiteral_2(this, timer);
     this.currentState_0.init_jezbry$(initContext);
@@ -869,13 +1133,19 @@ var kross2d = function (_, Kotlin) {
     kind: Kind_CLASS,
     interfaces: [ApplicationFacade]
   };
-  function Application_init$ObjectLiteral_0(closure$assetLoader, closure$timer) {
+  function Application_init$ObjectLiteral_0(closure$assetLoader, this$Application, closure$timer) {
     this.assetLoader_ttqb77$_0 = closure$assetLoader;
+    this.screen_4j6xmw$_0 = this$Application.backend_0.drawSurface;
     this.timer_rwuagb$_0 = closure$timer;
   }
   Object.defineProperty(Application_init$ObjectLiteral_0.prototype, 'assetLoader', {
     get: function () {
       return this.assetLoader_ttqb77$_0;
+    }
+  });
+  Object.defineProperty(Application_init$ObjectLiteral_0.prototype, 'screen', {
+    get: function () {
+      return this.screen_4j6xmw$_0;
     }
   });
   Object.defineProperty(Application_init$ObjectLiteral_0.prototype, 'timer', {
@@ -960,6 +1230,133 @@ var kross2d = function (_, Kotlin) {
   function launch(appParams, initialState) {
     new Application(appParams, initialState);
   }
+  function Asset(path) {
+    this.path = path;
+    this.state_8ymihc$_0 = Asset$State$LOADING_getInstance();
+    this._onLoaded_0 = new Event(Asset$_onLoaded$lambda(this));
+    this.onLoaded = this._onLoaded_0;
+    this.value_7tqoz4$_0 = null;
+  }
+  function Asset$State(name, ordinal) {
+    Enum.call(this);
+    this.name$ = name;
+    this.ordinal$ = ordinal;
+  }
+  function Asset$State_initFields() {
+    Asset$State_initFields = function () {
+    };
+    Asset$State$LOADING_instance = new Asset$State('LOADING', 0);
+    Asset$State$SUCCEEDED_instance = new Asset$State('SUCCEEDED', 1);
+    Asset$State$FAILED_instance = new Asset$State('FAILED', 2);
+  }
+  var Asset$State$LOADING_instance;
+  function Asset$State$LOADING_getInstance() {
+    Asset$State_initFields();
+    return Asset$State$LOADING_instance;
+  }
+  var Asset$State$SUCCEEDED_instance;
+  function Asset$State$SUCCEEDED_getInstance() {
+    Asset$State_initFields();
+    return Asset$State$SUCCEEDED_instance;
+  }
+  var Asset$State$FAILED_instance;
+  function Asset$State$FAILED_getInstance() {
+    Asset$State_initFields();
+    return Asset$State$FAILED_instance;
+  }
+  Asset$State.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'State',
+    interfaces: [Enum]
+  };
+  function Asset$State$values() {
+    return [Asset$State$LOADING_getInstance(), Asset$State$SUCCEEDED_getInstance(), Asset$State$FAILED_getInstance()];
+  }
+  Asset$State.values = Asset$State$values;
+  function Asset$State$valueOf(name) {
+    switch (name) {
+      case 'LOADING':
+        return Asset$State$LOADING_getInstance();
+      case 'SUCCEEDED':
+        return Asset$State$SUCCEEDED_getInstance();
+      case 'FAILED':
+        return Asset$State$FAILED_getInstance();
+      default:throwISE('No enum constant bitspittle.kross2d.engine.assets.Asset.State.' + name);
+    }
+  }
+  Asset$State.valueOf_61zpoe$ = Asset$State$valueOf;
+  Object.defineProperty(Asset.prototype, 'state', {
+    get: function () {
+      return this.state_8ymihc$_0;
+    },
+    set: function (state) {
+      this.state_8ymihc$_0 = state;
+    }
+  });
+  Object.defineProperty(Asset.prototype, 'value', {
+    get: function () {
+      return this.value_7tqoz4$_0;
+    },
+    set: function (value) {
+      this.value_7tqoz4$_0 = value;
+    }
+  });
+  Asset.prototype.setValue_1c3m6u$ = function (value) {
+    this.assertLoading_0();
+    if (value != null) {
+      this.state = Asset$State$SUCCEEDED_getInstance();
+      this.fireOnLoaded_0(value);
+      this.value = value;
+    }
+     else {
+      this.state = Asset$State$FAILED_getInstance();
+    }
+  };
+  Asset.prototype.fireOnLoaded_0 = function (value) {
+    this._onLoaded_0.invoke_11rb$(value);
+    this._onLoaded_0.clear();
+  };
+  Asset.prototype.notifyFailure_8be2vx$ = function () {
+    this.assertLoading_0();
+    this.state = Asset$State$FAILED_getInstance();
+  };
+  Asset.prototype.assertLoading_0 = function () {
+    if (this.state !== Asset$State$LOADING_getInstance()) {
+      throw IllegalStateException_init('Attempting to modify frozen AssetHandle');
+    }
+  };
+  function Asset$_onLoaded$lambda(this$Asset) {
+    return function () {
+      var tmp$;
+      if ((tmp$ = this$Asset.value) != null) {
+        this$Asset.fireOnLoaded_0(tmp$);
+      }
+      return Unit;
+    };
+  }
+  Asset.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'Asset',
+    interfaces: []
+  };
+  function AssetLoader(root) {
+    this.backend_0 = new AssetLoaderBackend(root);
+  }
+  AssetLoader.prototype.loadImage_61zpoe$ = function (relativePath) {
+    var $receiver = new Asset(relativePath);
+    this.backend_0.loadImageInto_ylngmp$($receiver);
+    return $receiver;
+  };
+  AssetLoader.prototype.loadSound_61zpoe$ = function (relativePath) {
+    var $receiver = new Asset(relativePath);
+    this.backend_0.loadSoundInto_pecovy$($receiver);
+    return $receiver;
+  };
+  AssetLoader.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'AssetLoader',
+    interfaces: []
+  };
   function DrawContext() {
   }
   DrawContext.$metadata$ = {
@@ -990,30 +1387,55 @@ var kross2d = function (_, Kotlin) {
   };
   function DrawSurface() {
   }
-  function DrawSurface$DrawParams(dest, src, destSize, srcSize) {
+  function DrawSurface$DrawParams(dest, destSize) {
     if (dest === void 0)
       dest = Pt2$Companion_getInstance().ZERO;
-    if (src === void 0)
-      src = Pt2$Companion_getInstance().ZERO;
     if (destSize === void 0)
       destSize = null;
-    if (srcSize === void 0)
-      srcSize = null;
     this.dest = dest;
-    this.src = src;
     this.destSize = destSize;
-    this.srcSize = srcSize;
   }
   DrawSurface$DrawParams.$metadata$ = {
     kind: Kind_CLASS,
     simpleName: 'DrawParams',
     interfaces: []
   };
+  DrawSurface.prototype.draw_ky71b2$ = function (image, params, callback$default) {
+    if (params === void 0)
+      params = new DrawSurface$DrawParams();
+    callback$default ? callback$default(image, params) : this.draw_ky71b2$$default(image, params);
+  };
   DrawSurface.$metadata$ = {
     kind: Kind_INTERFACE,
     simpleName: 'DrawSurface',
     interfaces: [ImmutableDrawSurface]
   };
+  function Image_0(data, pos, sizeOverride) {
+    this.data_8be2vx$ = data;
+    this.pos_8be2vx$ = pos;
+    this.sizeOverride_0 = sizeOverride;
+  }
+  Object.defineProperty(Image_0.prototype, 'size', {
+    get: function () {
+      var tmp$;
+      return (tmp$ = this.sizeOverride_0) != null ? tmp$ : this.data_8be2vx$.size;
+    }
+  });
+  Image_0.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'Image',
+    interfaces: []
+  };
+  function Image_init(data, $this) {
+    $this = $this || Object.create(Image_0.prototype);
+    Image_0.call($this, data, Pt2$Companion_getInstance().ZERO, null);
+    return $this;
+  }
+  function Image_init_0(other, pos, size, $this) {
+    $this = $this || Object.create(Image_0.prototype);
+    Image_0.call($this, other.data_8be2vx$, other.pos_8be2vx$.plus_nvqvy9$(Vec2_init_2(pos)), size);
+    return $this;
+  }
   function Key(name, ordinal) {
     Enum.call(this);
     this.name$ = name;
@@ -1027,6 +1449,17 @@ var kross2d = function (_, Kotlin) {
     Key$DOWN_instance = new Key('DOWN', 2);
     Key$LEFT_instance = new Key('LEFT', 3);
     Key$RIGHT_instance = new Key('RIGHT', 4);
+    Key$NUM_0_instance = new Key('NUM_0', 5);
+    Key$NUM_1_instance = new Key('NUM_1', 6);
+    Key$NUM_2_instance = new Key('NUM_2', 7);
+    Key$NUM_3_instance = new Key('NUM_3', 8);
+    Key$NUM_4_instance = new Key('NUM_4', 9);
+    Key$NUM_5_instance = new Key('NUM_5', 10);
+    Key$NUM_6_instance = new Key('NUM_6', 11);
+    Key$NUM_7_instance = new Key('NUM_7', 12);
+    Key$NUM_8_instance = new Key('NUM_8', 13);
+    Key$NUM_9_instance = new Key('NUM_9', 14);
+    Key$SPACE_instance = new Key('SPACE', 15);
   }
   var Key$ESC_instance;
   function Key$ESC_getInstance() {
@@ -1053,13 +1486,68 @@ var kross2d = function (_, Kotlin) {
     Key_initFields();
     return Key$RIGHT_instance;
   }
+  var Key$NUM_0_instance;
+  function Key$NUM_0_getInstance() {
+    Key_initFields();
+    return Key$NUM_0_instance;
+  }
+  var Key$NUM_1_instance;
+  function Key$NUM_1_getInstance() {
+    Key_initFields();
+    return Key$NUM_1_instance;
+  }
+  var Key$NUM_2_instance;
+  function Key$NUM_2_getInstance() {
+    Key_initFields();
+    return Key$NUM_2_instance;
+  }
+  var Key$NUM_3_instance;
+  function Key$NUM_3_getInstance() {
+    Key_initFields();
+    return Key$NUM_3_instance;
+  }
+  var Key$NUM_4_instance;
+  function Key$NUM_4_getInstance() {
+    Key_initFields();
+    return Key$NUM_4_instance;
+  }
+  var Key$NUM_5_instance;
+  function Key$NUM_5_getInstance() {
+    Key_initFields();
+    return Key$NUM_5_instance;
+  }
+  var Key$NUM_6_instance;
+  function Key$NUM_6_getInstance() {
+    Key_initFields();
+    return Key$NUM_6_instance;
+  }
+  var Key$NUM_7_instance;
+  function Key$NUM_7_getInstance() {
+    Key_initFields();
+    return Key$NUM_7_instance;
+  }
+  var Key$NUM_8_instance;
+  function Key$NUM_8_getInstance() {
+    Key_initFields();
+    return Key$NUM_8_instance;
+  }
+  var Key$NUM_9_instance;
+  function Key$NUM_9_getInstance() {
+    Key_initFields();
+    return Key$NUM_9_instance;
+  }
+  var Key$SPACE_instance;
+  function Key$SPACE_getInstance() {
+    Key_initFields();
+    return Key$SPACE_instance;
+  }
   Key.$metadata$ = {
     kind: Kind_CLASS,
     simpleName: 'Key',
     interfaces: [Enum]
   };
   function Key$values() {
-    return [Key$ESC_getInstance(), Key$UP_getInstance(), Key$DOWN_getInstance(), Key$LEFT_getInstance(), Key$RIGHT_getInstance()];
+    return [Key$ESC_getInstance(), Key$UP_getInstance(), Key$DOWN_getInstance(), Key$LEFT_getInstance(), Key$RIGHT_getInstance(), Key$NUM_0_getInstance(), Key$NUM_1_getInstance(), Key$NUM_2_getInstance(), Key$NUM_3_getInstance(), Key$NUM_4_getInstance(), Key$NUM_5_getInstance(), Key$NUM_6_getInstance(), Key$NUM_7_getInstance(), Key$NUM_8_getInstance(), Key$NUM_9_getInstance(), Key$SPACE_getInstance()];
   }
   Key.values = Key$values;
   function Key$valueOf(name) {
@@ -1074,6 +1562,28 @@ var kross2d = function (_, Kotlin) {
         return Key$LEFT_getInstance();
       case 'RIGHT':
         return Key$RIGHT_getInstance();
+      case 'NUM_0':
+        return Key$NUM_0_getInstance();
+      case 'NUM_1':
+        return Key$NUM_1_getInstance();
+      case 'NUM_2':
+        return Key$NUM_2_getInstance();
+      case 'NUM_3':
+        return Key$NUM_3_getInstance();
+      case 'NUM_4':
+        return Key$NUM_4_getInstance();
+      case 'NUM_5':
+        return Key$NUM_5_getInstance();
+      case 'NUM_6':
+        return Key$NUM_6_getInstance();
+      case 'NUM_7':
+        return Key$NUM_7_getInstance();
+      case 'NUM_8':
+        return Key$NUM_8_getInstance();
+      case 'NUM_9':
+        return Key$NUM_9_getInstance();
+      case 'SPACE':
+        return Key$SPACE_getInstance();
       default:throwISE('No enum constant bitspittle.kross2d.engine.input.Key.' + name);
     }
   }
@@ -1150,6 +1660,308 @@ var kross2d = function (_, Kotlin) {
       return Instant.Companion.now().minus_cj7vob$(start);
     };
   }));
+  function KeyFrame(value, duration, lerp) {
+    if (lerp === void 0)
+      lerp = getCallableRef('noLerp', function ($receiver, percent, start, end) {
+        return $receiver.noLerp_9nitn7$(percent, start, end);
+      }.bind(null, Lerps_getInstance()));
+    this.value = value;
+    this.duration = duration;
+    this.lerp = lerp;
+  }
+  KeyFrame.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'KeyFrame',
+    interfaces: []
+  };
+  KeyFrame.prototype.component1 = function () {
+    return this.value;
+  };
+  KeyFrame.prototype.component2 = function () {
+    return this.duration;
+  };
+  KeyFrame.prototype.component3 = function () {
+    return this.lerp;
+  };
+  KeyFrame.prototype.copy_tbk1ip$ = function (value, duration, lerp) {
+    return new KeyFrame(value === void 0 ? this.value : value, duration === void 0 ? this.duration : duration, lerp === void 0 ? this.lerp : lerp);
+  };
+  KeyFrame.prototype.toString = function () {
+    return 'KeyFrame(value=' + Kotlin.toString(this.value) + (', duration=' + Kotlin.toString(this.duration)) + (', lerp=' + Kotlin.toString(this.lerp)) + ')';
+  };
+  KeyFrame.prototype.hashCode = function () {
+    var result = 0;
+    result = result * 31 + Kotlin.hashCode(this.value) | 0;
+    result = result * 31 + Kotlin.hashCode(this.duration) | 0;
+    result = result * 31 + Kotlin.hashCode(this.lerp) | 0;
+    return result;
+  };
+  KeyFrame.prototype.equals = function (other) {
+    return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && (Kotlin.equals(this.value, other.value) && Kotlin.equals(this.duration, other.duration) && Kotlin.equals(this.lerp, other.lerp)))));
+  };
+  function PlayStrategy() {
+  }
+  PlayStrategy.$metadata$ = {
+    kind: Kind_INTERFACE,
+    simpleName: 'PlayStrategy',
+    interfaces: []
+  };
+  function OneShotPlayStrategy() {
+    this._elapsed_0 = Duration$Companion_getInstance().zero();
+    this.elapsed_n4omcf$_0 = this._elapsed_0;
+  }
+  Object.defineProperty(OneShotPlayStrategy.prototype, 'elapsed', {
+    get: function () {
+      return this.elapsed_n4omcf$_0;
+    }
+  });
+  OneShotPlayStrategy.prototype.reset = function () {
+    this._elapsed_0.setFrom_evd4je$(Duration$Companion_getInstance().ZERO);
+  };
+  OneShotPlayStrategy.prototype.elapse_qyyj9w$ = function (duration, animLength) {
+    this._elapsed_0.plusAssign_evd4je$(duration);
+    this._elapsed_0.clampToMax_evd4je$(animLength);
+  };
+  OneShotPlayStrategy.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'OneShotPlayStrategy',
+    interfaces: [PlayStrategy]
+  };
+  function LoopingPlayStrategy() {
+    this._elapsed_0 = Duration$Companion_getInstance().zero();
+    this.elapsed_z3a1p$_0 = this._elapsed_0;
+  }
+  Object.defineProperty(LoopingPlayStrategy.prototype, 'elapsed', {
+    get: function () {
+      return this.elapsed_z3a1p$_0;
+    }
+  });
+  LoopingPlayStrategy.prototype.reset = function () {
+    this._elapsed_0.setFrom_evd4je$(Duration$Companion_getInstance().ZERO);
+  };
+  LoopingPlayStrategy.prototype.elapse_qyyj9w$ = function (duration, animLength) {
+    this._elapsed_0.plusAssign_evd4je$(duration);
+    while (this._elapsed_0.compareTo_11rb$(animLength) >= 0) {
+      this._elapsed_0.minusAssign_evd4je$(animLength);
+    }
+  };
+  LoopingPlayStrategy.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'LoopingPlayStrategy',
+    interfaces: [PlayStrategy]
+  };
+  function BouncingPlayStrategy() {
+    this.elapseForward_0 = true;
+    this._elapsed_0 = Duration$Companion_getInstance().zero();
+    this.elapsed_5x4aws$_0 = this._elapsed_0;
+  }
+  Object.defineProperty(BouncingPlayStrategy.prototype, 'elapsed', {
+    get: function () {
+      return this.elapsed_5x4aws$_0;
+    }
+  });
+  BouncingPlayStrategy.prototype.reset = function () {
+    this._elapsed_0.setFrom_evd4je$(Duration$Companion_getInstance().ZERO);
+    this.elapseForward_0 = true;
+  };
+  BouncingPlayStrategy.prototype.elapse_qyyj9w$ = function (duration, animLength) {
+    if (this.elapseForward_0) {
+      this._elapsed_0.plusAssign_evd4je$(duration);
+      if (this._elapsed_0.compareTo_11rb$(animLength) >= 0) {
+        var extra = this._elapsed_0.minus_evd4je$(animLength);
+        this._elapsed_0.setFrom_evd4je$(animLength);
+        this.elapseForward_0 = false;
+        this.elapse_qyyj9w$(extra, animLength);
+      }
+    }
+     else {
+      this._elapsed_0.minusAssign_evd4je$(duration);
+      if (this._elapsed_0.compareTo_11rb$(Duration$Companion_getInstance().ZERO) < 0) {
+        var extra_0 = this._elapsed_0.unaryMinus();
+        this._elapsed_0.setFrom_evd4je$(Duration$Companion_getInstance().ZERO);
+        this.elapseForward_0 = true;
+        this.elapse_qyyj9w$(extra_0, animLength);
+      }
+    }
+  };
+  BouncingPlayStrategy.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'BouncingPlayStrategy',
+    interfaces: [PlayStrategy]
+  };
+  var ArrayList_init_0 = Kotlin.kotlin.collections.ArrayList_init_ww73n8$;
+  var checkIndexOverflow = Kotlin.kotlin.collections.checkIndexOverflow_za3lpa$;
+  function Anim(keyframes, playStrategy) {
+    if (playStrategy === void 0)
+      playStrategy = new LoopingPlayStrategy();
+    this.keyframes = keyframes;
+    this.playStrategy_0 = playStrategy;
+    this.value_2wskd2$_0 = this.keyframes.get_za3lpa$(0).value;
+    this.duration = null;
+    this.startTimes_0 = null;
+    this.currFrame_0 = 0;
+    if (this.keyframes.isEmpty()) {
+      throw IllegalArgumentException_init('Animation must contain at least one frame');
+    }
+    var size = this.keyframes.size - 1 | 0;
+    var list = ArrayList_init_0(size);
+    for (var index = 0; index < size; index++) {
+      list.add_11rb$(Duration$Companion_getInstance().zero());
+    }
+    this.startTimes_0 = list;
+    var accum = Duration$Companion_getInstance().zero();
+    var tmp$, tmp$_0;
+    var index_0 = 0;
+    tmp$ = take(this.keyframes, this.keyframes.size - 1 | 0).iterator();
+    while (tmp$.hasNext()) {
+      var item = tmp$.next();
+      var i = checkIndexOverflow((tmp$_0 = index_0, index_0 = tmp$_0 + 1 | 0, tmp$_0));
+      accum.plusAssign_evd4je$(item.duration);
+      this.startTimes_0.get_za3lpa$(i).setFrom_evd4je$(accum);
+    }
+    accum.plusAssign_evd4je$(last(this.keyframes).duration);
+    this.duration = accum;
+  }
+  Object.defineProperty(Anim.prototype, 'value', {
+    get: function () {
+      return this.value_2wskd2$_0;
+    },
+    set: function (value) {
+      this.value_2wskd2$_0 = value;
+    }
+  });
+  Anim.prototype.reset = function () {
+    this.playStrategy_0.reset();
+    this.elapse_evd4je$(Duration$Companion_getInstance().ZERO);
+  };
+  Anim.prototype.elapse_evd4je$ = function (duration) {
+    var tmp$;
+    this.playStrategy_0.elapse_qyyj9w$(duration, this.duration);
+    var $receiver = this.startTimes_0;
+    var indexOfFirst$result;
+    indexOfFirst$break: do {
+      var tmp$_0;
+      var index = 0;
+      tmp$_0 = $receiver.iterator();
+      while (tmp$_0.hasNext()) {
+        var item = tmp$_0.next();
+        if (item.compareTo_11rb$(this.playStrategy_0.elapsed) > 0) {
+          indexOfFirst$result = index;
+          break indexOfFirst$break;
+        }
+        index = index + 1 | 0;
+      }
+      indexOfFirst$result = -1;
+    }
+     while (false);
+    this.currFrame_0 = indexOfFirst$result;
+    if (this.currFrame_0 < 0)
+      this.currFrame_0 = get_lastIndex(this.keyframes);
+    if (this.currFrame_0 === get_lastIndex(this.keyframes)) {
+      tmp$ = this.keyframes.get_za3lpa$(this.currFrame_0).value;
+    }
+     else {
+      var start = this.keyframes.get_za3lpa$(this.currFrame_0).value;
+      var end = this.keyframes.get_za3lpa$(this.currFrame_0 + 1 | 0).value;
+      var percent = (this.playStrategy_0.elapsed.nanos - this.frameStart_0(this.currFrame_0).nanos) / this.keyframes.get_za3lpa$(this.currFrame_0).duration.nanos;
+      tmp$ = this.keyframes.get_za3lpa$(this.currFrame_0).lerp(percent, start, end);
+    }
+    this.value = tmp$;
+  };
+  Anim.prototype.frameStart_0 = function (frame) {
+    var $receiver = this.startTimes_0;
+    var index = frame - 1 | 0;
+    return index >= 0 && index <= get_lastIndex($receiver) ? $receiver.get_za3lpa$(index) : Duration$Companion_getInstance().ZERO;
+  };
+  Anim.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'Anim',
+    interfaces: []
+  };
+  function Anim_init(keyframes, playStrategy, $this) {
+    if (playStrategy === void 0)
+      playStrategy = new LoopingPlayStrategy();
+    $this = $this || Object.create(Anim.prototype);
+    Anim.call($this, listOf(keyframes.slice()), playStrategy);
+    return $this;
+  }
+  var collectionSizeOrDefault = Kotlin.kotlin.collections.collectionSizeOrDefault_ba2ldo$;
+  function Anim_init_0(frameDuration, values, playStrategy, defaultLerp, $this) {
+    if (playStrategy === void 0)
+      playStrategy = new LoopingPlayStrategy();
+    if (defaultLerp === void 0)
+      defaultLerp = getCallableRef('noLerp', function ($receiver, percent, start, end) {
+        return $receiver.noLerp_9nitn7$(percent, start, end);
+      }.bind(null, Lerps_getInstance()));
+    $this = $this || Object.create(Anim.prototype);
+    var $receiver = listOf(values.slice());
+    var destination = ArrayList_init_0(collectionSizeOrDefault($receiver, 10));
+    var tmp$;
+    tmp$ = $receiver.iterator();
+    while (tmp$.hasNext()) {
+      var item = tmp$.next();
+      destination.add_11rb$(new KeyFrame(item, frameDuration, defaultLerp));
+    }
+    Anim.call($this, destination, playStrategy);
+    return $this;
+  }
+  var HALF_PI;
+  function Lerps() {
+    Lerps_instance = this;
+  }
+  Lerps.prototype.noLerp_9nitn7$ = function (percent, start, end) {
+    return start;
+  };
+  Lerps.prototype.linear_y2kzbl$ = function (percent, start, end) {
+    return start + percent * (end - start);
+  };
+  Lerps.prototype.easeOut_y2kzbl$ = function (percent, start, end) {
+    var x = percent * HALF_PI;
+    return start + end * Math_0.sin(x);
+  };
+  Lerps.prototype.easeIn_y2kzbl$ = function (percent, start, end) {
+    var tmp$ = start + end;
+    var x = percent * HALF_PI;
+    return tmp$ - end * Math_0.cos(x);
+  };
+  Lerps.$metadata$ = {
+    kind: Kind_OBJECT,
+    simpleName: 'Lerps',
+    interfaces: []
+  };
+  var Lerps_instance = null;
+  function Lerps_getInstance() {
+    if (Lerps_instance === null) {
+      new Lerps();
+    }
+    return Lerps_instance;
+  }
+  var LinkedHashMap_init = Kotlin.kotlin.collections.LinkedHashMap_init_q3lmfv$;
+  function Tiles(image, tileSize) {
+    this.image_0 = image;
+    this.tileSize = tileSize;
+    this.tiles_0 = LinkedHashMap_init();
+  }
+  Tiles.prototype.getTile_vux9f0$ = function (x, y) {
+    var $receiver = this.tiles_0;
+    var key = to(x, y);
+    var tmp$;
+    var value = $receiver.get_11rb$(key);
+    if (value == null) {
+      var answer = Image_init_0(this.image_0, new Pt2(x * this.tileSize.x, y * this.tileSize.y), this.tileSize);
+      $receiver.put_xwzc9p$(key, answer);
+      tmp$ = answer;
+    }
+     else {
+      tmp$ = value;
+    }
+    return tmp$;
+  };
+  Tiles.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'Tiles',
+    interfaces: []
+  };
   function nowNs() {
     var nowMs = Date.now();
     var nowNs = nowMs * 1000000;
@@ -1187,7 +1999,6 @@ var kross2d = function (_, Kotlin) {
   function ApplicationBackend_init$handleKeyEvent(this$ApplicationBackend) {
     return function (keyEvent, isDown) {
       var tmp$;
-      println(keyEvent.code);
       switch (keyEvent.code) {
         case 'Escape':
           tmp$ = Key$ESC_getInstance();
@@ -1203,6 +2014,39 @@ var kross2d = function (_, Kotlin) {
           break;
         case 'ArrowRight':
           tmp$ = Key$RIGHT_getInstance();
+          break;
+        case 'Digit0':
+          tmp$ = Key$NUM_0_getInstance();
+          break;
+        case 'Digit1':
+          tmp$ = Key$NUM_1_getInstance();
+          break;
+        case 'Digit2':
+          tmp$ = Key$NUM_2_getInstance();
+          break;
+        case 'Digit3':
+          tmp$ = Key$NUM_3_getInstance();
+          break;
+        case 'Digit4':
+          tmp$ = Key$NUM_4_getInstance();
+          break;
+        case 'Digit5':
+          tmp$ = Key$NUM_5_getInstance();
+          break;
+        case 'Digit6':
+          tmp$ = Key$NUM_6_getInstance();
+          break;
+        case 'Digit7':
+          tmp$ = Key$NUM_7_getInstance();
+          break;
+        case 'Digit8':
+          tmp$ = Key$NUM_8_getInstance();
+          break;
+        case 'Digit9':
+          tmp$ = Key$NUM_9_getInstance();
+          break;
+        case 'Space':
+          tmp$ = Key$SPACE_getInstance();
           break;
         default:tmp$ = null;
           break;
@@ -1243,13 +2087,13 @@ var kross2d = function (_, Kotlin) {
     this.this$ApplicationBackend.ctx_0.fillStyle = 'rgb(' + color.r + ', ' + color.g + ', ' + color.b + ')';
     this.this$ApplicationBackend.ctx_0.fillRect(0.0, 0.0, this.size.x, this.size.y);
   };
-  ApplicationBackend$drawSurface$ObjectLiteral.prototype.draw_ky71b2$ = function (image, params) {
-    var tmp$, tmp$_0;
+  ApplicationBackend$drawSurface$ObjectLiteral.prototype.draw_ky71b2$$default = function (image, params) {
+    var tmp$;
     var dest = params.dest;
-    var src = params.src;
-    var srcSize = (tmp$ = params.srcSize) != null ? tmp$ : image.size;
-    var destSize = (tmp$_0 = params.destSize) != null ? tmp$_0 : srcSize;
-    this.this$ApplicationBackend.ctx_0.drawImage(image.jsImage, src.x, src.y, srcSize.x, srcSize.y, dest.x, dest.y, destSize.x, destSize.y);
+    var src = image.pos_8be2vx$;
+    var srcSize = image.size;
+    var destSize = (tmp$ = params.destSize) != null ? tmp$ : srcSize;
+    this.this$ApplicationBackend.ctx_0.drawImage(image.data_8be2vx$.jsImage, src.x, src.y, srcSize.x, srcSize.y, dest.x, dest.y, destSize.x, destSize.y);
   };
   ApplicationBackend$drawSurface$ObjectLiteral.$metadata$ = {
     kind: Kind_CLASS,
@@ -1260,30 +2104,80 @@ var kross2d = function (_, Kotlin) {
     simpleName: 'ApplicationBackend',
     interfaces: []
   };
-  function AssetLoader(root) {
+  function AssetLoaderBackend(root) {
     this.root_0 = root;
   }
-  AssetLoader.prototype.loadImage_61zpoe$ = function (relativePath) {
-    return new Image_0(this.root_0 + '/' + relativePath);
+  function AssetLoaderBackend$loadImageInto$lambda(closure$asset, closure$data) {
+    return function (it) {
+      closure$asset.setValue_1c3m6u$(Image_init(closure$data));
+      return Unit;
+    };
+  }
+  function AssetLoaderBackend$loadImageInto$lambda_0(closure$asset) {
+    return function (f, f_0, f_1, f_2, f_3) {
+      closure$asset.notifyFailure_8be2vx$();
+      return Unit;
+    };
+  }
+  AssetLoaderBackend.prototype.loadImageInto_ylngmp$ = function (asset) {
+    var data = new ImageData(this.root_0 + '/' + asset.path);
+    data.jsImage.onload = AssetLoaderBackend$loadImageInto$lambda(asset, data);
+    data.jsImage.onerror = AssetLoaderBackend$loadImageInto$lambda_0(asset);
   };
-  AssetLoader.$metadata$ = {
+  function AssetLoaderBackend$loadSoundInto$lambda(closure$asset, closure$sound) {
+    return function (it) {
+      closure$asset.setValue_1c3m6u$(closure$sound);
+      println('Loaded ' + closure$asset.path);
+      return Unit;
+    };
+  }
+  function AssetLoaderBackend$loadSoundInto$lambda_0(closure$asset) {
+    return function (f, f_0, f_1, f_2, f_3) {
+      closure$asset.notifyFailure_8be2vx$();
+      println('Failed ' + closure$asset.path);
+      return Unit;
+    };
+  }
+  AssetLoaderBackend.prototype.loadSoundInto_pecovy$ = function (asset) {
+    var sound = new Sound(this.root_0 + '/' + asset.path);
+    sound.jsAudio.onloadeddata = AssetLoaderBackend$loadSoundInto$lambda(asset, sound);
+    sound.jsAudio.onerror = AssetLoaderBackend$loadSoundInto$lambda_0(asset);
+  };
+  AssetLoaderBackend.$metadata$ = {
     kind: Kind_CLASS,
-    simpleName: 'AssetLoader',
+    simpleName: 'AssetLoaderBackend',
     interfaces: []
   };
-  function Image_0(path) {
+  function Sound(path) {
+    this.jsAudio = new Audio(path);
+  }
+  Sound.prototype.play = function () {
+    this.jsAudio.currentTime = 0.0;
+    this.jsAudio.play();
+  };
+  Sound.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'Sound',
+    interfaces: []
+  };
+  function ImageData(path) {
     var $receiver = new Image();
     $receiver.src = path;
     this.jsImage = $receiver;
+    this._size_0 = null;
   }
-  Object.defineProperty(Image_0.prototype, 'size', {
+  Object.defineProperty(ImageData.prototype, 'size', {
     get: function () {
-      return Vec2_init_0(this.jsImage.width, this.jsImage.height);
+      var tmp$;
+      if (this._size_0 == null && this.jsImage.width > 0) {
+        this._size_0 = Vec2_init_0(this.jsImage.width, this.jsImage.height);
+      }
+      return (tmp$ = this._size_0) != null ? tmp$ : Vec2$Companion_getInstance().ZERO;
     }
   });
-  Image_0.$metadata$ = {
+  ImageData.$metadata$ = {
     kind: Kind_CLASS,
-    simpleName: 'Image',
+    simpleName: 'ImageData',
     interfaces: []
   };
   var package$bitspittle = _.bitspittle || (_.bitspittle = {});
@@ -1292,6 +2186,18 @@ var kross2d = function (_, Kotlin) {
   var package$event = package$core.event || (package$core.event = {});
   package$event.ObservableEvent = ObservableEvent;
   package$event.Event = Event;
+  var package$geom = package$core.geom || (package$core.geom = {});
+  package$geom.ImmutableRect = ImmutableRect;
+  package$geom.centerIn_exd3ih$ = centerIn;
+  Object.defineProperty(Rect, 'Companion', {
+    get: Rect$Companion_getInstance
+  });
+  package$geom.Rect_init = Rect_init;
+  package$geom.Rect_init_nvqvy9$ = Rect_init_0;
+  package$geom.Rect_init_7b5o5w$ = Rect_init_1;
+  package$geom.Rect_init_tjonv8$ = Rect_init_2;
+  package$geom.Rect_init_np3yo7$ = Rect_init_3;
+  package$geom.Rect = Rect;
   var package$graphics = package$core.graphics || (package$core.graphics = {});
   package$graphics.ImmutableColor = ImmutableColor;
   Object.defineProperty(Color, 'Companion', {
@@ -1340,6 +2246,19 @@ var kross2d = function (_, Kotlin) {
   package$app.ApplicationFacade = ApplicationFacade;
   package$app.Application = Application;
   package$app.launch_hapb61$ = launch;
+  Object.defineProperty(Asset$State, 'LOADING', {
+    get: Asset$State$LOADING_getInstance
+  });
+  Object.defineProperty(Asset$State, 'SUCCEEDED', {
+    get: Asset$State$SUCCEEDED_getInstance
+  });
+  Object.defineProperty(Asset$State, 'FAILED', {
+    get: Asset$State$FAILED_getInstance
+  });
+  Asset.State = Asset$State;
+  var package$assets = package$engine.assets || (package$engine.assets = {});
+  package$assets.Asset = Asset;
+  package$assets.AssetLoader = AssetLoader;
   var package$context = package$engine.context || (package$engine.context = {});
   package$context.DrawContext = DrawContext;
   package$context.InitContext = InitContext;
@@ -1348,6 +2267,9 @@ var kross2d = function (_, Kotlin) {
   package$graphics_0.ImmutableDrawSurface = ImmutableDrawSurface;
   DrawSurface.DrawParams = DrawSurface$DrawParams;
   package$graphics_0.DrawSurface = DrawSurface;
+  package$graphics_0.Image_init_9euhhb$ = Image_init;
+  package$graphics_0.Image_init_t9bfio$ = Image_init_0;
+  package$graphics_0.Image = Image_0;
   Object.defineProperty(Key, 'ESC', {
     get: Key$ESC_getInstance
   });
@@ -1363,6 +2285,39 @@ var kross2d = function (_, Kotlin) {
   Object.defineProperty(Key, 'RIGHT', {
     get: Key$RIGHT_getInstance
   });
+  Object.defineProperty(Key, 'NUM_0', {
+    get: Key$NUM_0_getInstance
+  });
+  Object.defineProperty(Key, 'NUM_1', {
+    get: Key$NUM_1_getInstance
+  });
+  Object.defineProperty(Key, 'NUM_2', {
+    get: Key$NUM_2_getInstance
+  });
+  Object.defineProperty(Key, 'NUM_3', {
+    get: Key$NUM_3_getInstance
+  });
+  Object.defineProperty(Key, 'NUM_4', {
+    get: Key$NUM_4_getInstance
+  });
+  Object.defineProperty(Key, 'NUM_5', {
+    get: Key$NUM_5_getInstance
+  });
+  Object.defineProperty(Key, 'NUM_6', {
+    get: Key$NUM_6_getInstance
+  });
+  Object.defineProperty(Key, 'NUM_7', {
+    get: Key$NUM_7_getInstance
+  });
+  Object.defineProperty(Key, 'NUM_8', {
+    get: Key$NUM_8_getInstance
+  });
+  Object.defineProperty(Key, 'NUM_9', {
+    get: Key$NUM_9_getInstance
+  });
+  Object.defineProperty(Key, 'SPACE', {
+    get: Key$SPACE_getInstance
+  });
   var package$input = package$engine.input || (package$engine.input = {});
   package$input.Key = Key;
   package$input.Keyboard = Keyboard;
@@ -1373,53 +2328,30 @@ var kross2d = function (_, Kotlin) {
   package$time_0.now_ydye95$ = now;
   $$importsForInline$$.kross2d = _;
   package$time_0.measure_5ndm34$ = measure;
+  var package$extras = package$kross2d.extras || (package$kross2d.extras = {});
+  var package$anim = package$extras.anim || (package$extras.anim = {});
+  package$anim.KeyFrame = KeyFrame;
+  package$anim.PlayStrategy = PlayStrategy;
+  package$anim.OneShotPlayStrategy = OneShotPlayStrategy;
+  package$anim.LoopingPlayStrategy = LoopingPlayStrategy;
+  package$anim.BouncingPlayStrategy = BouncingPlayStrategy;
+  package$anim.Anim_init_jwz80g$ = Anim_init;
+  package$anim.Anim_init_21rvlz$ = Anim_init_0;
+  package$anim.Anim = Anim;
+  Object.defineProperty(package$anim, 'Lerps', {
+    get: Lerps_getInstance
+  });
+  var package$graphics_1 = package$extras.graphics || (package$extras.graphics = {});
+  package$graphics_1.Tiles = Tiles;
   package$time.nowNs_8be2vx$ = nowNs;
   package$app.AppParams = AppParams;
   package$app.ApplicationBackend = ApplicationBackend;
-  var package$assets = package$engine.assets || (package$engine.assets = {});
-  package$assets.AssetLoader = AssetLoader;
-  package$graphics_0.Image = Image_0;
-  Pt2.prototype.isZero = ImmutablePt2.prototype.isZero;
-  Pt2.prototype.unaryMinus = ImmutablePt2.prototype.unaryMinus;
-  Pt2.prototype.plus_nvqvy9$ = ImmutablePt2.prototype.plus_nvqvy9$;
-  Pt2.prototype.minus_nvqvy9$ = ImmutablePt2.prototype.minus_nvqvy9$;
-  Pt2.prototype.minus_cz6rql$ = ImmutablePt2.prototype.minus_cz6rql$;
-  Pt2.prototype.times_nvqvy9$ = ImmutablePt2.prototype.times_nvqvy9$;
-  Pt2.prototype.times_mx4ult$ = ImmutablePt2.prototype.times_mx4ult$;
-  Pt2.prototype.div_nvqvy9$ = ImmutablePt2.prototype.div_nvqvy9$;
-  Pt2.prototype.div_mx4ult$ = ImmutablePt2.prototype.div_mx4ult$;
-  Vec2.prototype.isZero = ImmutableVec2.prototype.isZero;
-  Vec2.prototype.len2 = ImmutableVec2.prototype.len2;
-  Vec2.prototype.len = ImmutableVec2.prototype.len;
-  Vec2.prototype.normalized = ImmutableVec2.prototype.normalized;
-  Vec2.prototype.unaryMinus = ImmutableVec2.prototype.unaryMinus;
-  Vec2.prototype.plus_nvqvy9$ = ImmutableVec2.prototype.plus_nvqvy9$;
-  Vec2.prototype.minus_nvqvy9$ = ImmutableVec2.prototype.minus_nvqvy9$;
-  Vec2.prototype.times_nvqvy9$ = ImmutableVec2.prototype.times_nvqvy9$;
-  Vec2.prototype.times_mx4ult$ = ImmutableVec2.prototype.times_mx4ult$;
-  Vec2.prototype.div_nvqvy9$ = ImmutableVec2.prototype.div_nvqvy9$;
-  Vec2.prototype.div_mx4ult$ = ImmutableVec2.prototype.div_mx4ult$;
-  Duration$Companion$MAX$ObjectLiteral.prototype.isZero = ImmutableDuration.prototype.isZero;
-  Duration$Companion$MAX$ObjectLiteral.prototype.copy = ImmutableDuration.prototype.copy;
-  Duration$Companion$MAX$ObjectLiteral.prototype.plus_evd4je$ = ImmutableDuration.prototype.plus_evd4je$;
-  Duration$Companion$MAX$ObjectLiteral.prototype.minus_evd4je$ = ImmutableDuration.prototype.minus_evd4je$;
-  Duration$Companion$MAX$ObjectLiteral.prototype.times_14dthe$ = ImmutableDuration.prototype.times_14dthe$;
-  Duration$Companion$MAX$ObjectLiteral.prototype.div_14dthe$ = ImmutableDuration.prototype.div_14dthe$;
-  Duration$Companion$MAX$ObjectLiteral.prototype.compareTo_11rb$ = ImmutableDuration.prototype.compareTo_11rb$;
-  Duration$Companion$MIN$ObjectLiteral.prototype.isZero = ImmutableDuration.prototype.isZero;
-  Duration$Companion$MIN$ObjectLiteral.prototype.copy = ImmutableDuration.prototype.copy;
-  Duration$Companion$MIN$ObjectLiteral.prototype.plus_evd4je$ = ImmutableDuration.prototype.plus_evd4je$;
-  Duration$Companion$MIN$ObjectLiteral.prototype.minus_evd4je$ = ImmutableDuration.prototype.minus_evd4je$;
-  Duration$Companion$MIN$ObjectLiteral.prototype.times_14dthe$ = ImmutableDuration.prototype.times_14dthe$;
-  Duration$Companion$MIN$ObjectLiteral.prototype.div_14dthe$ = ImmutableDuration.prototype.div_14dthe$;
-  Duration$Companion$MIN$ObjectLiteral.prototype.compareTo_11rb$ = ImmutableDuration.prototype.compareTo_11rb$;
-  Duration.prototype.isZero = ImmutableDuration.prototype.isZero;
-  Duration.prototype.copy = ImmutableDuration.prototype.copy;
-  Duration.prototype.plus_evd4je$ = ImmutableDuration.prototype.plus_evd4je$;
-  Duration.prototype.minus_evd4je$ = ImmutableDuration.prototype.minus_evd4je$;
-  Duration.prototype.times_14dthe$ = ImmutableDuration.prototype.times_14dthe$;
-  Duration.prototype.div_14dthe$ = ImmutableDuration.prototype.div_14dthe$;
-  Duration.prototype.compareTo_11rb$ = ImmutableDuration.prototype.compareTo_11rb$;
+  package$assets.AssetLoaderBackend = AssetLoaderBackend;
+  var package$audio = package$engine.audio || (package$engine.audio = {});
+  package$audio.Sound = Sound;
+  package$graphics_0.ImageData = ImageData;
+  ApplicationBackend$drawSurface$ObjectLiteral.prototype.draw_ky71b2$ = DrawSurface.prototype.draw_ky71b2$;
+  HALF_PI = math.PI / 2;
   Kotlin.defineModule('kross2d', _);
   return _;
 }(typeof kross2d === 'undefined' ? {} : kross2d, kotlin);

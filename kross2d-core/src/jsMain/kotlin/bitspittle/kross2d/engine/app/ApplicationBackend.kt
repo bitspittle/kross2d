@@ -6,25 +6,37 @@ import bitspittle.kross2d.core.graphics.Color
 import bitspittle.kross2d.core.math.ImmutableVec2
 import bitspittle.kross2d.core.math.Vec2
 import bitspittle.kross2d.engine.graphics.DrawSurface
+import bitspittle.kross2d.engine.graphics.Image
 import bitspittle.kross2d.engine.input.Key
-import org.khronos.webgl.WebGLRenderingContext as GL
+import org.w3c.dom.CanvasRenderingContext2D
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.events.KeyboardEvent
 import kotlin.browser.window
+import org.khronos.webgl.WebGLRenderingContext as GL
 
-actual class AppParams(val canvasElement: HTMLCanvasElement)
+actual class AppParams(
+    val canvasElement: HTMLCanvasElement,
+    actual val assetsRoot: String = "assets")
 
 internal actual class ApplicationBackend actual constructor(params: AppParams) {
-    private val gl: GL = (params.canvasElement.getContext("webgl") as GL)
+    private val ctx: CanvasRenderingContext2D = (params.canvasElement.getContext("2d") as CanvasRenderingContext2D)
 
     init {
+        ctx.imageSmoothingEnabled = false
+
         fun handleKeyEvent(keyEvent: KeyboardEvent, isDown: Boolean) {
+            println(keyEvent.code)
             when (keyEvent.code) {
                 "Escape" -> Key.ESC
+
+                "ArrowUp" -> Key.UP
+                "ArrowDown" -> Key.DOWN
+                "ArrowLeft" -> Key.LEFT
+                "ArrowRight" -> Key.RIGHT
+
                 else -> null
             }?.let { key -> if (isDown) _keyPressed(key) else _keyReleased(key) }
         }
-
         window.onkeydown = { handleKeyEvent(it, isDown = true) }
         window.onkeyup = { handleKeyEvent(it, isDown = false) }
     }
@@ -33,13 +45,20 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
         override val size: ImmutableVec2 = params.canvasElement.let { Vec2(it.width, it.height) }
 
         override fun clear(color: Color) {
-            gl.clearColor(
-                color.r.toFloat() / 255.0f,
-                color.g.toFloat() / 255.0f,
-                color.b.toFloat() / 255.0f,
-                color.a.toFloat() / 255.0f
+            ctx.fillStyle = "rgb(${color.r}, ${color.g}, ${color.b})"
+            ctx.fillRect(0.0, 0.0, size.x.toDouble(), size.y.toDouble())
+        }
+
+        override fun draw(image: Image, params: DrawSurface.DrawParams) {
+            val dest = params.dest
+            val src = params.src
+            val srcSize = params.srcSize ?: image.size
+            val destSize = params.destSize ?: srcSize
+            ctx.drawImage(
+                image.jsImage,
+                src.x.toDouble(), src.y.toDouble(), srcSize.x.toDouble(), srcSize.y.toDouble(),
+                dest.x.toDouble(), dest.y.toDouble(), destSize.x.toDouble(), destSize.y.toDouble()
             )
-            gl.clear(GL.COLOR_BUFFER_BIT)
         }
     }
     private val _keyPressed = Event<Key>()

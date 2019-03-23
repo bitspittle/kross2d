@@ -1,0 +1,26 @@
+apply plugin: 'kotlin'
+apply plugin: 'application'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    compile project(":examples:sprite:sprite-common")
+}
+
+def mainClass = 'SpriteJvmRunnerKt'
+
+jar {
+    manifest {
+        attributes 'Main-Class': mainClass
+    }
+
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+application {
+    mainClassName = mainClass
+}
+

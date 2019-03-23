@@ -1,7 +1,12 @@
 package bitspittle.kross2d.engine.input
 
 enum class Key {
-    ESC
+    ESC,
+
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
     // TODO: Add way more keys!
 }
 

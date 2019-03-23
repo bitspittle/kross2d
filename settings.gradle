@@ -21,4 +21,9 @@ include("$exColorCanvas:colorcanvas-common")
 include("$exColorCanvas:colorcanvas-jvm")
 include("$exColorCanvas:colorcanvas-js")
 
+def exSprite = ":examples:sprite"
+include("$exSprite:sprite-common")
+include("$exSprite:sprite-jvm")
+include("$exSprite:sprite-js")
+
 enableFeaturePreview("GRADLE_METADATA")

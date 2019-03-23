@@ -5,6 +5,7 @@ import bitspittle.kross2d.core.event.ObservableEvent
 import bitspittle.kross2d.core.graphics.Color
 import bitspittle.kross2d.core.math.ImmutableVec2
 import bitspittle.kross2d.engine.graphics.DrawSurface
+import bitspittle.kross2d.engine.graphics.Image
 import bitspittle.kross2d.engine.input.Key
 import java.awt.Dimension
 import java.awt.Graphics
@@ -48,6 +49,12 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
             fun handleAwtKey(awtKey: Int, isDown: Boolean) {
                 when (awtKey) {
                     KeyEvent.VK_ESCAPE -> Key.ESC
+
+                    KeyEvent.VK_UP -> Key.UP
+                    KeyEvent.VK_DOWN -> Key.DOWN
+                    KeyEvent.VK_LEFT -> Key.LEFT
+                    KeyEvent.VK_RIGHT -> Key.RIGHT
+
                     else -> null
                 }?.let { key -> if (isDown) _keyPressed(key) else _keyReleased(key) }
             }
@@ -107,6 +114,23 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
             }
         }
 
+        override fun draw(image: Image, params: DrawSurface.DrawParams) {
+            enqueueCommand { g ->
+                val srcSize = params.srcSize ?: image.size
+                val destSize = params.destSize ?: srcSize
+                val src0 = params.src
+                val dest0 = params.dest
+                val src1 = src0 + srcSize
+                val dest1 = dest0 + destSize
+
+                g.drawImage(
+                    image.awtImage,
+                    dest0.x.roundToInt(), dest0.y.roundToInt(), dest1.x.roundToInt(), dest1.y.roundToInt(),
+                    src0.x.roundToInt(), src0.y.roundToInt(), src1.x.roundToInt(), src1.y.roundToInt(),
+                    null)
+            }
+        }
+
         override fun paintComponent(g: Graphics) {
             val g2d = g as Graphics2D
             drawCommands.forEach { command -> command(g2d) }
@@ -115,4 +139,8 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
     }
 }
 
-actual class AppParams(val title: String, val size: ImmutableVec2)
+actual class AppParams(
+    val title: String,
+    val size: ImmutableVec2,
+    actual val assetsRoot: String = "assets"
+)
