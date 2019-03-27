@@ -116,15 +116,15 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
 
         override fun draw(image: Image, params: DrawSurface.DrawParams) {
             enqueueCommand { g ->
-                val srcSize = params.srcSize ?: image.size
+                val srcSize = image.size
                 val destSize = params.destSize ?: srcSize
-                val src0 = params.src
+                val src0 = image.pos
                 val dest0 = params.dest
                 val src1 = src0 + srcSize
                 val dest1 = dest0 + destSize
 
                 g.drawImage(
-                    image.awtImage,
+                    image.data.awtImage,
                     dest0.x.roundToInt(), dest0.y.roundToInt(), dest1.x.roundToInt(), dest1.y.roundToInt(),
                     src0.x.roundToInt(), src0.y.roundToInt(), src1.x.roundToInt(), src1.y.roundToInt(),
                     null)

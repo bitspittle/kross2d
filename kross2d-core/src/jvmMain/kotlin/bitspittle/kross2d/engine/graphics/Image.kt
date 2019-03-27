@@ -8,7 +8,7 @@ import java.awt.Image as AwtImage
 /**
  * A surface area for rendering, which may be on or off-screen.
  */
-actual class Image(bytes: ByteArray) {
+internal actual class ImageData(bytes: ByteArray) {
     /**
      * For the JVM implementation, back this image using a Swing image.
      */

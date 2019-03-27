@@ -50,12 +50,14 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
         }
 
         override fun draw(image: Image, params: DrawSurface.DrawParams) {
+            if (image.size.isZero()) return
+
             val dest = params.dest
-            val src = params.src
-            val srcSize = params.srcSize ?: image.size
+            val src = image.pos
+            val srcSize = image.size
             val destSize = params.destSize ?: srcSize
             ctx.drawImage(
-                image.jsImage,
+                image.data.jsImage,
                 src.x.toDouble(), src.y.toDouble(), srcSize.x.toDouble(), srcSize.y.toDouble(),
                 dest.x.toDouble(), dest.y.toDouble(), destSize.x.toDouble(), destSize.y.toDouble()
             )

@@ -12,6 +12,9 @@ import bitspittle.kross2d.engine.graphics.DrawSurface
 import bitspittle.kross2d.engine.graphics.DrawSurface.DrawParams
 import bitspittle.kross2d.engine.graphics.Image
 import bitspittle.kross2d.engine.input.Key
+import bitspittle.kross2d.core.geom.Rect
+import bitspittle.kross2d.core.geom.centerIn
+import bitspittle.kross2d.extras.graphics.Tiles
 
 private val CLEAR_COLOR = Color(0, 0, 0)
 
@@ -32,11 +35,8 @@ class SpriteState : GameState {
         W
     }
 
-    private class Player(private val playerSheet: Image) {
+    private class Player(private val playerTiles: Tiles) {
         companion object {
-            private val PLAYER_TILE_SIZE = Vec2(16, 16) // See player.png
-            private val PLAYER_DRAW_SIZE = PLAYER_TILE_SIZE * 2f // Tweaked until it looked good
-
             val FRAME_DURATION = Duration.ofMillis(300)
             // See player.png for tiles
             val FACING_TO_TILE_X = mapOf(
@@ -46,7 +46,7 @@ class SpriteState : GameState {
                 Dir.W to 6
             )
         }
-
+        private val drawSize = playerTiles.tileSize * 2f // Tweaked until it looked good
         private val pos = Pt2()
         private val vel = Vec2()
         private val elapsed = Duration.zero()
@@ -55,7 +55,7 @@ class SpriteState : GameState {
         private var animCycle = 0
 
         fun init(ctx: InitContext) {
-            pos.set(Pt2((ctx.screen.size - PLAYER_DRAW_SIZE) / 2f))
+            pos.set(drawSize.centerIn(Rect(ctx.screen.size)))
         }
 
         fun update(ctx: UpdateContext) {
@@ -83,7 +83,7 @@ class SpriteState : GameState {
                 vel.y > 0 -> facing = Dir.S
             }
 
-            (ctx.screen.size - PLAYER_DRAW_SIZE).let { bounds ->
+            (ctx.screen.size - drawSize).let { bounds ->
                 pos += vel
                 pos.x = pos.x.clamp(0f, bounds.x)
                 pos.y = pos.y.clamp(0f, bounds.y)
@@ -91,9 +91,8 @@ class SpriteState : GameState {
         }
 
         fun draw(ctx: DrawContext) {
-            val tileX = FACING_TO_TILE_X.getValue(facing) + animCycle
-            val imagePos = Pt2(tileX * PLAYER_TILE_SIZE.x, 0f) // We only use the first row of tiles
-            ctx.screen.draw(playerSheet, DrawParams(pos, PLAYER_DRAW_SIZE, imagePos, PLAYER_TILE_SIZE))
+            val tileX = FACING_TO_TILE_X.getValue(facing) + animCycle  // We only use the first row of tiles
+            ctx.screen.draw(playerTiles.getTile(tileX, 0), DrawParams(pos, drawSize))
         }
     }
 
@@ -104,7 +103,7 @@ class SpriteState : GameState {
     override fun init(ctx: InitContext) {
         grassTile = ctx.assetLoader.loadImage("grass.png")!!
         playerSheet = ctx.assetLoader.loadImage("player.png")!!
-        player = Player(playerSheet).apply { init(ctx) }
+        player = Player(Tiles(playerSheet, Vec2(16, 16))).apply { init(ctx) }
     }
 
     override fun update(ctx: UpdateContext) {
