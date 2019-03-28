@@ -18,6 +18,8 @@ class Instant(private var nanos: Long): Comparable<Instant> {
     }
     operator fun minus(rhs: Instant) = Duration((nanos - rhs.nanos).toDouble())
     override fun compareTo(other: Instant) = nanos.compareTo(other.nanos)
+
+    override fun toString() = "Instant { ${nanos}ns }"
 }
 
 /**

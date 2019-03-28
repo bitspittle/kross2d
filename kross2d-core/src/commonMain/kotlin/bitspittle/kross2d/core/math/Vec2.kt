@@ -2,9 +2,9 @@ package bitspittle.kross2d.core.math
 
 import kotlin.math.sqrt
 
-interface ImmutableVec2 {
-    val x: Float
-    val y: Float
+abstract class ImmutableVec2 {
+    abstract val x: Float
+    abstract val y: Float
 
     fun isZero() = x == 0f && y == 0f
     fun len2() = (x * x) + (y * y)
@@ -18,9 +18,19 @@ interface ImmutableVec2 {
     operator fun times(value: Float) = Vec2(this.x * value, this.y * value)
     operator fun div(other: ImmutableVec2) = Vec2(this.x / other.x, this.y / other.y)
     operator fun div(value: Float) = Vec2(this.x / value, this.y / value)
+
+    override fun equals(other: Any?): Boolean {
+        return if (other is ImmutableVec2) x == other.x && y == other.y else false
+    }
+
+    override fun hashCode(): Int {
+        return x.hashCode() + 31 * y.hashCode()
+    }
+
+    override fun toString() = "Vec2 { ($x, $y) }"
 }
 
-data class Vec2(override var x: Float, override var y: Float) : ImmutableVec2 {
+class Vec2(override var x: Float, override var y: Float) : ImmutableVec2() {
     constructor() : this(0.0f, 0.0f)
     constructor(x: Int, y: Int) : this(x.toFloat(), y.toFloat())
     constructor(vec: ImmutableVec2) : this(vec.x, vec.y)
@@ -31,7 +41,10 @@ data class Vec2(override var x: Float, override var y: Float) : ImmutableVec2 {
     constructor(pt: ImmutablePt2) : this(pt.x, pt.y)
 
     companion object {
-        val ZERO: ImmutableVec2 = Vec2()
+        val ZERO = object : ImmutableVec2() {
+            override val x = 0f
+            override val y = 0f
+        }
     }
 
     fun set(other: ImmutablePt2) {

@@ -6,15 +6,15 @@ import kotlin.math.min
 /**
  * Read-only properties of a [Duration]
  */
-interface ImmutableDuration : Comparable<ImmutableDuration> {
-    val nanos: Double
-    val micros: Double
+abstract class ImmutableDuration : Comparable<ImmutableDuration> {
+    abstract val nanos: Double
+    open val micros: Double
         get() = nanos / 1000.0
-    val millis: Double
+    open val millis: Double
         get() = micros / 1000.0
-    val secs: Double
+    open val secs: Double
         get() = millis / 1000.0
-    val mins: Double
+    open val mins: Double
         get() = secs / 60.0
     fun isZero(): Boolean = nanos == 0.0
 
@@ -26,6 +26,16 @@ interface ImmutableDuration : Comparable<ImmutableDuration> {
     operator fun div(value: Double) = Duration(nanos / value)
 
     override fun compareTo(other: ImmutableDuration) = nanos.compareTo(other.nanos)
+
+    override fun equals(other: Any?): Boolean {
+        return if (other is ImmutableDuration) nanos == other.nanos else false
+    }
+
+    override fun hashCode(): Int {
+        return nanos.hashCode()
+    }
+
+    override fun toString() = "Duration { ${nanos}ns }"
 }
 
 fun max(a: ImmutableDuration, b: ImmutableDuration) = if (a.nanos > b.nanos) a else b
@@ -34,12 +44,12 @@ fun min(a: ImmutableDuration, b: ImmutableDuration) = if (a.nanos < b.nanos) a e
 /**
  * A class which represents a time duration.
  */
-data class Duration
+class Duration
 /**
- * Don't construct directly. Use [ofSeconds], [ofMinutes], [ofMillis], [ofMicros], [ofNanos] or
- * [copy] instead.
+ * Don't construct directly. Use [ofSeconds], [ofMinutes], [ofMillis], [ofMicros], [ofNanos],
+ * [zero], or [copy] instead.
  */
-internal constructor(override var nanos: Double = 0.0) : ImmutableDuration {
+internal constructor(override var nanos: Double = 0.0) : ImmutableDuration() {
     companion object {
         val ZERO: ImmutableDuration = Duration()
 
@@ -47,12 +57,12 @@ internal constructor(override var nanos: Double = 0.0) : ImmutableDuration {
          * A duration that essentially represents forever. This could be useful for parameters
          * that expect infinite timeouts, for example.
          */
-        val MAX = object : ImmutableDuration {
-            override val nanos: Double = Double.POSITIVE_INFINITY
-            override val micros: Double = Double.POSITIVE_INFINITY
-            override val millis: Double = Double.POSITIVE_INFINITY
-            override val secs: Double = Double.POSITIVE_INFINITY
-            override val mins: Double = Double.POSITIVE_INFINITY
+        val MAX = object : ImmutableDuration() {
+            override val nanos = Double.POSITIVE_INFINITY
+            override val micros = Double.POSITIVE_INFINITY
+            override val millis = Double.POSITIVE_INFINITY
+            override val secs = Double.POSITIVE_INFINITY
+            override val mins = Double.POSITIVE_INFINITY
         }
 
         /**
@@ -60,12 +70,12 @@ internal constructor(override var nanos: Double = 0.0) : ImmutableDuration {
          * find the minimum duration value in a list, and want an initial value to compare
          * against.
          */
-        val MIN = object : ImmutableDuration {
-            override val nanos: Double = Double.NEGATIVE_INFINITY
-            override val micros: Double = Double.NEGATIVE_INFINITY
-            override val millis: Double = Double.NEGATIVE_INFINITY
-            override val secs: Double = Double.NEGATIVE_INFINITY
-            override val mins: Double = Double.NEGATIVE_INFINITY
+        val MIN = object : ImmutableDuration() {
+            override val nanos = Double.NEGATIVE_INFINITY
+            override val micros = Double.NEGATIVE_INFINITY
+            override val millis = Double.NEGATIVE_INFINITY
+            override val secs = Double.NEGATIVE_INFINITY
+            override val mins = Double.NEGATIVE_INFINITY
         }
 
         fun zero(): Duration {

@@ -1,8 +1,8 @@
 package bitspittle.kross2d.core.math
 
-interface ImmutablePt2 {
-    val x: Float
-    val y: Float
+abstract class ImmutablePt2 {
+    abstract val x: Float
+    abstract val y: Float
 
     fun isZero() = x == 0f && y == 0f
 
@@ -14,9 +14,19 @@ interface ImmutablePt2 {
     operator fun times(value: Float) = Pt2(this.x * value, this.y * value)
     operator fun div(rhs: ImmutableVec2) = Pt2(this.x / rhs.x, this.y / rhs.y)
     operator fun div(value: Float) = Pt2(this.x / value, this.y / value)
+
+    override fun equals(other: Any?): Boolean {
+        return if (other is ImmutablePt2) x == other.x && y == other.y else false
+    }
+
+    override fun hashCode(): Int {
+        return x.hashCode() + 31 * y.hashCode()
+    }
+
+    override fun toString() = "Pt2 { ($x, $y) }"
 }
 
-data class Pt2(override var x: Float, override var y: Float) : ImmutablePt2 {
+class Pt2(override var x: Float, override var y: Float) : ImmutablePt2() {
     constructor() : this(0f, 0f)
     constructor(x: Int, y: Int) : this(x.toFloat(), y.toFloat())
     constructor(pt: ImmutablePt2) : this(pt.x, pt.y)
@@ -27,7 +37,10 @@ data class Pt2(override var x: Float, override var y: Float) : ImmutablePt2 {
     constructor(vec: ImmutableVec2) : this(vec.x, vec.y)
 
     companion object {
-        val ZERO: ImmutablePt2 = Pt2()
+        val ZERO = object : ImmutablePt2() {
+            override val x = 0f
+            override val y = 0f
+        }
     }
 
     fun set(other: ImmutablePt2) {
