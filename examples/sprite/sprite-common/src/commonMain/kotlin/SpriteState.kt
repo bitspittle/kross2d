@@ -14,6 +14,7 @@ import bitspittle.kross2d.engine.graphics.Image
 import bitspittle.kross2d.engine.input.Key
 import bitspittle.kross2d.core.geom.Rect
 import bitspittle.kross2d.core.geom.centerIn
+import bitspittle.kross2d.extras.anim.Anim
 import bitspittle.kross2d.extras.graphics.Tiles
 
 private val CLEAR_COLOR = Color(0, 0, 0)
@@ -26,6 +27,7 @@ private val CLEAR_COLOR = Color(0, 0, 0)
  * Demonstrated:
  * - Loading [Image]s using [AssetLoader]
  * - Rendering images using [DrawSurface.draw]
+ * - Creating and using [Anim]s
  */
 class SpriteState : GameState {
     enum class Dir {
@@ -38,33 +40,25 @@ class SpriteState : GameState {
     private class Player(private val playerTiles: Tiles) {
         companion object {
             val FRAME_DURATION = Duration.ofMillis(300)
-            // See player.png for tiles
-            val FACING_TO_TILE_X = mapOf(
-                Dir.N to 2,
-                Dir.S to 0,
-                Dir.E to 4,
-                Dir.W to 6
+            // See player.png for tiles referenced here (only first row is used so x-coords only)
+            val FACING_TO_ANIM = mapOf(
+                Dir.N to Anim(FRAME_DURATION, 2, 3),
+                Dir.S to Anim(FRAME_DURATION, 0, 1),
+                Dir.E to Anim(FRAME_DURATION, 4, 5),
+                Dir.W to Anim(FRAME_DURATION, 6, 7)
             )
         }
         private val drawSize = playerTiles.tileSize * 2f // Tweaked until it looked good
         private val pos = Pt2()
         private val vel = Vec2()
-        private val elapsed = Duration.zero()
-
-        private var facing = Dir.S
-        private var animCycle = 0
+        private var currAnim = FACING_TO_ANIM.getValue(Dir.S)
 
         fun init(ctx: InitContext) {
             pos.set(drawSize.centerIn(Rect(ctx.screen.size)))
         }
 
         fun update(ctx: UpdateContext) {
-            elapsed += ctx.timer.lastFrameDuration
-            while (elapsed > FRAME_DURATION) {
-                // All player animations toggle between two frames (e.g. left0/left1, right0/right1, etc.)
-                animCycle = (animCycle + 1) % 2
-                elapsed -= FRAME_DURATION
-            }
+            currAnim.elapse(ctx.timer.lastFrameDuration)
 
             // Allow up/down and left/right to cancel each other out
             vel.set(Pt2.ZERO)
@@ -77,10 +71,13 @@ class SpriteState : GameState {
             vel *= (200.0 * ctx.timer.lastFrameDuration.secs).toFloat()
 
             when {
-                vel.x > 0 -> facing = Dir.E
-                vel.x < 0 -> facing = Dir.W
-                vel.y < 0 -> facing = Dir.N
-                vel.y > 0 -> facing = Dir.S
+                vel.x > 0 -> Dir.E
+                vel.x < 0 -> Dir.W
+                vel.y < 0 -> Dir.N
+                vel.y > 0 -> Dir.S
+                else -> null
+            }?.let { facing ->
+                currAnim = FACING_TO_ANIM.getValue(facing)
             }
 
             (ctx.screen.size - drawSize).let { bounds ->
@@ -91,7 +88,7 @@ class SpriteState : GameState {
         }
 
         fun draw(ctx: DrawContext) {
-            val tileX = FACING_TO_TILE_X.getValue(facing) + animCycle  // We only use the first row of tiles
+            val tileX = currAnim.value // We only use the first row of tiles
             ctx.screen.draw(playerTiles.getTile(tileX, 0), DrawParams(pos, drawSize))
         }
     }

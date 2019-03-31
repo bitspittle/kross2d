@@ -24,6 +24,7 @@ abstract class ImmutableDuration : Comparable<ImmutableDuration> {
     operator fun minus(rhs: ImmutableDuration) = Duration(nanos - rhs.nanos)
     operator fun times(value: Double) = Duration(nanos * value)
     operator fun div(value: Double) = Duration(nanos / value)
+    operator fun unaryMinus() = Duration(-nanos)
 
     override fun compareTo(other: ImmutableDuration) = nanos.compareTo(other.nanos)
 
@@ -123,12 +124,12 @@ internal constructor(override var nanos: Double = 0.0) : ImmutableDuration() {
         nanos = rhs.nanos
     }
 
-    fun clampToMax(other: ImmutableDuration) {
-        nanos = max(nanos, other.nanos)
+    fun clampToMax(possibleMax: ImmutableDuration) {
+        nanos = min(nanos, possibleMax.nanos)
     }
 
-    fun clampToMin(other: ImmutableDuration) {
-        nanos = min(nanos, other.nanos)
+    fun clampToMin(possibleMin: ImmutableDuration) {
+        nanos = max(nanos, possibleMin.nanos)
     }
 
     operator fun plusAssign(rhs: ImmutableDuration) {

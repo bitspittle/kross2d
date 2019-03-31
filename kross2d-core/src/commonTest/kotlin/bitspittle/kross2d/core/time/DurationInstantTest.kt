@@ -99,16 +99,16 @@ class DurationInstantTest {
 
         run {
             val d = d5.copy()
-            d.clampToMax(d1)
-            assertThat(d).isEqualTo(d5)
             d.clampToMin(d1)
+            assertThat(d).isEqualTo(d5)
+            d.clampToMax(d1)
             assertThat(d).isEqualTo(d1)
         }
         run {
             val d = d5.copy()
-            d.clampToMin(d9)
-            assertThat(d).isEqualTo(d5)
             d.clampToMax(d9)
+            assertThat(d).isEqualTo(d5)
+            d.clampToMin(d9)
             assertThat(d).isEqualTo(d9)
         }
     }
@@ -163,6 +163,17 @@ class DurationInstantTest {
         val instantB = Instant(1123)
 
         assertThat(instantB - instantA).isEqualTo(Duration.ofNanos(1000))
+    }
+
+    @Test
+    fun `duration can be negated`() {
+        var duration = Duration.ofSeconds(123)
+
+        duration = -duration
+        assertThat(duration.secs).isEqualTo(-123.0)
+
+        duration = -duration
+        assertThat(duration.secs).isEqualTo(123.0)
     }
 
     @Test
