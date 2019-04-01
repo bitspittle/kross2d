@@ -25,7 +25,7 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
         ctx.imageSmoothingEnabled = false
 
         fun handleKeyEvent(keyEvent: KeyboardEvent, isDown: Boolean) {
-            println(keyEvent.code)
+//            println(keyEvent.code)
             when (keyEvent.code) {
                 "Escape" -> Key.ESC
 
@@ -33,6 +33,19 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
                 "ArrowDown" -> Key.DOWN
                 "ArrowLeft" -> Key.LEFT
                 "ArrowRight" -> Key.RIGHT
+
+                "Digit0" -> Key.NUM_0
+                "Digit1" -> Key.NUM_1
+                "Digit2" -> Key.NUM_2
+                "Digit3" -> Key.NUM_3
+                "Digit4" -> Key.NUM_4
+                "Digit5" -> Key.NUM_5
+                "Digit6" -> Key.NUM_6
+                "Digit7" -> Key.NUM_7
+                "Digit8" -> Key.NUM_8
+                "Digit9" -> Key.NUM_9
+
+                "Space" -> Key.SPACE
 
                 else -> null
             }?.let { key -> if (isDown) _keyPressed(key) else _keyReleased(key) }

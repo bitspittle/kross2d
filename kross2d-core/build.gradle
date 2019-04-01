@@ -31,7 +31,10 @@ kotlin {
             dependencies {
                 implementation kotlin("stdlib-jdk8")
                 implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.0-alpha"
-
+                // Use OpenAL for audio since I had audio popping with Java stdlib APIs
+                def openALVersion = "2.3.2"
+                implementation "org.jogamp.gluegen:gluegen-rt-main:$openALVersion"
+                implementation "org.jogamp.joal:joal-main:$openALVersion"
             }
         }
         jvmTest {

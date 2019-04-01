@@ -55,6 +55,19 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
                     KeyEvent.VK_LEFT -> Key.LEFT
                     KeyEvent.VK_RIGHT -> Key.RIGHT
 
+                    KeyEvent.VK_0 -> Key.NUM_0
+                    KeyEvent.VK_1 -> Key.NUM_1
+                    KeyEvent.VK_2 -> Key.NUM_2
+                    KeyEvent.VK_3 -> Key.NUM_3
+                    KeyEvent.VK_4 -> Key.NUM_4
+                    KeyEvent.VK_5 -> Key.NUM_5
+                    KeyEvent.VK_6 -> Key.NUM_6
+                    KeyEvent.VK_7 -> Key.NUM_7
+                    KeyEvent.VK_8 -> Key.NUM_8
+                    KeyEvent.VK_9 -> Key.NUM_9
+
+                    KeyEvent.VK_SPACE -> Key.SPACE
+
                     else -> null
                 }?.let { key -> if (isDown) _keyPressed(key) else _keyReleased(key) }
             }

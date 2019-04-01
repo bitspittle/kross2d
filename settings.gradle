@@ -26,4 +26,9 @@ include("$exSprite-common")
 include("$exSprite-jvm")
 include("$exSprite-js")
 
+def exSounds = ":examples:sounds:sounds"
+include("$exSounds-common")
+include("$exSounds-jvm")
+include("$exSounds-js")
+
 enableFeaturePreview("GRADLE_METADATA")

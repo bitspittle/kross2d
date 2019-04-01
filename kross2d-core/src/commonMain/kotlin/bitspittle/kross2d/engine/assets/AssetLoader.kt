@@ -2,6 +2,7 @@ package bitspittle.kross2d.engine.assets
 
 import bitspittle.kross2d.core.event.Event
 import bitspittle.kross2d.core.event.ObservableEvent
+import bitspittle.kross2d.engine.audio.Sound
 import bitspittle.kross2d.engine.graphics.Image
 
 /**
@@ -64,14 +65,17 @@ class AssetLoader(root: String) {
     private val backend = AssetLoaderBackend(root)
 
     fun loadImage(relativePath: String): Asset<Image> {
-        return Asset<Image>(relativePath).apply {
-            backend.loadImageInto(this)
-        }
+        return Asset<Image>(relativePath).apply { backend.loadImageInto(this) }
+    }
+
+    fun loadSound(relativePath: String): Asset<Sound> {
+        return Asset<Sound>(relativePath).apply { backend.loadSoundInto(this) }
     }
 }
 
 expect class AssetLoaderBackend(root: String) {
     fun loadImageInto(asset: Asset<Image>)
+    fun loadSoundInto(asset: Asset<Sound>)
 }
 
 
