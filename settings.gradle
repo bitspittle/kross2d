@@ -16,14 +16,14 @@ rootProject.name = "kross2d"
 include(":kross2d-core")
 project(":kross2d-core").name = "kross2d"
 
-def exColorCanvas = ":examples:colorcanvas"
-include("$exColorCanvas:colorcanvas-common")
-include("$exColorCanvas:colorcanvas-jvm")
-include("$exColorCanvas:colorcanvas-js")
+def exColorCanvas = ":examples:colorcanvas:colorcanvas"
+include("$exColorCanvas-common")
+include("$exColorCanvas-jvm")
+include("$exColorCanvas-js")
 
-def exSprite = ":examples:sprite"
-include("$exSprite:sprite-common")
-include("$exSprite:sprite-jvm")
-include("$exSprite:sprite-js")
+def exSprite = ":examples:sprite:sprite"
+include("$exSprite-common")
+include("$exSprite-jvm")
+include("$exSprite-js")
 
 enableFeaturePreview("GRADLE_METADATA")
