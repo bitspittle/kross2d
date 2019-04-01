@@ -1,9 +1,12 @@
+import bitspittle.kross2d.core.geom.Rect
+import bitspittle.kross2d.core.geom.centerIn
 import bitspittle.kross2d.core.graphics.Color
 import bitspittle.kross2d.core.math.Pt2
 import bitspittle.kross2d.core.math.Vec2
 import bitspittle.kross2d.core.math.clamp
 import bitspittle.kross2d.core.time.Duration
 import bitspittle.kross2d.engine.GameState
+import bitspittle.kross2d.engine.assets.Asset
 import bitspittle.kross2d.engine.assets.AssetLoader
 import bitspittle.kross2d.engine.context.DrawContext
 import bitspittle.kross2d.engine.context.InitContext
@@ -12,8 +15,6 @@ import bitspittle.kross2d.engine.graphics.DrawSurface
 import bitspittle.kross2d.engine.graphics.DrawSurface.DrawParams
 import bitspittle.kross2d.engine.graphics.Image
 import bitspittle.kross2d.engine.input.Key
-import bitspittle.kross2d.core.geom.Rect
-import bitspittle.kross2d.core.geom.centerIn
 import bitspittle.kross2d.extras.anim.Anim
 import bitspittle.kross2d.extras.graphics.Tiles
 
@@ -93,33 +94,34 @@ class SpriteState : GameState {
         }
     }
 
-    private lateinit var playerSheet: Image
-    private lateinit var grassTile: Image
-    private lateinit var player: Player
+    private lateinit var grassAsset: Asset<Image>
+    private var player: Player? = null
 
     override fun init(ctx: InitContext) {
-        grassTile = ctx.assetLoader.loadImage("grass.png")!!
-        playerSheet = ctx.assetLoader.loadImage("player.png")!!
-        player = Player(Tiles(playerSheet, Vec2(16, 16))).apply { init(ctx) }
+        grassAsset = ctx.assetLoader.loadImage("grass.png")
+        ctx.assetLoader.loadImage("player.png").onLoaded += { image ->
+            player = Player(Tiles(image, Vec2(16, 16))).apply { init(ctx) }
+        }
     }
 
     override fun update(ctx: UpdateContext) {
         if (ctx.keyboard.isDown(Key.ESC)) {
             ctx.app.quit()
         }
-        player.update(ctx)
+        player?.update(ctx)
     }
 
     override fun draw(ctx: DrawContext) {
         ctx.screen.clear(CLEAR_COLOR)
 
-        val numTiles = ctx.screen.size / grassTile.size
-        for (i in 0..numTiles.x.toInt()) {
-            for (j in 0..numTiles.y.toInt()) {
-                ctx.screen.draw(grassTile, DrawSurface.DrawParams(Pt2(grassTile.size.x * i, grassTile.size.y * j)))
+        grassAsset.value?.let { grassTile ->
+            val numTiles = ctx.screen.size / grassTile.size
+            for (i in 0..numTiles.x.toInt()) {
+                for (j in 0..numTiles.y.toInt()) {
+                    ctx.screen.draw(grassTile, DrawSurface.DrawParams(Pt2(grassTile.size.x * i, grassTile.size.y * j)))
+                }
             }
         }
-
-        player.draw(ctx)
+        player?.draw(ctx)
     }
 }

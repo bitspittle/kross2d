@@ -14,14 +14,19 @@ package bitspittle.kross2d.core.event
  * keyboard.onKeyPressed += { (key) -> ... }
  * ```
  *
+ * Finally, an [onAdded] callback can be registered for this event, which gives owners of the event
+ * a chance to respond to a new listener getting added, e.g. maybe its an 'onLoaded' listener being
+ * added to an object that already loaded earlier, so the observer should fire immediately.
+ *
  * See also: [Event]
  */
-abstract class ObservableEvent<P> {
+abstract class ObservableEvent<P>(private val onAdded: () -> Unit) {
     protected val observers: MutableList<(P) -> Unit> = mutableListOf()
 
     // TODO: Worry about memory leaks? Maybe change te API to `event.listenWith(owner) { (param) -> ... }`
     operator fun plusAssign(observer: (P) -> Unit) {
         observers.add(observer)
+        onAdded()
     }
 }
 
@@ -44,8 +49,12 @@ abstract class ObservableEvent<P> {
  *
  * See also: [ObservableEvent]
  */
-class Event<P> : ObservableEvent<P>() {
+class Event<P>(onAdded: () -> Unit = {}) : ObservableEvent<P>(onAdded) {
     operator fun invoke(params: P) {
         observers.forEach { observer -> observer(params) }
+    }
+
+    fun clear() {
+        observers.clear()
     }
 }
