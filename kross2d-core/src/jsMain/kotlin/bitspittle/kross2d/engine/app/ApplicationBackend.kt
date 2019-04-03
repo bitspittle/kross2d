@@ -80,11 +80,24 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
     private val _keyReleased = Event<Key>()
     actual val keyReleased: ObservableEvent<Key> = _keyReleased
 
+    private var frameStepHandle: Int = 0
+    private lateinit var quitBlock: () -> Unit
+
     actual fun runForever(frameStep: () -> Unit) {
-        window.setInterval(frameStep, 16)
+        frameStepHandle = window.setInterval(frameStep, 16)
+    }
+
+    actual fun onQuit(quitBlock: () -> Unit) {
+        this.quitBlock = quitBlock
     }
 
     actual fun quit() {
-        // On the Web, you can never quit. Just close the browser window!
+        window.clearInterval(frameStepHandle)
+        // Enqueue final instructions, instead of running them immediately, to ensure they get run
+        // after any final frames that might still be in the pipeline
+        window.setTimeout({
+            drawSurface.clear(Color(0, 0, 0))
+            quitBlock()
+        }, 0)
     }
 }

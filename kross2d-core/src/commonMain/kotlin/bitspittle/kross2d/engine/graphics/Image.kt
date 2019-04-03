@@ -4,6 +4,7 @@ import bitspittle.kross2d.core.math.ImmutablePt2
 import bitspittle.kross2d.core.math.ImmutableVec2
 import bitspittle.kross2d.core.math.Pt2
 import bitspittle.kross2d.core.math.Vec2
+import bitspittle.kross2d.core.memory.Disposable
 
 /**
  * A surface area for rendering, which may be on or off-screen.
@@ -13,7 +14,7 @@ import bitspittle.kross2d.core.math.Vec2
 class Image private constructor(
     internal val data: ImageData,
     internal val pos: ImmutablePt2,
-    private val sizeOverride: ImmutableVec2?) {
+    private val sizeOverride: ImmutableVec2?) : Disposable {
 
     /**
      * Construct an initial image, backed by image data

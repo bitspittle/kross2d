@@ -1,12 +1,14 @@
 package bitspittle.kross2d.engine.audio
 
+import bitspittle.kross2d.core.memory.Disposable
+
 /**
  * An audio sample, which is sound data loaded entirely into memory.
  *
  * This class is useful for playing quick sound effects. These are associated with files that often
  * end in .wav, .au, or .aiff
  */
-expect class Sound {
+expect class Sound : Disposable {
     /**
      * Play this sound.
      *

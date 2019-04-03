@@ -98,6 +98,12 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
         }
     }
 
+    actual fun onQuit(quitBlock: () -> Unit) {
+        // JVM blocks in runForever until quit is called, so by the time we get here, we can safely
+        // call quitBlock directly.
+        quitBlock()
+    }
+
     actual fun quit() {
         frame.dispose()
     }

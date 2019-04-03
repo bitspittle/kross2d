@@ -1,6 +1,8 @@
 package bitspittle.kross2d.engine.app
 
 import bitspittle.kross2d.core.event.ObservableEvent
+import bitspittle.kross2d.core.memory.Disposable
+import bitspittle.kross2d.core.memory.Disposer
 import bitspittle.kross2d.core.time.Instant
 import bitspittle.kross2d.engine.GameState
 import bitspittle.kross2d.engine.assets.AssetLoader
@@ -18,7 +20,7 @@ import bitspittle.kross2d.engine.time.Timer
 /**
  * A subset of the application API that will be exposed to the game logic.
  */
-interface ApplicationFacade {
+interface ApplicationFacade : Disposable {
     fun quit()
 }
 
@@ -75,8 +77,11 @@ internal class Application internal constructor(params: AppParams, initialState:
             override val timer: Timer = timer
         }
 
-        currentState.init(initContext)
+        Disposer.register(appFacade)
+        Disposer.register(appFacade, assetLoader)
+        Disposer.register(appFacade, currentState)
 
+        currentState.init(initContext)
         var frameStart = Instant.now()
         backend.runForever {
             val lastFrameStart = frameStart
@@ -87,6 +92,13 @@ internal class Application internal constructor(params: AppParams, initialState:
             keyboard.step()
 
             currentState.draw(drawContext)
+        }
+
+        backend.onQuit {
+            Disposer.dispose(appFacade)
+            // TODO: Default behavior is to println. If we ever add a DEBUG mode, we should
+            //  throw an exception instead if in DEBUG.
+            Disposer.freeRemaining()
         }
     }
 }
@@ -108,7 +120,14 @@ internal expect class ApplicationBackend(params: AppParams) {
     fun runForever(frameStep: () -> Unit)
 
     /**
-     * A request to stop the program. When called, [runForever] should finish up.
+     * The backend is handed a function which, when called, releases all final game resources.
+     * This method should be called just once and only after [quit] is called.
+     */
+    fun onQuit(quitBlock: () -> Unit)
+
+    /**
+     * A request to stop the program. When called, [runForever] should never run again, and the
+     * logic passed into [onQuit] should run.
      */
     fun quit()
 }

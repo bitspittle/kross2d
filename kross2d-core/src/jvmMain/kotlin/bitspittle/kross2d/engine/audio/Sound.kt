@@ -1,5 +1,8 @@
 package bitspittle.kross2d.engine.audio
 
+import bitspittle.kross2d.core.memory.Disposable
+import bitspittle.kross2d.core.memory.Disposer
+import bitspittle.kross2d.core.memory.Rc
 import com.jogamp.openal.AL
 import com.jogamp.openal.ALFactory
 import com.jogamp.openal.util.ALut
@@ -16,7 +19,7 @@ fun AL.throwIfError(msg: String) {
     }
 }
 
-class AlGlobalState {
+class AlGlobalState: Disposable {
     val listenerPos = floatArrayOf(0.0f, 0.0f, 0.0f)
     val listenerVel = floatArrayOf(0.0f, 0.0f, 0.0f)
     val listenerOrientation = floatArrayOf(0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f)
@@ -29,16 +32,14 @@ class AlGlobalState {
         al.alListenerfv(AL.AL_POSITION, listenerPos, 0)
         al.alListenerfv(AL.AL_VELOCITY, listenerVel, 0)
         al.alListenerfv(AL.AL_ORIENTATION, listenerOrientation, 0)
-
-        Runtime.getRuntime().addShutdownHook(Thread { dispose() })
     }
 
-    fun dispose() {
+    override fun dispose() {
         ALut.alutExit()
     }
 }
 
-class AlSoundBuffer(stream: InputStream) {
+class AlSoundBuffer(stream: InputStream): Disposable {
     val bufferId: Int
     val format: Int
     val size: Int
@@ -72,13 +73,13 @@ class AlSoundBuffer(stream: InputStream) {
         al.alBufferData(bufferId, format, data, size, freq)
     }
 
-    fun dispose() {
+    override fun dispose() {
         val al = ALFactory.getAL()
         al.alDeleteBuffers(1, IntArray(1) { bufferId }, 0)
     }
 }
 
-class AlSoundSource {
+class AlSoundSource: Disposable {
     val sourceId: Int
     val sourcePos = floatArrayOf(0.0f, 0.0f, 0.0f)
     val sourceVel = floatArrayOf(0.0f, 0.0f, 0.0f)
@@ -104,7 +105,7 @@ class AlSoundSource {
         al.alSourcei(sourceId, AL.AL_LOOPING, alBuffer.loop)
     }
 
-    fun dispose() {
+    override fun dispose() {
         val al = ALFactory.getAL()
         al.alDeleteSources(1, IntArray(1) { sourceId }, 0)
     }
@@ -112,7 +113,7 @@ class AlSoundSource {
 
 
 
-actual class Sound(stream: InputStream) {
+actual class Sound(stream: InputStream) : Disposable {
     companion object {
         fun tryCreate(stream: InputStream): Sound? {
             return try {
@@ -122,13 +123,21 @@ actual class Sound(stream: InputStream) {
             }
         }
 
-        private val AL_GLOBAL_STATE = AlGlobalState()
+        private val audioGlobalState = Rc { AlGlobalState() }
     }
 
-    val audioBuffer = AlSoundBuffer(stream)
-    val audioSource = AlSoundSource()
+    private val audioBuffer: AlSoundBuffer
+    private val audioSource: AlSoundSource
 
     init {
+        audioGlobalState.inc()
+
+        audioBuffer = AlSoundBuffer(stream)
+        audioSource = AlSoundSource()
+
+        Disposer.register(this, audioBuffer)
+        Disposer.register(this, audioSource)
+
         audioSource.attachToBuffer(audioBuffer)
     }
 
@@ -138,8 +147,9 @@ actual class Sound(stream: InputStream) {
         al.alSourcePlay(audioSource.sourceId)
     }
 
-    fun dispose() {
+    override fun dispose() {
         audioBuffer.dispose()
         audioSource.dispose()
+        audioGlobalState.dec()
     }
 }
