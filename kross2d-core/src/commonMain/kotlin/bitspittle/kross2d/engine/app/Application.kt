@@ -3,6 +3,7 @@ package bitspittle.kross2d.engine.app
 import bitspittle.kross2d.core.event.ObservableEvent
 import bitspittle.kross2d.core.memory.Disposable
 import bitspittle.kross2d.core.memory.Disposer
+import bitspittle.kross2d.core.time.Duration
 import bitspittle.kross2d.core.time.Instant
 import bitspittle.kross2d.engine.GameState
 import bitspittle.kross2d.engine.assets.AssetLoader
@@ -21,6 +22,24 @@ import bitspittle.kross2d.engine.time.Timer
  * A subset of the application API that will be exposed to the game logic.
  */
 interface ApplicationFacade : Disposable {
+    /**
+     * Request that next frame, we exit and discard the current state, switching to the new state.
+     */
+    fun replaceState(state: GameState)
+
+    /**
+     * Request that next frame, we exit the current state, switching to the new state.
+     *
+     * A later call to [popState] will re-enter this current state.
+     */
+    fun pushState(state: GameState)
+
+    /**
+     * Request that next frame, we exit the current state, switching to the state that was active
+     * when [pushState] was called.
+     */
+    fun popState()
+
     fun quit()
 }
 
@@ -42,9 +61,16 @@ expect class AppParams {
  */
 internal class Application internal constructor(params: AppParams, initialState: GameState) {
 
+    private sealed class StateCommand {
+        class Replace(val gameState: GameState) : StateCommand()
+        class Push(val gameState: GameState) : StateCommand()
+        object Pop : StateCommand()
+    }
+
     private val backend = ApplicationBackend(params)
 
-    private var currentState = initialState // TODO: Add the ability to change states later
+    private var stateChangeRequest: StateCommand? = StateCommand.Push(initialState)
+    private val stateStack = mutableListOf<GameState>()
 
     init {
         val keyboard = DefaultKeyboard()
@@ -52,6 +78,21 @@ internal class Application internal constructor(params: AppParams, initialState:
         backend.keyReleased += { key -> keyboard.handleKey(key, false) }
 
         val appFacade = object : ApplicationFacade {
+            override fun replaceState(state: GameState) {
+                stateChangeRequest = StateCommand.Replace(state)
+            }
+
+            override fun pushState(state: GameState) {
+                stateChangeRequest = StateCommand.Push(state)
+            }
+
+            override fun popState() {
+                if (stateStack.size == 1) {
+                    throw IllegalStateException("No more states can be popped. Use app.quit() or app.replaceState() instead?")
+                }
+                stateChangeRequest = StateCommand.Pop
+            }
+
             override fun quit() = backend.quit()
         }
 
@@ -79,11 +120,35 @@ internal class Application internal constructor(params: AppParams, initialState:
 
         Disposer.register(appFacade)
         Disposer.register(appFacade, assetLoader)
-        Disposer.register(appFacade, currentState)
 
-        currentState.init(initContext)
-        var frameStart = Instant.now()
+        // Following vars are set immediately when the initialState is pushed on the stack
+        lateinit var frameStart: Instant
+        lateinit var currentState: GameState
+
         backend.runForever {
+            stateChangeRequest?.let { stateCommand ->
+                stateStack.lastOrNull()?.let { Disposer.dispose(it) }
+                when (stateCommand) {
+                    is StateCommand.Replace -> {
+                        stateStack.removeAt(stateStack.lastIndex)
+                        stateStack.add(stateCommand.gameState)
+                    }
+                    is StateCommand.Push -> {
+                        stateStack.add(stateCommand.gameState)
+                    }
+                    is StateCommand.Pop -> {
+                        stateStack.removeAt(stateStack.lastIndex)
+                    }
+                }
+                this.stateChangeRequest = null
+
+                currentState = stateStack.last()
+                Disposer.register(appFacade, currentState)
+                frameStart = Instant.now()
+                timer.lastFrameDuration.setFrom(Duration.ZERO)
+                currentState.init(initContext)
+            }
+
             val lastFrameStart = frameStart
             frameStart = Instant.now()
             timer.lastFrameDuration.setFrom(frameStart - lastFrameStart)
