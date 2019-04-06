@@ -40,7 +40,8 @@ class AlGlobalState: Disposable {
 }
 
 class AlSoundBuffer(stream: InputStream): Disposable {
-    val bufferId: Int
+    var bufferId: Int
+        private set
     val format: Int
     val size: Int
     val data: ByteBuffer
@@ -76,13 +77,16 @@ class AlSoundBuffer(stream: InputStream): Disposable {
     override fun dispose() {
         val al = ALFactory.getAL()
         al.alDeleteBuffers(1, IntArray(1) { bufferId }, 0)
+        bufferId = -1
     }
 }
 
 class AlSoundSource: Disposable {
-    val sourceId: Int
-    val sourcePos = floatArrayOf(0.0f, 0.0f, 0.0f)
-    val sourceVel = floatArrayOf(0.0f, 0.0f, 0.0f)
+    var sourceId: Int
+        private set
+
+    private val sourcePos = floatArrayOf(0.0f, 0.0f, 0.0f)
+    private val sourceVel = floatArrayOf(0.0f, 0.0f, 0.0f)
 
     init {
         val al = ALFactory.getAL()
@@ -108,10 +112,45 @@ class AlSoundSource: Disposable {
     override fun dispose() {
         val al = ALFactory.getAL()
         al.alDeleteSources(1, IntArray(1) { sourceId }, 0)
+        sourceId = -1
     }
 }
 
+actual class SoundHandle(buffer: AlSoundBuffer): Disposable {
+    private val audioSource = AlSoundSource()
+        .apply { attachToBuffer(buffer) }
+        .also { Disposer.register(buffer, this); Disposer.register(this, it) }
 
+    private val al = ALFactory.getAL()
+    private val isValid
+        get() = audioSource.sourceId >= 0 // Should be true until disposed
+
+    fun play() {
+        if (isValid) {
+            al.alSourcePlay(audioSource.sourceId)
+        }
+    }
+
+    fun stop() {
+        if (isValid) {
+            al.alSourceStop(audioSource.sourceId)
+        }
+    }
+
+    fun pause() {
+        if (isValid) {
+            al.alSourcePause(audioSource.sourceId)
+        }
+    }
+
+    fun isStopped(): Boolean {
+        if (!isValid) return true
+
+        val stateOut = IntArray(1)
+        al.alGetSourcei(audioSource.sourceId, AL.AL_SOURCE_STATE, stateOut, 0)
+        return stateOut[0] == AL.AL_STOPPED
+    }
+}
 
 actual class Sound(stream: InputStream) : Disposable {
     companion object {
@@ -127,29 +166,48 @@ actual class Sound(stream: InputStream) : Disposable {
     }
 
     private val audioBuffer: AlSoundBuffer
-    private val audioSource: AlSoundSource
+    private val handles = mutableListOf<SoundHandle>()
 
     init {
         audioGlobalState.inc()
 
         audioBuffer = AlSoundBuffer(stream)
-        audioSource = AlSoundSource()
 
         Disposer.register(this, audioBuffer)
-        Disposer.register(this, audioSource)
-
-        audioSource.attachToBuffer(audioBuffer)
     }
 
-    actual fun play() {
-        val al = ALFactory.getAL()
-        al.alSourceStop(audioSource.sourceId)
-        al.alSourcePlay(audioSource.sourceId)
+    actual fun play(): SoundHandle {
+        disposeStoppedSounds()
+        return SoundHandle(audioBuffer).also { it.play() }.also { handles.add(it) }
+    }
+
+    actual fun stop(handle: SoundHandle?) {
+        handles.forEach { if (handle == null || handle == it) it.stop() }
+        disposeStoppedSounds()
+    }
+
+    actual fun pause(handle: SoundHandle?) {
+        disposeStoppedSounds()
+        handles.forEach { if (handle == null || handle == it) it.pause() }
+    }
+
+    actual fun resume(handle: SoundHandle?) {
+        disposeStoppedSounds()
+        handles.forEach { if (handle == null || handle == it) it.play() }
+    }
+
+    /**
+     * OpenAL doesn't have an easy way to get notified when a sound stops on its own (vs. the
+     * caller stopping them manually), so we just lazily remove them any time the user interacts
+     * with our API.
+     */
+    private fun disposeStoppedSounds() {
+        handles.forEach { if (it.isStopped()) Disposer.dispose(it) }
+        handles.removeAll { it.isStopped() }
     }
 
     override fun dispose() {
         audioBuffer.dispose()
-        audioSource.dispose()
         audioGlobalState.dec()
     }
 }
