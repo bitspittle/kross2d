@@ -4,8 +4,10 @@ import bitspittle.kross2d.core.event.Event
 import bitspittle.kross2d.core.event.ObservableEvent
 import bitspittle.kross2d.core.memory.Disposable
 import bitspittle.kross2d.core.memory.Disposer
+import bitspittle.kross2d.core.memory.disposable
 import bitspittle.kross2d.engine.audio.Sound
 import bitspittle.kross2d.engine.graphics.Image
+import bitspittle.kross2d.engine.GameState
 
 /**
  * A handle to an asset that will get loaded asynchronously.
@@ -93,15 +95,64 @@ class Asset<T: Disposable>(parent: Disposable, val path: String) : Disposable {
     }
 }
 
-class AssetLoader(root: String) : Disposable {
+/**
+ * An immutable interface for querying all loaded assets.
+ */
+interface Assets {
+    val allImages: List<Image>
+    val allSounds: List<Sound>
+}
+
+/**
+ * Class which handles the loading (and caching) of game assets.
+ *
+ * Note that assets are [Disposable] and are furthermore associated with the current [GameState],
+ * so when you exit a game state, all assets are deallocated.
+ *
+ * If you want an asset to live longer than the current game state, you can re-register its parent
+ * manually. The application itself is a disposable, so you could write something like this:
+ *
+ * ```
+ *   // init
+ *   val asset = ctx.assetLoader.loadImage("cursor.png").also { Disposer.register(ctx.app, it) }
+ * ```
+ */
+class AssetLoader(root: String): Assets {
+    /**
+     * A context which any new, loaded assets will be registered against. Application logic should
+     * set this to the current [GameState] before the user ever gets a chance to load assets.
+     */
+    internal lateinit var disposableContext: Disposable
+
     private val backend = AssetLoaderBackend(root)
 
+    private val cachedImages = mutableMapOf<String, Asset<Image>>()
+    private val cachedSounds = mutableMapOf<String, Asset<Sound>>()
+
+    override val allImages
+        get() = cachedImages.values.mapNotNull { it.value }
+
+    override val allSounds
+        get() = cachedSounds.values.mapNotNull { it.value }
+
     fun loadImage(relativePath: String): Asset<Image> {
-        return Asset<Image>(this, relativePath).apply { backend.loadImageInto(this) }
+        return cachedImages.getOrPut(relativePath) {
+            Asset<Image>(disposableContext, relativePath).apply {
+                cachedImages[relativePath] = this
+                backend.loadImageInto(this)
+                Disposer.register(this, disposable { cachedImages.remove(relativePath) })
+            }
+        }
     }
 
     fun loadSound(relativePath: String): Asset<Sound> {
-        return Asset<Sound>(this, relativePath).apply { backend.loadSoundInto(this) }
+        return cachedSounds.getOrPut(relativePath) {
+            Asset<Sound>(disposableContext, relativePath).apply {
+                cachedSounds[relativePath] = this
+                backend.loadSoundInto(this)
+                Disposer.register(this, disposable { cachedSounds.remove(relativePath) })
+            }
+        }
     }
 }
 

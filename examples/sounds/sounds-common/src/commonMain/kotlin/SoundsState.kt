@@ -18,6 +18,7 @@ private val CLEAR_COLOR = Color(0, 0, 0)
  */
 class SoundsState : GameState {
     private val sounds = arrayOfNulls<Sound?>(10)
+    private var globallyPaused = false
 
     override fun init(ctx: InitContext) {
         listOf(
@@ -40,10 +41,17 @@ class SoundsState : GameState {
             ctx.app.quit()
         }
 
-        (Key.NUM_0.ordinal..Key.NUM_9.ordinal).forEachIndexed { i, keyOrdinal ->
-            val key = Key.values()[keyOrdinal]
-            if (ctx.keyboard.isJustPressed(key)) {
-                sounds.getOrNull(i)?.play()
+        if (ctx.keyboard.isJustPressed(Key.SPACE)) {
+            globallyPaused = !globallyPaused
+            ctx.assetLoader.allSounds.forEach { if (globallyPaused) it.pause() else it.resume() }
+        }
+
+        if (!globallyPaused) {
+            (Key.NUM_0.ordinal..Key.NUM_9.ordinal).forEachIndexed { i, keyOrdinal ->
+                val key = Key.values()[keyOrdinal]
+                if (ctx.keyboard.isJustPressed(key)) {
+                    sounds.getOrNull(i)?.play()
+                }
             }
         }
     }

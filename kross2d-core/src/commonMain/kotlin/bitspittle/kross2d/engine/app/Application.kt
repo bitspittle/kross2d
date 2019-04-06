@@ -7,6 +7,7 @@ import bitspittle.kross2d.core.time.Duration
 import bitspittle.kross2d.core.time.Instant
 import bitspittle.kross2d.engine.GameState
 import bitspittle.kross2d.engine.assets.AssetLoader
+import bitspittle.kross2d.engine.assets.Assets
 import bitspittle.kross2d.engine.context.DrawContext
 import bitspittle.kross2d.engine.context.InitContext
 import bitspittle.kross2d.engine.context.UpdateContext
@@ -77,7 +78,7 @@ internal class Application internal constructor(params: AppParams, initialState:
         backend.keyPressed += { key -> keyboard.handleKey(key, true) }
         backend.keyReleased += { key -> keyboard.handleKey(key, false) }
 
-        val appFacade = object : ApplicationFacade {
+        val app = object : ApplicationFacade {
             override fun replaceState(state: GameState) {
                 stateChangeRequest = StateCommand.Replace(state)
             }
@@ -106,7 +107,7 @@ internal class Application internal constructor(params: AppParams, initialState:
         }
 
         val updateContext = object : UpdateContext {
-            override val app: ApplicationFacade = appFacade
+            override val app: ApplicationFacade = app
             override val assetLoader: AssetLoader = assetLoader
             override val screen: ImmutableDrawSurface = backend.drawSurface
             override val keyboard: Keyboard = keyboard
@@ -114,12 +115,12 @@ internal class Application internal constructor(params: AppParams, initialState:
         }
 
         val drawContext = object : DrawContext {
+            override val assets: Assets = assetLoader
             override val screen: DrawSurface = backend.drawSurface
             override val timer: Timer = timer
         }
 
-        Disposer.register(appFacade)
-        Disposer.register(appFacade, assetLoader)
+        Disposer.register(app)
 
         // Following vars are set immediately when the initialState is pushed on the stack
         lateinit var frameStart: Instant
@@ -143,9 +144,10 @@ internal class Application internal constructor(params: AppParams, initialState:
                 this.stateChangeRequest = null
 
                 currentState = stateStack.last()
-                Disposer.register(appFacade, currentState)
+                Disposer.register(app, currentState)
                 frameStart = Instant.now()
                 timer.lastFrameDuration.setFrom(Duration.ZERO)
+                assetLoader.disposableContext = currentState
                 currentState.init(initContext)
             }
 
@@ -160,7 +162,7 @@ internal class Application internal constructor(params: AppParams, initialState:
         }
 
         backend.onQuit {
-            Disposer.dispose(appFacade)
+            Disposer.dispose(app)
             // TODO: Default behavior is to println. If we ever add a DEBUG mode, we should
             //  throw an exception instead if in DEBUG.
             Disposer.freeRemaining()
