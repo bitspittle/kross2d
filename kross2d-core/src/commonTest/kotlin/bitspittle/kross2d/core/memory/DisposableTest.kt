@@ -164,6 +164,76 @@ class DisposableTest {
     }
 
     @Test
+    fun canTransferOwnershipOfDisposables() {
+        val parent1 = TestDisposable()
+        val parent2 = TestDisposable()
+
+        val child1 = TestDisposable()
+        val child2 = TestDisposable()
+        val child3 = TestDisposable()
+
+        Disposer.register(parent1)
+        Disposer.register(parent1, child1)
+        Disposer.register(parent1, child2)
+        Disposer.register(parent1, child3)
+        Disposer.register(parent2)
+
+        Disposer.transferChildren(from = parent1, to = parent2)
+
+        Disposer.dispose(parent1)
+        assertThat(child1.disposed).isFalse()
+        assertThat(child2.disposed).isFalse()
+        assertThat(child3.disposed).isFalse()
+
+        Disposer.dispose(parent2)
+        assertThat(child1.disposed).isTrue()
+        assertThat(child2.disposed).isTrue()
+        assertThat(child3.disposed).isTrue()
+
+        // All disposables should have been removed
+        Disposer.freeRemaining { fail(it) }
+    }
+
+    @Test
+    fun transferringOwernshipFromAndToTheSameLeavesChildrenUnmoved() {
+        val parent = TestDisposable()
+
+        val child1 = TestDisposable()
+        val child2 = TestDisposable()
+        val child3 = TestDisposable()
+
+        Disposer.register(parent)
+        Disposer.register(parent, child1)
+        Disposer.register(parent, child2)
+        Disposer.register(parent, child3)
+
+        Disposer.transferChildren(from = parent, to = parent)
+
+        Disposer.dispose(parent)
+        assertThat(child1.disposed).isTrue()
+        assertThat(child2.disposed).isTrue()
+        assertThat(child3.disposed).isTrue()
+    }
+
+    @Test
+    fun transferringOwernshipToAChildDisposableThrowsAnException() {
+        val parent = TestDisposable()
+
+        val child1 = TestDisposable()
+        val child2 = TestDisposable()
+        val child3 = TestDisposable()
+
+        Disposer.register(parent)
+        Disposer.register(parent, child1)
+        Disposer.register(parent, child2)
+        Disposer.register(parent, child3)
+
+        assertThrows<IllegalArgumentException> {
+            Disposer.transferChildren(from = parent, to = child2)
+        }
+    }
+
+    @Test
     fun testFreeRemainingMessage() {
         val d1 = TestDisposable("d1")
         val d11 = TestDisposable("d11")

@@ -116,6 +116,35 @@ interface Assets {
  *   // init
  *   val asset = ctx.assetLoader.loadImage("cursor.png").also { Disposer.register(ctx.app, it) }
  * ```
+ *
+ * Another approach could be to indirectly transfer all assets to the next game state you're
+ * entering via [Disposer]:
+ *
+ * ```
+ *   class GameAssets(
+ *     val player: Asset<Image>,
+ *     val background: Asset<Image>,
+ *     ...
+ *   )
+ *
+ *   class LoadingState : GameState() {
+ *     private lateinit var gameAssets: GameAssets
+ *
+ *     // init
+ *     gameAssets = GameAssets(
+ *       player = ctx.assetLoader.loadImage("player.png"),
+ *       background = ctx.assetLoader.loadImage("background.png")
+ *       ...
+ *     )
+ *
+ *     // update
+ *     if (ctx.assetLoader.allAssets.all { it.state == Asset.State.SUCCEEDED }) {
+ *        val nextState = MainState(gameAssets)
+ *        // Make sure assets don't get released when we leave this state
+ *        Disposer.transferChildren(from = this, to = nextState)
+ *        ctx.app.changeState(nextState)
+ *     }
+ *   }
  */
 class AssetLoader(root: String): Assets {
     /**

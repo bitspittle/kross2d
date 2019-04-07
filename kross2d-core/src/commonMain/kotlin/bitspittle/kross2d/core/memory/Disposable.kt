@@ -110,6 +110,26 @@ object Disposer {
         childrenOf.getOrPut(parent) { mutableListOf() }.add(child)
     }
 
+    /**
+     * Move all disposable children from one owner to another.
+     *
+     * This will fail if you try to move a disposable's children to a disposable that, itself, is
+     * owned by the first disposable.
+     */
+    fun transferChildren(from: Disposable, to: Disposable) {
+        if (from === to) {
+            return
+        }
+        if (to.isSelfOrDescendantOf(from)) {
+            throw IllegalArgumentException("Can't transfer Disposables to a parent owned by the first.")
+        }
+
+        val newChildren = childrenOf.getOrPut(to) { mutableListOf() }
+        childrenOf[from]?.let { newChildren.addAll(it) }
+        childrenOf.remove(from)
+        newChildren.forEach { child -> parentOf[child] = to }
+    }
+
     fun isRegistered(disposable: Disposable) = parentOf.containsKey(disposable)
 
     /**
