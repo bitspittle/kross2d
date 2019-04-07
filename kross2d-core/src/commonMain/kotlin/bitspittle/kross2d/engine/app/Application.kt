@@ -7,7 +7,6 @@ import bitspittle.kross2d.core.time.Duration
 import bitspittle.kross2d.core.time.Instant
 import bitspittle.kross2d.engine.GameState
 import bitspittle.kross2d.engine.assets.AssetLoader
-import bitspittle.kross2d.engine.assets.Assets
 import bitspittle.kross2d.engine.context.DrawContext
 import bitspittle.kross2d.engine.context.InitContext
 import bitspittle.kross2d.engine.context.UpdateContext
@@ -126,7 +125,6 @@ internal class Application internal constructor(params: AppParams, initialState:
         }
 
         val drawContext = object : DrawContext {
-            override val assets: Assets = assetLoader
             override val screen: DrawSurface = backend.drawSurface
             override val timer: Timer = timer
         }

@@ -96,14 +96,6 @@ class Asset<T: Disposable>(parent: Disposable, val path: String) : Disposable {
 }
 
 /**
- * An immutable interface for querying all loaded assets.
- */
-interface Assets {
-    val allImages: List<Image>
-    val allSounds: List<Sound>
-}
-
-/**
  * Class which handles the loading (and caching) of game assets.
  *
  * Note that assets are [Disposable] and are furthermore associated with the current [GameState],
@@ -146,7 +138,7 @@ interface Assets {
  *     }
  *   }
  */
-class AssetLoader(root: String): Assets {
+class AssetLoader(root: String) {
     /**
      * A context which any new, loaded assets will be registered against. Application logic should
      * set this to the current [GameState] before the user ever gets a chance to load assets.
@@ -157,12 +149,6 @@ class AssetLoader(root: String): Assets {
 
     private val cachedImages = mutableMapOf<String, Asset<Image>>()
     private val cachedSounds = mutableMapOf<String, Asset<Sound>>()
-
-    override val allImages
-        get() = cachedImages.values.mapNotNull { it.value }
-
-    override val allSounds
-        get() = cachedSounds.values.mapNotNull { it.value }
 
     fun loadImage(relativePath: String): Asset<Image> {
         return cachedImages.getOrPut(relativePath) {

@@ -43,7 +43,7 @@ class SoundsState : GameState {
 
         if (ctx.keyboard.isJustPressed(Key.SPACE)) {
             globallyPaused = !globallyPaused
-            ctx.assetLoader.allSounds.forEach { if (globallyPaused) it.pause() else it.resume() }
+            sounds.filterNotNull().forEach { if (globallyPaused) it.pause() else it.resume() }
         }
 
         if (!globallyPaused) {
