@@ -2,15 +2,17 @@ package bitspittle.kross2d.engine.app
 
 import bitspittle.kross2d.core.event.Event
 import bitspittle.kross2d.core.event.ObservableEvent
-import bitspittle.kross2d.core.graphics.Color
+import bitspittle.kross2d.core.graphics.ImmutableColor
 import bitspittle.kross2d.core.math.ImmutableVec2
 import bitspittle.kross2d.engine.graphics.DrawSurface
 import bitspittle.kross2d.engine.graphics.DrawSurface.ImageParams
+import bitspittle.kross2d.engine.graphics.Font
 import bitspittle.kross2d.engine.graphics.Image
 import bitspittle.kross2d.engine.input.Key
 import java.awt.Dimension
 import java.awt.Graphics
 import java.awt.Graphics2D
+import java.awt.RenderingHints
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
 import java.awt.event.WindowAdapter
@@ -22,7 +24,7 @@ import javax.swing.WindowConstants
 import kotlin.math.roundToInt
 import java.awt.Color as AwtColor
 
-fun Color.toAwtColor() = AwtColor(r, g, b, a)
+fun ImmutableColor.toAwtColor() = AwtColor(r, g, b, a)
 
 fun ImmutableVec2.toDimension() = Dimension(x.roundToInt(), y.roundToInt())
 
@@ -45,6 +47,8 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
         frame.isResizable = false
         frame.pack()
         frame.setLocationRelativeTo(null) // This centers the frame on the Window
+        // We don't need to navigate around Swing objects; handle TAB, etc. ourselves
+        frame.focusTraversalKeysEnabled = false
 
         frame.addKeyListener(object : KeyAdapter() {
             fun handleAwtKey(awtKey: Int, isDown: Boolean) {
@@ -68,6 +72,9 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
                     KeyEvent.VK_9 -> Key.NUM_9
 
                     KeyEvent.VK_SPACE -> Key.SPACE
+                    KeyEvent.VK_TAB -> Key.TAB
+                    KeyEvent.VK_BACK_SPACE -> Key.BACKSPACE
+                    KeyEvent.VK_ENTER -> Key.ENTER
 
                     else -> null
                 }?.let { key -> if (isDown) _keyPressed(key) else _keyReleased(key) }
@@ -127,7 +134,7 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
             }
         }
 
-        override fun clear(color: Color) {
+        override fun clear(color: ImmutableColor) {
             enqueueCommand { g ->
                 g.background = color.toAwtColor()
                 g.clearRect(0, 0, width, height)
@@ -148,6 +155,30 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
                     dest0.x.roundToInt(), dest0.y.roundToInt(), dest1.x.roundToInt(), dest1.y.roundToInt(),
                     src0.x.roundToInt(), src0.y.roundToInt(), src1.x.roundToInt(), src1.y.roundToInt(),
                     null)
+            }
+        }
+
+        override fun measureText(font: Font, text: String): Float {
+            val metrics = getFontMetrics(font.fontData.awtFont)
+            return metrics.stringWidth(text).toFloat()
+        }
+
+        override fun drawText(font: Font, text: String, params: DrawSurface.TextParams) {
+            enqueueCommand { g ->
+                g.getRenderingHint(RenderingHints.KEY_ANTIALIASING)?.let { hintAntialiasRestore ->
+                    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+                    val awtFont = font.fontData.awtFont
+                    g.font = awtFont
+                    g.color = params.color.toAwtColor()
+                    var y = params.dest.y + awtFont.size
+                    text.split('\n').forEach { line ->
+                        g.drawString(line, params.dest.x, y)
+                        y += params.spacing + awtFont.size
+                    }
+
+                    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, hintAntialiasRestore)
+                }
             }
         }
 

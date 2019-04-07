@@ -5,6 +5,7 @@ import bitspittle.kross2d.core.math.ImmutableVec2
 import bitspittle.kross2d.core.math.Pt2
 import bitspittle.kross2d.core.math.Vec2
 import bitspittle.kross2d.core.memory.Disposable
+import bitspittle.kross2d.core.memory.Disposer
 
 /**
  * A 2D image (or sub-portion of that image).

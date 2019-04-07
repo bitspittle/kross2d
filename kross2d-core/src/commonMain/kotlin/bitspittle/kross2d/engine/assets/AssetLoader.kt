@@ -8,6 +8,7 @@ import bitspittle.kross2d.core.memory.disposable
 import bitspittle.kross2d.engine.audio.Sound
 import bitspittle.kross2d.engine.graphics.Image
 import bitspittle.kross2d.engine.GameState
+import bitspittle.kross2d.engine.graphics.Font
 
 /**
  * A handle to an asset that will get loaded asynchronously.
@@ -147,8 +148,19 @@ class AssetLoader(root: String) {
 
     private val backend = AssetLoaderBackend(root)
 
+    private val cachedFonts = mutableMapOf<String, Asset<Font>>()
     private val cachedImages = mutableMapOf<String, Asset<Image>>()
     private val cachedSounds = mutableMapOf<String, Asset<Sound>>()
+
+    fun loadFont(relativePath: String): Asset<Font> {
+        return cachedFonts.getOrPut(relativePath) {
+            Asset<Font>(disposableContext, relativePath).apply {
+                cachedFonts[relativePath] = this
+                backend.loadFontInto(this)
+                Disposer.register(this, disposable { cachedFonts.remove(relativePath) })
+            }
+        }
+    }
 
     fun loadImage(relativePath: String): Asset<Image> {
         return cachedImages.getOrPut(relativePath) {
@@ -172,6 +184,7 @@ class AssetLoader(root: String) {
 }
 
 expect class AssetLoaderBackend(root: String) {
+    fun loadFontInto(asset: Asset<Font>)
     fun loadImageInto(asset: Asset<Image>)
     fun loadSoundInto(asset: Asset<Sound>)
 }

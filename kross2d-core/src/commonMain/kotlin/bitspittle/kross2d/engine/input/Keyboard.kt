@@ -20,6 +20,10 @@ enum class Key {
     NUM_9,
 
     SPACE,
+    TAB,
+    BACKSPACE,
+    ENTER,
+
     // TODO: Add way more keys!
 }
 

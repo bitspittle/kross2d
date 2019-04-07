@@ -3,17 +3,23 @@ package bitspittle.kross2d.engine.app
 import bitspittle.kross2d.core.event.Event
 import bitspittle.kross2d.core.event.ObservableEvent
 import bitspittle.kross2d.core.graphics.Color
+import bitspittle.kross2d.core.graphics.ImmutableColor
 import bitspittle.kross2d.core.math.ImmutableVec2
 import bitspittle.kross2d.core.math.Vec2
 import bitspittle.kross2d.engine.graphics.DrawSurface
 import bitspittle.kross2d.engine.graphics.DrawSurface.ImageParams
+import bitspittle.kross2d.engine.graphics.Font
 import bitspittle.kross2d.engine.graphics.Image
 import bitspittle.kross2d.engine.input.Key
 import org.w3c.dom.CanvasRenderingContext2D
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.events.KeyboardEvent
 import kotlin.browser.window
+import kotlin.math.roundToInt
 import org.khronos.webgl.WebGLRenderingContext as GL
+
+fun ImmutableColor.toHtmlColor() = "rgb($r, $g, $b)"
+fun Font.toHtmlFont() = "${fontData.size.roundToInt()}px ${fontData.name}"
 
 actual class AppParams(
     val canvasElement: HTMLCanvasElement,
@@ -26,7 +32,11 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
         ctx.imageSmoothingEnabled = false
 
         fun handleKeyEvent(keyEvent: KeyboardEvent, isDown: Boolean) {
-//            println(keyEvent.code)
+            // Make sure canvas owns all keypresses. That is, don't let tab, space, etc. transfer
+            // focus elsewhere.
+            keyEvent.preventDefault()
+
+//            println(keyEvent.code) // Useful to uncomment occasionally to see JS key values
             when (keyEvent.code) {
                 "Escape" -> Key.ESC
 
@@ -47,6 +57,9 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
                 "Digit9" -> Key.NUM_9
 
                 "Space" -> Key.SPACE
+                "Tab" -> Key.TAB
+                "Backspace" -> Key.BACKSPACE
+                "Enter" -> Key.ENTER
 
                 else -> null
             }?.let { key -> if (isDown) _keyPressed(key) else _keyReleased(key) }
@@ -58,8 +71,8 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
     actual val drawSurface: DrawSurface = object : DrawSurface {
         override val size: ImmutableVec2 = params.canvasElement.let { Vec2(it.width, it.height) }
 
-        override fun clear(color: Color) {
-            ctx.fillStyle = "rgb(${color.r}, ${color.g}, ${color.b})"
+        override fun clear(color: ImmutableColor) {
+            ctx.fillStyle = color.toHtmlColor()
             ctx.fillRect(0.0, 0.0, size.x.toDouble(), size.y.toDouble())
         }
 
@@ -73,6 +86,22 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
                 src.x.toDouble(), src.y.toDouble(), srcSize.x.toDouble(), srcSize.y.toDouble(),
                 dest.x.toDouble(), dest.y.toDouble(), destSize.x.toDouble(), destSize.y.toDouble()
             )
+        }
+
+        override fun measureText(font: Font, text: String): Float {
+            ctx.font = font.toHtmlFont()
+            return ctx.measureText(text).width.toFloat()
+        }
+
+        override fun drawText(font: Font, text: String, params: DrawSurface.TextParams) {
+            ctx.fillStyle = params.color.toHtmlColor()
+            ctx.font = font.toHtmlFont()
+
+            var y = (params.dest.y + font.fontData.size).toDouble()
+            text.split('\n').forEach { line ->
+                ctx.fillText(line, params.dest.x.toDouble(), y)
+                y += (params.spacing + font.fontData.size)
+            }
         }
     }
     private val _keyPressed = Event<Key>()
