@@ -25,13 +25,24 @@ import bitspittle.kross2d.engine.time.Timer
 interface ApplicationFacade : Disposable {
     /**
      * Request that next frame, we exit and discard the current state, switching to the new state.
+     *
+     * If there's a chance you'll want to come back to this state later, consider using [pushState]
+     * instead.
+     *
+     * A good use-case for [changeState] is if you're on a temporary, intermediate state, like a
+     * loading screen. When finished, you should enter the new state and discard the loading state
+     * as it is no longer needed.
      */
-    fun replaceState(state: GameState)
+    fun changeState(state: GameState)
 
     /**
      * Request that next frame, we exit the current state, switching to the new state.
      *
      * A later call to [popState] will re-enter this current state.
+     *
+     * A good use-case for [pushState] is if you're on the menu screen. After choosing a game
+     * option and playing the game for a while, when a user quits, they should be dropped back into
+     * the menu screen.
      */
     fun pushState(state: GameState)
 
@@ -63,7 +74,7 @@ expect class AppParams {
 internal class Application internal constructor(params: AppParams, initialState: GameState) {
 
     private sealed class StateCommand {
-        class Replace(val gameState: GameState) : StateCommand()
+        class Change(val gameState: GameState) : StateCommand()
         class Push(val gameState: GameState) : StateCommand()
         object Pop : StateCommand()
     }
@@ -79,8 +90,8 @@ internal class Application internal constructor(params: AppParams, initialState:
         backend.keyReleased += { key -> keyboard.handleKey(key, false) }
 
         val app = object : ApplicationFacade {
-            override fun replaceState(state: GameState) {
-                stateChangeRequest = StateCommand.Replace(state)
+            override fun changeState(state: GameState) {
+                stateChangeRequest = StateCommand.Change(state)
             }
 
             override fun pushState(state: GameState) {
@@ -89,7 +100,7 @@ internal class Application internal constructor(params: AppParams, initialState:
 
             override fun popState() {
                 if (stateStack.size == 1) {
-                    throw IllegalStateException("No more states can be popped. Use app.quit() or app.replaceState() instead?")
+                    throw IllegalStateException("No more states can be popped. Use app.quit() or app.changeState() instead?")
                 }
                 stateChangeRequest = StateCommand.Pop
             }
@@ -130,7 +141,7 @@ internal class Application internal constructor(params: AppParams, initialState:
             stateChangeRequest?.let { stateCommand ->
                 stateStack.lastOrNull()?.let { Disposer.dispose(it) }
                 when (stateCommand) {
-                    is StateCommand.Replace -> {
+                    is StateCommand.Change -> {
                         stateStack.removeAt(stateStack.lastIndex)
                         stateStack.add(stateCommand.gameState)
                     }
