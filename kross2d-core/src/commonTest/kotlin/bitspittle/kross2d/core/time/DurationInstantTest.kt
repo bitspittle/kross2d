@@ -14,7 +14,7 @@ private const val MINS_IN_ONE_DAY = 1.0 * 24 * 60
  */
 class DurationInstantTest {
     @Test
-    fun `can construct a duration`() {
+    fun canConstructDuration() {
         run {
             val d = Duration.zero()
             assertThat(d.millis).isEqualTo(0.0)
@@ -86,7 +86,7 @@ class DurationInstantTest {
     }
 
     @Test
-    fun `min and max work`() {
+    fun minAndMaxWork() {
         val d1: ImmutableDuration = Duration.ofSeconds(1)
         val d5: ImmutableDuration = Duration.ofSeconds(5)
         val d9: ImmutableDuration = Duration.ofSeconds(9)
@@ -114,7 +114,7 @@ class DurationInstantTest {
     }
 
     @Test
-    fun `add and subtract durations`() {
+    fun addAndSubtractDurations() {
         val d1: ImmutableDuration = Duration.ofSeconds(1)
         val d5: ImmutableDuration = Duration.ofSeconds(5)
         val d9: ImmutableDuration = Duration.ofSeconds(9)
@@ -135,7 +135,7 @@ class DurationInstantTest {
     }
 
     @Test
-    fun `durations can be compared`() {
+    fun durationsCanBeCompared() {
         val d1: ImmutableDuration = Duration.ofSeconds(1)
         val d5: ImmutableDuration = Duration.ofSeconds(5)
         val d9: ImmutableDuration = Duration.ofSeconds(9)
@@ -150,7 +150,7 @@ class DurationInstantTest {
     }
 
     @Test
-    fun `durations can be negative`() {
+    fun durationsCanBeNegative() {
         val d1: ImmutableDuration = Duration.ofSeconds(1)
         val d5: ImmutableDuration = Duration.ofSeconds(5)
 
@@ -158,7 +158,7 @@ class DurationInstantTest {
     }
 
     @Test
-    fun `instant minus instant equals duration`() {
+    fun instantMinusInstantEqualsDuration() {
         val instantA = Instant(123)
         val instantB = Instant(1123)
 
@@ -166,7 +166,7 @@ class DurationInstantTest {
     }
 
     @Test
-    fun `duration can be negated`() {
+    fun durationCanBeNegated() {
         var duration = Duration.ofSeconds(123)
 
         duration = -duration
@@ -177,7 +177,7 @@ class DurationInstantTest {
     }
 
     @Test
-    fun `duration overrides equals and hashcode`() {
+    fun durationOverridesEqualsAndHashcode() {
         val durationSet = mutableSetOf(Duration.ofSeconds(3))
         assertThat(durationSet.contains(Duration.ofSeconds(3))).isTrue()
         assertThat(durationSet.contains(Duration.ofSeconds(2))).isFalse()

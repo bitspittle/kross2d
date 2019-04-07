@@ -5,7 +5,7 @@ import kotlin.test.Test
 
 class Pt2Vec2Test {
     @Test
-    fun `can construct p2 and v2`() {
+    fun canConstructP2AndV2() {
         run {
             // Pt2 default constructor
             val pt = Pt2()
@@ -80,7 +80,7 @@ class Pt2Vec2Test {
     }
 
     @Test
-    fun `isZero works`() {
+    fun isZeroWorks() {
         run {
             val pt = Pt2()
             assertThat(pt.isZero()).isTrue()
@@ -109,7 +109,7 @@ class Pt2Vec2Test {
     }
 
     @Test
-    fun `p2 plus v2 equals p2`() {
+    fun p2PlusV2EqualsP2() {
         val pt = Pt2(100, 200)
         val vec = Vec2(300, 400)
 
@@ -119,7 +119,7 @@ class Pt2Vec2Test {
     }
 
     @Test
-    fun `p2 minus v2 equals p2`() {
+    fun p2MinusV2EqualsP2() {
         val pt = Pt2(1000, 2000)
         val vec = Vec2(600, 1400)
 
@@ -129,7 +129,7 @@ class Pt2Vec2Test {
     }
 
     @Test
-    fun `p2 minus p2 equals v2`() {
+    fun p2MinusP2EqualsV2() {
         val ptA = Pt2(1000, 2000)
         val ptB = Pt2(600, 1400)
 
@@ -137,7 +137,7 @@ class Pt2Vec2Test {
     }
 
     @Test
-    fun `p2 times v2 equals p2`() {
+    fun p2TimesV2EqualsP2() {
         val pt = Pt2(100, 200)
         val vec = Vec2(10, 10)
 
@@ -147,7 +147,7 @@ class Pt2Vec2Test {
     }
 
     @Test
-    fun `p2 divided by v2 equals p2`() {
+    fun p2DividedByV2EqualsP2() {
         val pt = Pt2(10000, 20000)
         val vec = Vec2(10, 10)
 
@@ -157,7 +157,7 @@ class Pt2Vec2Test {
     }
 
     @Test
-    fun `p2 can be scaled by a scalar`() {
+    fun p2CanBeScaledByAScalar() {
         run {
             val pt = Pt2(20, 30)
             assertThat(pt * 2f).isEqualTo(Pt2(40, 60))
@@ -174,13 +174,13 @@ class Pt2Vec2Test {
     }
 
     @Test
-    fun `p2 can be negated`() {
+    fun p2CanBeNegated() {
         val pt = Pt2(20, 30)
         assertThat(-pt).isEqualTo(Pt2(-20, -30))
     }
 
     @Test
-    fun `v2 plus v2 equals v2`() {
+    fun v2PlusV2EqualsV2() {
         val vecA = Vec2(100, 200)
         val vecB = Vec2(300, 400)
 
@@ -190,7 +190,7 @@ class Pt2Vec2Test {
     }
 
     @Test
-    fun `v2 minus v2 equals v2`() {
+    fun v2MinusV2EqualsV2() {
         val vecA = Vec2(1000, 2000)
         val vecB = Vec2(600, 1400)
 
@@ -200,7 +200,7 @@ class Pt2Vec2Test {
     }
 
     @Test
-    fun `v2 times v2 equals v2`() {
+    fun v2TimesV2EqualsV2() {
         val vecA = Vec2(100, 200)
         val vecB = Vec2(10, 10)
 
@@ -210,7 +210,7 @@ class Pt2Vec2Test {
     }
 
     @Test
-    fun `v2 divided by v2 equals v2`() {
+    fun v2DividedByV2EqualsV2() {
         val vecA = Vec2(10000, 20000)
         val vecB = Vec2(10, 10)
 
@@ -220,7 +220,7 @@ class Pt2Vec2Test {
     }
 
     @Test
-    fun `v2 can be scaled by a scalar`() {
+    fun v2CanBeScaledByAScalar() {
         run {
             val vec = Vec2(20, 30)
             assertThat(vec * 2f).isEqualTo(Vec2(40, 60))
@@ -237,13 +237,13 @@ class Pt2Vec2Test {
     }
 
     @Test
-    fun `v2 can be negated`() {
+    fun v2CanBeNegated() {
         val vec = Vec2(20, 30)
         assertThat(-vec).isEqualTo(Vec2(-20, -30))
     }
 
     @Test
-    fun `v2 len and normalized`() {
+    fun v2LenAndNormalized() {
         run {
             val vec = Vec2(6, 8)
             assertThat(vec.len2()).isEqualTo(100f)

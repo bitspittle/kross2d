@@ -7,7 +7,7 @@ import kotlin.test.Test
 
 class RectTest {
     @Test
-    fun `can construct rectangles`() {
+    fun canConstructRectangles() {
         Rect(Pt2(10, 20), Vec2(90, 80)).let { rect ->
             assertThat(rect.x).isEqualTo(10f)
             assertThat(rect.y).isEqualTo(20f)
@@ -53,7 +53,7 @@ class RectTest {
     }
 
     @Test
-    fun `can update rectangles`() {
+    fun canUpdateRectangles() {
         val r = Rect()
 
         r.x = 10f
@@ -71,7 +71,7 @@ class RectTest {
     }
 
     @Test
-    fun `area produces expected value`() {
+    fun areaProducesExpectedValue() {
         val r = Rect(Vec2(10, 20))
         assertThat(r.area).isEqualTo(200f)
         r.pos += Vec2(100, 100)
@@ -81,7 +81,7 @@ class RectTest {
     }
 
     @Test
-    fun `rect center methods produce expected values`() {
+    fun rectCenterMethodsProduceExpectedValues() {
         val r = Rect(100, 200, 200, 100)
         assertThat(r.center).isEqualTo(Pt2(200, 250))
 
@@ -89,7 +89,7 @@ class RectTest {
     }
 
     @Test
-    fun `rect intersection works`() {
+    fun rectIntersectionWorks() {
         val r1 = Rect(0, 0, 90, 100)
         val r2 = Rect(75, 75, 60, 100)
         val r3 = Rect(125, 125, 100, 100)
