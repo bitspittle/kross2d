@@ -7,9 +7,9 @@ import bitspittle.kross2d.core.math.Vec2
 import bitspittle.kross2d.core.memory.Disposable
 
 /**
- * A surface area for rendering, which may be on or off-screen.
+ * A 2D image (or sub-portion of that image).
  *
- * See also [DrawSurface.draw]
+ * See also [DrawSurface.drawImage]
  */
 class Image private constructor(
     internal val data: ImageData,

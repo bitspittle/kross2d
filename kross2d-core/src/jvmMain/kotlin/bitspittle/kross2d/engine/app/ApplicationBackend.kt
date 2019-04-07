@@ -5,6 +5,7 @@ import bitspittle.kross2d.core.event.ObservableEvent
 import bitspittle.kross2d.core.graphics.Color
 import bitspittle.kross2d.core.math.ImmutableVec2
 import bitspittle.kross2d.engine.graphics.DrawSurface
+import bitspittle.kross2d.engine.graphics.DrawSurface.ImageParams
 import bitspittle.kross2d.engine.graphics.Image
 import bitspittle.kross2d.engine.input.Key
 import java.awt.Dimension
@@ -133,7 +134,7 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
             }
         }
 
-        override fun draw(image: Image, params: DrawSurface.DrawParams) {
+        override fun drawImage(image: Image, params: ImageParams) {
             enqueueCommand { g ->
                 val srcSize = image.size
                 val destSize = params.destSize ?: srcSize

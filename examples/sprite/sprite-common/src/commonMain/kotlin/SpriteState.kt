@@ -12,7 +12,7 @@ import bitspittle.kross2d.engine.context.DrawContext
 import bitspittle.kross2d.engine.context.InitContext
 import bitspittle.kross2d.engine.context.UpdateContext
 import bitspittle.kross2d.engine.graphics.DrawSurface
-import bitspittle.kross2d.engine.graphics.DrawSurface.DrawParams
+import bitspittle.kross2d.engine.graphics.DrawSurface.ImageParams
 import bitspittle.kross2d.engine.graphics.Image
 import bitspittle.kross2d.engine.input.Key
 import bitspittle.kross2d.extras.anim.Anim
@@ -27,7 +27,7 @@ private val CLEAR_COLOR = Color(0, 0, 0)
  *
  * Demonstrated:
  * - Loading [Image]s using [AssetLoader]
- * - Rendering images using [DrawSurface.draw]
+ * - Rendering images using [DrawSurface.drawImage]
  * - Creating and using [Anim]s
  */
 class SpriteState : GameState {
@@ -90,7 +90,7 @@ class SpriteState : GameState {
 
         fun draw(ctx: DrawContext) {
             val tileX = currAnim.value // We only use the first row of tiles
-            ctx.screen.draw(playerTiles.getTile(tileX, 0), DrawParams(pos, drawSize))
+            ctx.screen.drawImage(playerTiles.getTile(tileX, 0), ImageParams(pos, drawSize))
         }
     }
 
@@ -118,7 +118,7 @@ class SpriteState : GameState {
             val numTiles = ctx.screen.size / grassTile.size
             for (i in 0..numTiles.x.toInt()) {
                 for (j in 0..numTiles.y.toInt()) {
-                    ctx.screen.draw(grassTile, DrawSurface.DrawParams(Pt2(grassTile.size.x * i, grassTile.size.y * j)))
+                    ctx.screen.drawImage(grassTile, ImageParams(Pt2(grassTile.size.x * i, grassTile.size.y * j)))
                 }
             }
         }

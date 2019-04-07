@@ -6,6 +6,7 @@ import bitspittle.kross2d.core.graphics.Color
 import bitspittle.kross2d.core.math.ImmutableVec2
 import bitspittle.kross2d.core.math.Vec2
 import bitspittle.kross2d.engine.graphics.DrawSurface
+import bitspittle.kross2d.engine.graphics.DrawSurface.ImageParams
 import bitspittle.kross2d.engine.graphics.Image
 import bitspittle.kross2d.engine.input.Key
 import org.w3c.dom.CanvasRenderingContext2D
@@ -62,7 +63,7 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
             ctx.fillRect(0.0, 0.0, size.x.toDouble(), size.y.toDouble())
         }
 
-        override fun draw(image: Image, params: DrawSurface.DrawParams) {
+        override fun drawImage(image: Image, params: ImageParams) {
             val dest = params.dest
             val src = image.pos
             val srcSize = image.size

@@ -117,7 +117,7 @@ class BouncingPlayStrategy : PlayStrategy {
  * anim.elapse(ctx.timer.lastFrameDuration)
  *
  * // In draw()
- * ctx.screen.draw(anim.value, ... params ...)
+ * ctx.screen.drawImage(anim.value, ... params ...)
  *
  * ```
  *

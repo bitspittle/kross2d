@@ -16,16 +16,16 @@ interface ImmutableDrawSurface {
  * A surface area for rendering, which may be on or off-screen.
  */
 interface DrawSurface : ImmutableDrawSurface {
-    class DrawParams(val dest: ImmutablePt2 = Pt2.ZERO, val destSize: ImmutableVec2? = null)
+    class ImageParams(val dest: ImmutablePt2 = Pt2.ZERO, val destSize: ImmutableVec2? = null)
 
     fun clear(color: Color)
 
     /**
      * Draw the target image onto this surface.
      *
-     * Using the passed in [DrawParams], you can transform (e.g. translate and scale) the whole
-     * image before it is rendered on the surface. If you wish to only draw a section of the target
-     * image, create a subsection of it using the subimage [Image] constructor.
+     * Using the passed in [ImageParams], you can transform (e.g. translate and scale) the whole
+     * image before it is rendered. If you wish to only drawImage a section of the target image,
+     * create a subsection of it using the subimage [Image] constructor.
      */
-    fun draw(image: Image, params: DrawParams = DrawParams())
+    fun drawImage(image: Image, params: ImageParams = ImageParams())
 }
