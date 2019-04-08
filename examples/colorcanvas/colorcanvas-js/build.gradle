@@ -36,7 +36,7 @@ task cleanWeb(type: Delete) {
     delete "${projectDir}/web/lib"
 }
 
-task run {
+task runWeb {
     group = 'Application'
     doLast {
         Desktop.desktop.open file("${projectDir}/web/index.html")
@@ -45,4 +45,4 @@ task run {
 
 assemble.dependsOn assembleWeb
 clean.dependsOn cleanWeb
-run.dependsOn assembleWeb
+runWeb.dependsOn assembleWeb
