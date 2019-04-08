@@ -97,10 +97,16 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
             ctx.fillStyle = params.color.toHtmlColor()
             ctx.font = font.toHtmlFont()
 
-            var y = (params.dest.y + font.fontData.size).toDouble()
-            text.split('\n').forEach { line ->
-                ctx.fillText(line, params.dest.x.toDouble(), y)
-                y += (params.spacing + font.fontData.size)
+            val lines = text.split('\n')
+            val startPt = params.toTopLeft(
+                produceWidth = { lines.map { line -> measureText(font, line) }.max() ?: 0f },
+                produceHeight = { lines.size * font.size + (lines.size - 1) * params.spacing })
+
+            val x = startPt.x.toDouble()
+            var y = startPt.y.toDouble() + font.size // ctx.fillText y is underneath text
+            lines.forEach { line ->
+                ctx.fillText(line, x, y)
+                y += (params.spacing + font.size)
             }
         }
     }

@@ -169,12 +169,17 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
                     g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
                     val awtFont = font.fontData.awtFont
+                    val lines = text.split('\n')
+                    val startPt = params.toTopLeft(
+                        produceWidth = { lines.map { line -> measureText(font, line) }.max() ?: 0f },
+                        produceHeight = { lines.size * font.size + (lines.size - 1) * params.spacing })
+
                     g.font = awtFont
                     g.color = params.color.toAwtColor()
-                    var y = params.dest.y + awtFont.size
-                    text.split('\n').forEach { line ->
-                        g.drawString(line, params.dest.x, y)
-                        y += params.spacing + awtFont.size
+                    var y = startPt.y + awtFont.size2D // drawSting y is underneath text
+                    lines.forEach { line ->
+                        g.drawString(line, startPt.x, y)
+                        y += params.spacing + awtFont.size2D
                     }
 
                     g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, hintAntialiasRestore)

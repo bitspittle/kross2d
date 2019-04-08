@@ -1,14 +1,13 @@
 import bitspittle.kross2d.core.geom.Rect
-import bitspittle.kross2d.core.geom.centerIn
 import bitspittle.kross2d.core.graphics.Color
 import bitspittle.kross2d.core.math.Pt2
-import bitspittle.kross2d.core.math.Vec2
 import bitspittle.kross2d.engine.GameState
 import bitspittle.kross2d.engine.audio.Sound
 import bitspittle.kross2d.engine.context.DrawContext
 import bitspittle.kross2d.engine.context.InitContext
 import bitspittle.kross2d.engine.context.UpdateContext
 import bitspittle.kross2d.engine.graphics.DrawSurface.TextParams
+import bitspittle.kross2d.engine.graphics.DrawSurface.TextParams.Anchor
 import bitspittle.kross2d.engine.graphics.Font
 import bitspittle.kross2d.engine.input.Key
 
@@ -82,13 +81,8 @@ class SoundsState : GameState {
 
         if (globallyPaused) {
             fontLarge?.let { font ->
-                // Pretty wasteful to recalculate every frame, but this is just a sample...
-                // In your own code, consider caching this.
-                // TODO: Support centering text in drawText?
-                val area = Vec2(ctx.screen.measureText(font, STR_PAUSED), font.size)
-                val pos = area.centerIn(Rect(ctx.screen.size))
-
-                ctx.screen.drawText(font, STR_PAUSED, TextParams(dest = pos))
+                ctx.screen.drawText(font, STR_PAUSED,
+                    TextParams(pt = Rect(ctx.screen.size).center, anchor = Anchor.CENTER))
             }
         }
         else {
@@ -96,7 +90,7 @@ class SoundsState : GameState {
                 ctx.screen.drawText(
                     font,
                     STR_MESSAGE,
-                    TextParams(dest = Pt2(10, 10), spacing = font.size * 0.5f)
+                    TextParams(pt = Pt2(10, 10), spacing = font.size * 0.5f)
                 )
             }
         }
