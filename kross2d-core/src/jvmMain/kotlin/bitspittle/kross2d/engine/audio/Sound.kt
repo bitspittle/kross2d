@@ -1,5 +1,6 @@
 package bitspittle.kross2d.engine.audio
 
+import bitspittle.kross2d.core.memory.Box
 import bitspittle.kross2d.core.memory.Disposable
 import bitspittle.kross2d.core.memory.Disposer
 import bitspittle.kross2d.core.memory.Rc
@@ -98,15 +99,18 @@ class AlSoundSource: Disposable {
         sourceId = sourceIdOut[0]
     }
 
-    fun attachToBuffer(alBuffer: AlSoundBuffer) {
+    fun attachToBuffer(alBuffer: Box<AlSoundBuffer>) {
         val al = ALFactory.getAL()
 
-        al.alSourcei(sourceId, AL.AL_BUFFER, alBuffer.bufferId)
-        al.alSourcef(sourceId, AL.AL_PITCH, 1.0f)
-        al.alSourcef(sourceId, AL.AL_GAIN, 1.0f)
-        al.alSourcefv(sourceId, AL.AL_POSITION, sourcePos, 0)
-        al.alSourcefv(sourceId, AL.AL_VELOCITY, sourceVel, 0)
-        al.alSourcei(sourceId, AL.AL_LOOPING, alBuffer.loop)
+        @Suppress("NAME_SHADOWING")
+        alBuffer.deref { alBuffer ->
+            al.alSourcei(sourceId, AL.AL_BUFFER, alBuffer.bufferId)
+            al.alSourcef(sourceId, AL.AL_PITCH, 1.0f)
+            al.alSourcef(sourceId, AL.AL_GAIN, 1.0f)
+            al.alSourcefv(sourceId, AL.AL_POSITION, sourcePos, 0)
+            al.alSourcefv(sourceId, AL.AL_VELOCITY, sourceVel, 0)
+            al.alSourcei(sourceId, AL.AL_LOOPING, alBuffer.loop)
+        }
     }
 
     override fun dispose() {
@@ -116,10 +120,10 @@ class AlSoundSource: Disposable {
     }
 }
 
-actual class SoundHandle(buffer: AlSoundBuffer): Disposable {
+actual class SoundHandle(buffer: Box<AlSoundBuffer>): Disposable {
     private val audioSource = AlSoundSource()
         .apply { attachToBuffer(buffer) }
-        .also { Disposer.register(buffer, this); Disposer.register(this, it) }
+        .also { source -> Disposer.register(this, source) }
 
     private val al = ALFactory.getAL()
     private val isValid
@@ -165,35 +169,37 @@ actual class Sound(stream: InputStream) : Disposable {
         private val audioGlobalState = Rc { AlGlobalState() }
     }
 
-    private val audioBuffer: AlSoundBuffer
-    private val handles = mutableListOf<SoundHandle>()
+    private val audioBuffer: Box<AlSoundBuffer>
+    private val handles = mutableListOf<Box<SoundHandle>>()
 
     init {
         audioGlobalState.inc()
 
-        audioBuffer = AlSoundBuffer(stream)
-
-        Disposer.register(this, audioBuffer)
+        audioBuffer = Disposer.register(this, AlSoundBuffer(stream))
     }
 
-    actual fun play(): SoundHandle {
+    actual fun play(): Box<SoundHandle> {
         disposeStoppedSounds()
-        return SoundHandle(audioBuffer).also { it.play() }.also { handles.add(it) }
+        Disposer.register(audioBuffer, SoundHandle(audioBuffer)).let { soundHandle ->
+            handles.add(soundHandle)
+            soundHandle.deref().play()
+            return soundHandle
+        }
     }
 
-    actual fun stop(handle: SoundHandle?) {
-        handles.forEach { if (handle == null || handle == it) it.stop() }
+    actual fun stop(handle: Box<SoundHandle>?) {
+        handles.forEach { if (handle == null || handle === it) it.deref().stop() }
         disposeStoppedSounds()
     }
 
-    actual fun pause(handle: SoundHandle?) {
+    actual fun pause(handle: Box<SoundHandle>?) {
         disposeStoppedSounds()
-        handles.forEach { if (handle == null || handle == it) it.pause() }
+        handles.forEach { if (handle == null || handle === it) it.deref().pause() }
     }
 
-    actual fun resume(handle: SoundHandle?) {
+    actual fun resume(handle: Box<SoundHandle>?) {
         disposeStoppedSounds()
-        handles.forEach { if (handle == null || handle == it) it.play() }
+        handles.forEach { if (handle == null || handle === it) it.deref().play() }
     }
 
     /**
@@ -202,12 +208,11 @@ actual class Sound(stream: InputStream) : Disposable {
      * with our API.
      */
     private fun disposeStoppedSounds() {
-        handles.forEach { if (it.isStopped()) Disposer.dispose(it) }
-        handles.removeAll { it.isStopped() }
+        handles.forEach { if (it.deref().isStopped()) Disposer.dispose(it) }
+        handles.removeAll { it.disposed }
     }
 
     override fun dispose() {
-        audioBuffer.dispose()
         audioGlobalState.dec()
     }
 }

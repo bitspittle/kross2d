@@ -2,13 +2,12 @@ package bitspittle.kross2d.engine.assets
 
 import bitspittle.kross2d.core.event.Event
 import bitspittle.kross2d.core.event.ObservableEvent
-import bitspittle.kross2d.core.memory.Disposable
-import bitspittle.kross2d.core.memory.Disposer
-import bitspittle.kross2d.core.memory.disposable
-import bitspittle.kross2d.engine.audio.Sound
-import bitspittle.kross2d.engine.graphics.Image
+import bitspittle.kross2d.core.memory.*
 import bitspittle.kross2d.engine.GameState
+import bitspittle.kross2d.engine.app.Application
+import bitspittle.kross2d.engine.audio.Sound
 import bitspittle.kross2d.engine.graphics.Font
+import bitspittle.kross2d.engine.graphics.Image
 
 /**
  * A handle to an asset that will get loaded asynchronously.
@@ -17,14 +16,14 @@ import bitspittle.kross2d.engine.graphics.Font
  * want to check [state] to see if any asset failed to load, which could be particularly useful for
  * logging errors / aborting the game.
  */
-class Asset<T: Disposable>(parent: Disposable, val path: String) : Disposable {
+class Asset<T: Disposable>(parent: Box<Disposable>, val path: String) : Disposable {
     init {
         Disposer.register(parent, this)
     }
 
     enum class State {
         LOADING,
-        SUCCEEDED,
+        LOADED,
         FAILED,
         DISPOSED,
     }
@@ -32,45 +31,41 @@ class Asset<T: Disposable>(parent: Disposable, val path: String) : Disposable {
     var state = State.LOADING
         private set(value) {
             field = value
-            if (field == State.SUCCEEDED) {
+            if (field == State.LOADED) {
                 fireOnLoaded(this.value!!)
             }
             _onLoaded.clear()
         }
 
-    private val _onLoaded = Event<T> { value?.let { fireOnLoaded(it) } }
-    val onLoaded: ObservableEvent<T> = _onLoaded
+    private val _onLoaded = Event<Box<T>> { value?.let { fireOnLoaded(it) } }
+    val onLoaded: ObservableEvent<Box<T>> = _onLoaded
 
     /**
-     * The value of this handle. Will only be non-null if the current [state] is [State.SUCCEEDED]
+     * The value of this handle. Will only be non-null if the current [state] is [State.LOADED]
      */
-    var value: T? = null
+    var value: Box<T>? = null
         private set
 
     internal fun setValue(value: T?) {
         if (state == State.DISPOSED) {
-            if (value != null) {
-                // We got disposed before the target value ever finished loading. This probably won't
-                // happen in practice, but just in case, let's handle it by disposing the asset value
-                // as well.
-                Disposer.register(value)
-                Disposer.dispose(value)
-            }
+            // It's possible that this asset shell already got disposed by the time we finished
+            // loading the underlying data. This probably won't happen in practice, but just in
+            // case, let's handle it by consuming the data.
+            value?.use {}
             return
         }
 
         assertLoading()
         if (value != null) {
-            Disposer.register(this, value)
-            this.value = value
-            state = State.SUCCEEDED
+            this.value = Disposer.register(this, value)
+            state = State.LOADED
         }
         else {
             state = State.FAILED
         }
     }
 
-    private fun fireOnLoaded(value: T) {
+    private fun fireOnLoaded(value: Box<T>) {
         _onLoaded(value)
         _onLoaded.clear()
     }
@@ -78,7 +73,7 @@ class Asset<T: Disposable>(parent: Disposable, val path: String) : Disposable {
     internal fun notifyFailure() {
         if (state == State.DISPOSED) {
             // We got disposed before the target value had a chance to fail loading. This probably
-            // won't happen in practice, but just in case, let's handle this by ignoring it.
+            // won't happen in practice, but if it does, who cares! Let's just ignore it.
             return
         }
         assertLoading()
@@ -131,7 +126,7 @@ class Asset<T: Disposable>(parent: Disposable, val path: String) : Disposable {
  *     )
  *
  *     // update
- *     if (ctx.assetLoader.allAssets.all { it.state == Asset.State.SUCCEEDED }) {
+ *     if (ctx.assetLoader.allAssets.all { it.state == Asset.State.LOADED }) {
  *        val nextState = MainState(gameAssets)
  *        // Make sure assets don't get released when we leave this state
  *        Disposer.transferChildren(from = this, to = nextState)
@@ -141,10 +136,12 @@ class Asset<T: Disposable>(parent: Disposable, val path: String) : Disposable {
  */
 class AssetLoader(root: String) {
     /**
-     * A context which any new, loaded assets will be registered against. Application logic should
-     * set this to the current [GameState] before the user ever gets a chance to load assets.
+     * A context which any new, loaded assets will be registered against as the owning disposable.
+     *
+     * Dev note: The [Application] class should set this to the current [GameState] before the user
+     * ever gets a chance to load assets.
      */
-    internal lateinit var disposableContext: Disposable
+    internal lateinit var disposableContext: Box<Disposable>
 
     private val backend = AssetLoaderBackend(root)
 
@@ -155,8 +152,8 @@ class AssetLoader(root: String) {
     fun loadFont(relativePath: String): Asset<Font> {
         return cachedFonts.getOrPut(relativePath) {
             Asset<Font>(disposableContext, relativePath).apply {
-                cachedFonts[relativePath] = this
                 backend.loadFontInto(this)
+                cachedFonts[relativePath] = this
                 Disposer.register(this, disposable { cachedFonts.remove(relativePath) })
             }
         }
@@ -165,8 +162,8 @@ class AssetLoader(root: String) {
     fun loadImage(relativePath: String): Asset<Image> {
         return cachedImages.getOrPut(relativePath) {
             Asset<Image>(disposableContext, relativePath).apply {
-                cachedImages[relativePath] = this
                 backend.loadImageInto(this)
+                cachedImages[relativePath] = this
                 Disposer.register(this, disposable { cachedImages.remove(relativePath) })
             }
         }
@@ -175,8 +172,8 @@ class AssetLoader(root: String) {
     fun loadSound(relativePath: String): Asset<Sound> {
         return cachedSounds.getOrPut(relativePath) {
             Asset<Sound>(disposableContext, relativePath).apply {
-                cachedSounds[relativePath] = this
                 backend.loadSoundInto(this)
+                cachedSounds[relativePath] = this
                 Disposer.register(this, disposable { cachedSounds.remove(relativePath) })
             }
         }

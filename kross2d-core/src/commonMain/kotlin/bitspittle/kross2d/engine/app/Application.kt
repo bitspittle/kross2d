@@ -1,6 +1,7 @@
 package bitspittle.kross2d.engine.app
 
 import bitspittle.kross2d.core.event.ObservableEvent
+import bitspittle.kross2d.core.memory.Box
 import bitspittle.kross2d.core.memory.Disposable
 import bitspittle.kross2d.core.memory.Disposer
 import bitspittle.kross2d.core.time.Duration
@@ -81,14 +82,14 @@ internal class Application internal constructor(params: AppParams, initialState:
     private val backend = ApplicationBackend(params)
 
     private var stateChangeRequest: StateCommand? = StateCommand.Push(initialState)
-    private val stateStack = mutableListOf<GameState>()
+    private val stateStack = mutableListOf<Box<GameState>>()
 
     init {
         val keyboard = DefaultKeyboard()
         backend.keyPressed += { key -> keyboard.handleKey(key, true) }
         backend.keyReleased += { key -> keyboard.handleKey(key, false) }
 
-        val app = object : ApplicationFacade {
+        val app = Disposer.register(object : ApplicationFacade {
             override fun changeState(state: GameState) {
                 stateChangeRequest = StateCommand.Change(state)
             }
@@ -105,7 +106,7 @@ internal class Application internal constructor(params: AppParams, initialState:
             }
 
             override fun quit() = backend.quit()
-        }
+        })
 
         val timer = DefaultTimer()
 
@@ -117,7 +118,7 @@ internal class Application internal constructor(params: AppParams, initialState:
         }
 
         val updateContext = object : UpdateContext {
-            override val app: ApplicationFacade = app
+            override val app: ApplicationFacade = app.deref()
             override val assetLoader: AssetLoader = assetLoader
             override val screen: ImmutableDrawSurface = backend.drawSurface
             override val keyboard: Keyboard = keyboard
@@ -129,8 +130,6 @@ internal class Application internal constructor(params: AppParams, initialState:
             override val timer: Timer = timer
         }
 
-        Disposer.register(app)
-
         // Following vars are set immediately when the initialState is pushed on the stack
         lateinit var frameStart: Instant
         lateinit var currentState: GameState
@@ -141,10 +140,10 @@ internal class Application internal constructor(params: AppParams, initialState:
                 when (stateCommand) {
                     is StateCommand.Change -> {
                         stateStack.removeAt(stateStack.lastIndex)
-                        stateStack.add(stateCommand.gameState)
+                        stateStack.add(Disposer.register(app, stateCommand.gameState))
                     }
                     is StateCommand.Push -> {
-                        stateStack.add(stateCommand.gameState)
+                        stateStack.add(Disposer.register(app, stateCommand.gameState))
                     }
                     is StateCommand.Pop -> {
                         stateStack.removeAt(stateStack.lastIndex)
@@ -152,12 +151,12 @@ internal class Application internal constructor(params: AppParams, initialState:
                 }
                 this.stateChangeRequest = null
 
-                currentState = stateStack.last()
-                Disposer.register(app, currentState)
-                frameStart = Instant.now()
-                timer.lastFrameDuration.setFrom(Duration.ZERO)
-                assetLoader.disposableContext = currentState
-                currentState.init(initContext)
+                stateStack.last().let { stateToEnter ->
+                    frameStart = Instant.now()
+                    timer.lastFrameDuration.setFrom(Duration.ZERO)
+                    assetLoader.disposableContext = stateToEnter
+                    currentState = stateToEnter.deref().also { it.init(initContext) }
+                }
             }
 
             val lastFrameStart = frameStart

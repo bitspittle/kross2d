@@ -1,11 +1,14 @@
 package bitspittle.kross2d.core.memory
 
+import bitspittle.kross2d.core.memory.Disposer.IllegalDisposerOperation
 import bitspittle.truthish.assertThat
 import bitspittle.truthish.assertThrows
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.fail
 
+// Disposer.register assigned to vars even if not needed, for readability
+@Suppress("UNUSED_VARIABLE")
 class DisposableTest {
     class TestDisposable(private val displayName: String? = null) : Disposable {
         var disposed = false
@@ -30,22 +33,22 @@ class DisposableTest {
         assertThat(Disposer.isRegistered(d1)).isFalse()
         assertThat(Disposer.isRegistered(d2)).isFalse()
 
-        Disposer.register(d1)
-        Disposer.register(d2)
+        val d1Box = Disposer.register(d1)
+        val d2Box = Disposer.register(d2)
 
         assertThat(Disposer.isRegistered(d1)).isTrue()
         assertThat(Disposer.isRegistered(d2)).isTrue()
         assertThat(d1.disposed).isFalse()
         assertThat(d2.disposed).isFalse()
 
-        Disposer.dispose(d2)
+        Disposer.dispose(d2Box)
 
         assertThat(Disposer.isRegistered(d1)).isTrue()
         assertThat(Disposer.isRegistered(d2)).isFalse()
         assertThat(d1.disposed).isFalse()
         assertThat(d2.disposed).isTrue()
 
-        Disposer.dispose(d1)
+        Disposer.dispose(d1Box)
 
         assertThat(Disposer.isRegistered(d1)).isFalse()
         assertThat(Disposer.isRegistered(d2)).isFalse()
@@ -72,53 +75,75 @@ class DisposableTest {
         Disposer.register(grandparent, parent)
         Disposer.register(parent, child)
 
-        assertThrows<IllegalArgumentException> {
+        assertThrows<IllegalDisposerOperation> {
             Disposer.register(child, grandparent)
         }
     }
 
     @Test
-    fun disposingNonRegisteredDisposableThrowsException() {
-        val d = TestDisposable()
-        assertThrows<IllegalArgumentException> {
-            Disposer.dispose(d)
-        }
-        Disposer.register(d)
-        Disposer.dispose(d)
-        assertThrows<IllegalArgumentException> {
-            Disposer.dispose(d)
+    fun canRegisterViaRawParent() {
+        val parent = TestDisposable()
+        val child = TestDisposable()
+
+        val parentBox = Disposer.register(parent)
+        val childBox = Disposer.register(parent, child)
+
+        Disposer.dispose(parentBox)
+        assertThat(childBox.disposed).isTrue()
+    }
+
+    @Test
+    fun canReparentViaRawChild() {
+        val parent1Box = Disposer.register(TestDisposable())
+        val parent2Box = Disposer.register(TestDisposable())
+        val child = TestDisposable()
+
+        Disposer.register(child)
+        Disposer.register(parent1Box, child)
+        Disposer.register(parent2Box, child)
+
+        Disposer.dispose(parent1Box)
+        assertThat(child.disposed).isFalse()
+
+        Disposer.dispose(parent2Box)
+        assertThat(child.disposed).isTrue()
+
+        // Should be a no-op. Everything was already freed!
+        Disposer.freeRemaining { fail(it) }
+    }
+
+    @Test
+    fun cannotDisposeAnAlreadyDisposedBox() {
+        val box = Disposer.register(TestDisposable())
+        Disposer.dispose(box)
+        assertThrows<AlreadyDisposedException> {
+            Disposer.dispose(box)
         }
     }
 
     @Test
     fun canDisposeRecursivelyViaParents() {
-        val d1 = TestDisposable()
-        val d11 = TestDisposable()
-        val d111 = TestDisposable()
-        val d1111 = TestDisposable()
-        val d2 = TestDisposable()
+        val b1 = Disposer.register(TestDisposable())
+        val b11 = Disposer.register(b1, TestDisposable())
+        val b111 = Disposer.register(b11, TestDisposable())
+        val b1111 = Disposer.register(b111, TestDisposable())
+        val b2 = Disposer.register(TestDisposable())
 
-        Disposer.register(d1)
-        Disposer.register(d1, d11)
-        Disposer.register(d11, d111)
-        Disposer.register(d111, d1111)
-        Disposer.register(d2)
+        Disposer.dispose(b111)
 
-        Disposer.dispose(d111)
+        assertThat(b1.disposed).isFalse()
+        assertThat(b11.disposed).isFalse()
+        assertThat(b111.disposed).isTrue()
+        assertThat(b1111.disposed).isTrue()
+        assertThat(b2.disposed).isFalse()
 
-        assertThat(d1.disposed).isFalse()
-        assertThat(d11.disposed).isFalse()
-        assertThat(d111.disposed).isTrue()
-        assertThat(d1111.disposed).isTrue()
-        assertThat(d2.disposed).isFalse()
+        Disposer.dispose(b1)
+        assertThat(b1.disposed).isTrue()
+        assertThat(b11.disposed).isTrue()
+        assertThat(b2.disposed).isFalse()
 
-        Disposer.dispose(d1)
-        assertThat(d1.disposed).isTrue()
-        assertThat(d11.disposed).isTrue()
-        assertThat(d2.disposed).isFalse()
-
-        Disposer.dispose(d2)
-        assertThat(d2.disposed).isTrue()
+        Disposer.dispose(b2)
+        assertThat(b2.disposed).isTrue()
     }
 
     @Test
@@ -157,26 +182,20 @@ class DisposableTest {
         val d = disposable { disposed = true }
 
         assertThat(disposed).isFalse()
-        Disposer.register(d)
+        val box = Disposer.register(d)
         assertThat(disposed).isFalse()
-        Disposer.dispose(d)
+        Disposer.dispose(box)
         assertThat(disposed).isTrue()
     }
 
     @Test
     fun canTransferOwnershipOfDisposables() {
-        val parent1 = TestDisposable()
-        val parent2 = TestDisposable()
+        val parent1 = Disposer.register(TestDisposable())
+        val parent2 = Disposer.register(TestDisposable())
 
-        val child1 = TestDisposable()
-        val child2 = TestDisposable()
-        val child3 = TestDisposable()
-
-        Disposer.register(parent1)
-        Disposer.register(parent1, child1)
-        Disposer.register(parent1, child2)
-        Disposer.register(parent1, child3)
-        Disposer.register(parent2)
+        val child1 = Disposer.register(parent1, TestDisposable())
+        val child2 = Disposer.register(parent1, TestDisposable())
+        val child3 = Disposer.register(parent1, TestDisposable())
 
         Disposer.transferChildren(from = parent1, to = parent2)
 
@@ -196,16 +215,11 @@ class DisposableTest {
 
     @Test
     fun transferringOwernshipFromAndToTheSameLeavesChildrenUnmoved() {
-        val parent = TestDisposable()
+        val parent = Disposer.register(TestDisposable())
 
-        val child1 = TestDisposable()
-        val child2 = TestDisposable()
-        val child3 = TestDisposable()
-
-        Disposer.register(parent)
-        Disposer.register(parent, child1)
-        Disposer.register(parent, child2)
-        Disposer.register(parent, child3)
+        val child1 = Disposer.register(parent, TestDisposable())
+        val child2 = Disposer.register(parent, TestDisposable())
+        val child3 = Disposer.register(parent, TestDisposable())
 
         Disposer.transferChildren(from = parent, to = parent)
 
@@ -217,77 +231,57 @@ class DisposableTest {
 
     @Test
     fun transferringOwernshipToAChildDisposableThrowsAnException() {
-        val parent = TestDisposable()
+        val parent = Disposer.register(TestDisposable())
 
-        val child1 = TestDisposable()
-        val child2 = TestDisposable()
-        val child3 = TestDisposable()
+        val child1 = Disposer.register(parent, TestDisposable())
+        val child2 = Disposer.register(parent, TestDisposable())
+        val child3 = Disposer.register(parent, TestDisposable())
 
-        Disposer.register(parent)
-        Disposer.register(parent, child1)
-        Disposer.register(parent, child2)
-        Disposer.register(parent, child3)
-
-        assertThrows<IllegalArgumentException> {
+        assertThrows<IllegalDisposerOperation> {
             Disposer.transferChildren(from = parent, to = child2)
         }
     }
 
     @Test
     fun testFreeRemainingMessage() {
-        val d1 = TestDisposable("d1")
-        val d11 = TestDisposable("d11")
-        val d12 = TestDisposable("d12")
-        val d121 = TestDisposable("d121")
-        val d13 = TestDisposable("d13")
-        val d131 = TestDisposable("d131")
-        val d132 = TestDisposable("d132")
-        val d2 = TestDisposable("d2")
-        val d21 = TestDisposable("d21")
-        val d22 = TestDisposable("d22")
-        val d221 = TestDisposable("d221")
-        val d2211 = TestDisposable("d2211")
-        val d3 = TestDisposable("d3")
-        val d31 = TestDisposable("d31")
+        val b1 = Disposer.register(TestDisposable("b1"))
+        val b11 = Disposer.register(b1, TestDisposable("b11"))
+        val b12 = Disposer.register(b1, TestDisposable("b12"))
+        val b121 = Disposer.register(b12, TestDisposable("b121"))
+        val b13 = Disposer.register(b1, TestDisposable("b13"))
+        val b131 = Disposer.register(b13, TestDisposable("b131"))
+        val b132 = Disposer.register(b13, TestDisposable("b132"))
 
-        Disposer.register(d1)
-        Disposer.register(d1, d11)
-        Disposer.register(d1, d12)
-        Disposer.register(d12, d121)
-        Disposer.register(d1, d13)
-        Disposer.register(d13, d131)
-        Disposer.register(d13, d132)
+        val b2 = Disposer.register(TestDisposable("b2"))
+        val b21 = Disposer.register(b2, TestDisposable("b21"))
+        val b22 = Disposer.register(b2,TestDisposable("b22"))
+        val b221 = Disposer.register(b22, TestDisposable("b221"))
+        val b2211 = Disposer.register(b221, TestDisposable("b2211"))
 
-        Disposer.register(d2)
-        Disposer.register(d2, d21)
-        Disposer.register(d2, d22)
-        Disposer.register(d22, d221)
-        Disposer.register(d221, d2211)
-
-        Disposer.register(d3)
-        Disposer.register(d3, d31)
+        val b3 = Disposer.register(TestDisposable("b3"))
+        val b31 = Disposer.register(b3, TestDisposable("b31"))
 
         Disposer.freeRemaining {
             assertThat(it.trim()).isEqualTo(
                 """
                 Some disposables were not cleaned up:
 
-                TestDisposable { d1 }
-                  TestDisposable { d11 }
-                  TestDisposable { d12 }
-                    TestDisposable { d121 }
-                  TestDisposable { d13 }
-                    TestDisposable { d131 }
-                    TestDisposable { d132 }
+                TestDisposable { b1 }
+                  TestDisposable { b11 }
+                  TestDisposable { b12 }
+                    TestDisposable { b121 }
+                  TestDisposable { b13 }
+                    TestDisposable { b131 }
+                    TestDisposable { b132 }
 
-                TestDisposable { d2 }
-                  TestDisposable { d21 }
-                  TestDisposable { d22 }
-                    TestDisposable { d221 }
-                      TestDisposable { d2211 }
+                TestDisposable { b2 }
+                  TestDisposable { b21 }
+                  TestDisposable { b22 }
+                    TestDisposable { b221 }
+                      TestDisposable { b2211 }
 
-                TestDisposable { d3 }
-                  TestDisposable { d31 }
+                TestDisposable { b3 }
+                  TestDisposable { b31 }
                 """.trimIndent()
             )
         }

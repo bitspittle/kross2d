@@ -28,7 +28,6 @@ class RcTest {
         rc.inc()
         rc.value.let { d ->
             d!!
-            assertThat(Disposer.isRegistered(d)).isTrue()
             for (i in 0..10) {
                 rc.inc()
             }

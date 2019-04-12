@@ -12,7 +12,7 @@ import kotlin.jvm.Volatile
  * released and disposed. If [inc] is called again at that point, a new instance will be created.
  */
 class Rc<T: Disposable>(private val create: () -> T) {
-    var value: T? = null
+    var value: Box<T>? = null
         private set
 
     @Volatile
@@ -21,7 +21,7 @@ class Rc<T: Disposable>(private val create: () -> T) {
     @Synchronized
     fun inc() {
         if (counter == 0) {
-            value = create().also { Disposer.register(it) }
+            value = Disposer.register(create())
         }
         ++counter
     }
