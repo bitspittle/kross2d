@@ -46,6 +46,18 @@ class Asset<T: Disposable>(parent: Box<Disposable>, val path: String) : Disposab
     var value: Box<T>? = null
         private set
 
+    /**
+     * Convenience function, allowing a caller to shorten the common expression
+     * `asset.value?.deref { x -> ... }` to `asset.ifLoaded { x -> ... }`
+     *
+     * This will not run [block] if the asset is still loading; however, if the asset was already
+     * loaded and then disposed, this will throw an exception as if the caller had used the
+     * disposed asset directly.
+     */
+    inline fun <R> ifLoaded(block: (T) -> R): R? {
+        return value?.deref(block)
+    }
+
     internal fun setValue(value: T?) {
         if (state == State.DISPOSED) {
             // It's possible that this asset shell already got disposed by the time we finished

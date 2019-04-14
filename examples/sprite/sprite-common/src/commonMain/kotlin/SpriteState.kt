@@ -114,7 +114,7 @@ class SpriteState : GameState {
     override fun draw(ctx: DrawContext) {
         ctx.screen.clear(CLEAR_COLOR)
 
-        grassAsset.value?.deref { grassTile ->
+        grassAsset.ifLoaded { grassTile ->
             val numTiles = ctx.screen.size / grassTile.size
             for (i in 0..numTiles.x.toInt()) {
                 for (j in 0..numTiles.y.toInt()) {

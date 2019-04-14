@@ -3,6 +3,7 @@ import bitspittle.kross2d.core.graphics.Color
 import bitspittle.kross2d.core.math.Pt2
 import bitspittle.kross2d.core.memory.Box
 import bitspittle.kross2d.engine.GameState
+import bitspittle.kross2d.engine.assets.Asset
 import bitspittle.kross2d.engine.audio.Sound
 import bitspittle.kross2d.engine.context.DrawContext
 import bitspittle.kross2d.engine.context.InitContext
@@ -36,13 +37,13 @@ class SoundsState : GameState {
 
     }
 
-    private val sounds = arrayOfNulls<Box<Sound>?>(10)
+    private lateinit var sounds: List<Asset<Sound>>
     private var font: Box<Font>? = null
     private var fontLarge: Box<Font>? = null
     private var globallyPaused = false
 
     override fun init(ctx: InitContext) {
-        listOf(
+        sounds = listOf(
             "boing.wav",
             "boxing_bell.wav",
             "chainsaw.wav",
@@ -53,8 +54,7 @@ class SoundsState : GameState {
             "ricochet.wav",
             "slide_whistle.wav",
             "thunk.wav")
-            .forEachIndexed { i, filename -> ctx.assetLoader.loadSound(filename).onLoaded += { sounds[i] = it }
-        }
+            .map { filename -> ctx.assetLoader.loadSound(filename) }
         ctx.assetLoader.loadFont("square.ttf").onLoaded += { font = it; fontLarge = it.derive(24f) }
     }
 
@@ -66,8 +66,7 @@ class SoundsState : GameState {
         if (ctx.keyboard.isJustPressed(Key.SPACE)) {
             globallyPaused = !globallyPaused
             sounds
-                .filterNotNull()
-                .map { it.deref() }
+                .mapNotNull { it.value?.deref() }
                 .forEach { if (globallyPaused) it.pause() else it.resume() }
         }
 
@@ -75,7 +74,7 @@ class SoundsState : GameState {
             (Key.NUM_0.ordinal..Key.NUM_9.ordinal).forEachIndexed { i, keyOrdinal ->
                 val key = Key.values()[keyOrdinal]
                 if (ctx.keyboard.isJustPressed(key)) {
-                    sounds.getOrNull(i)?.deref()?.play()
+                    sounds[i].ifLoaded { it.play() }
                 }
             }
         }
