@@ -35,6 +35,9 @@ kotlin {
                 def openALVersion = "2.3.2"
                 implementation "org.jogamp.gluegen:gluegen-rt-main:$openALVersion"
                 implementation "org.jogamp.joal:joal-main:$openALVersion"
+                // Use j-ogg for loading ogg music files
+                implementation  "de.jarnbjo:j-ogg-all:1.0.0"
+
             }
         }
         jvmTest {

@@ -1,13 +1,12 @@
 package bitspittle.kross2d.engine.assets
 
+import bitspittle.kross2d.engine.audio.Music
 import bitspittle.kross2d.engine.audio.Sound
 import bitspittle.kross2d.engine.graphics.Font
 import bitspittle.kross2d.engine.graphics.FontData
 import bitspittle.kross2d.engine.graphics.Image
 import bitspittle.kross2d.engine.graphics.ImageData
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 actual class AssetLoaderBackend actual constructor(root: String) {
     private val resourceLoader = ResourceLoader(root)
@@ -29,8 +28,13 @@ actual class AssetLoaderBackend actual constructor(root: String) {
 
     actual fun loadSoundInto(asset: Asset<Sound>) {
         GlobalScope.launch(Dispatchers.IO) {
-            asset.setValue(
-                resourceLoader.stream(asset.path)?.let { Sound.tryCreate(it) })
+            asset.setValue(resourceLoader.stream(asset.path)?.let { Sound.tryCreate(it) })
+        }
+    }
+
+    actual fun loadMusicInto(asset: Asset<Music>) {
+        GlobalScope.launch(Dispatchers.IO) {
+            asset.setValue(resourceLoader.url(asset.path)?.let { Music.tryCreate(it) })
         }
     }
 }

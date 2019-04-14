@@ -5,6 +5,7 @@ import bitspittle.kross2d.core.memory.Box
 import bitspittle.kross2d.core.memory.deref
 import bitspittle.kross2d.engine.GameState
 import bitspittle.kross2d.engine.assets.Asset
+import bitspittle.kross2d.engine.audio.Music
 import bitspittle.kross2d.engine.audio.Sound
 import bitspittle.kross2d.engine.context.DrawContext
 import bitspittle.kross2d.engine.context.InitContext
@@ -39,6 +40,7 @@ class SoundsState : GameState {
     }
 
     private lateinit var sounds: List<Asset<Sound>>
+    private lateinit var music: Asset<Music>
     private var font: Box<Font>? = null
     private var fontLarge: Box<Font>? = null
     private var globallyPaused = false
@@ -57,6 +59,8 @@ class SoundsState : GameState {
             "thunk.wav")
             .map { filename -> ctx.assetLoader.loadSound(filename) }
         ctx.assetLoader.loadFont("square.ttf").onLoaded += { font = it; fontLarge = it.derive(24f) }
+        music = ctx.assetLoader.loadMusic("battle.ogg")
+        music.onLoaded += { it.deref().play() }
     }
 
     override fun update(ctx: UpdateContext) {
@@ -69,6 +73,8 @@ class SoundsState : GameState {
             sounds
                 .mapNotNull { it.value?.deref() }
                 .forEach { if (globallyPaused) it.pause() else it.resume() }
+
+            music.ifLoaded { if (globallyPaused) it.pause() else it.resume() }
         }
 
         if (!globallyPaused) {

@@ -5,6 +5,7 @@ import bitspittle.kross2d.core.event.ObservableEvent
 import bitspittle.kross2d.core.memory.*
 import bitspittle.kross2d.engine.GameState
 import bitspittle.kross2d.engine.app.Application
+import bitspittle.kross2d.engine.audio.Music
 import bitspittle.kross2d.engine.audio.Sound
 import bitspittle.kross2d.engine.graphics.Font
 import bitspittle.kross2d.engine.graphics.Image
@@ -160,6 +161,7 @@ class AssetLoader(root: String) {
     private val cachedFonts = mutableMapOf<String, Asset<Font>>()
     private val cachedImages = mutableMapOf<String, Asset<Image>>()
     private val cachedSounds = mutableMapOf<String, Asset<Sound>>()
+    private val cachedMusic = mutableMapOf<String, Asset<Music>>()
 
     fun loadFont(relativePath: String): Asset<Font> {
         return cachedFonts.getOrPut(relativePath) {
@@ -190,12 +192,24 @@ class AssetLoader(root: String) {
             }
         }
     }
+
+    fun loadMusic(relativePath: String): Asset<Music> {
+        return cachedMusic.getOrPut(relativePath) {
+            Asset<Music>(disposableContext, relativePath).apply {
+                backend.loadMusicInto(this)
+                cachedMusic[relativePath] = this
+                Disposer.register(this, disposable { cachedMusic.remove(relativePath) })
+            }
+        }
+
+    }
 }
 
 expect class AssetLoaderBackend(root: String) {
     fun loadFontInto(asset: Asset<Font>)
     fun loadImageInto(asset: Asset<Image>)
     fun loadSoundInto(asset: Asset<Sound>)
+    fun loadMusicInto(asset: Asset<Music>)
 }
 
 
