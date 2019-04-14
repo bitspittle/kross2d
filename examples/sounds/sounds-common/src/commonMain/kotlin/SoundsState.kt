@@ -2,6 +2,7 @@ import bitspittle.kross2d.core.geom.Rect
 import bitspittle.kross2d.core.graphics.Color
 import bitspittle.kross2d.core.math.Pt2
 import bitspittle.kross2d.core.memory.Box
+import bitspittle.kross2d.core.memory.deref
 import bitspittle.kross2d.engine.GameState
 import bitspittle.kross2d.engine.assets.Asset
 import bitspittle.kross2d.engine.audio.Sound

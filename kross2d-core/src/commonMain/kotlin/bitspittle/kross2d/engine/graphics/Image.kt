@@ -7,6 +7,7 @@ import bitspittle.kross2d.core.math.Vec2
 import bitspittle.kross2d.core.memory.Box
 import bitspittle.kross2d.core.memory.Disposable
 import bitspittle.kross2d.core.memory.Disposer
+import bitspittle.kross2d.core.memory.deref
 
 /**
  * A 2D image (or sub-portion of that image).

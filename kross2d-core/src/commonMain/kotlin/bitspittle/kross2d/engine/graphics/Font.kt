@@ -3,6 +3,7 @@ package bitspittle.kross2d.engine.graphics
 import bitspittle.kross2d.core.memory.Box
 import bitspittle.kross2d.core.memory.Disposable
 import bitspittle.kross2d.core.memory.Disposer
+import bitspittle.kross2d.core.memory.deref
 
 /**
  * A true-type font which can be used to render text.

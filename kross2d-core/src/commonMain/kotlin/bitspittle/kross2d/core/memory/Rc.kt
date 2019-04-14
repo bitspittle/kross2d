@@ -11,9 +11,8 @@ import kotlin.jvm.Volatile
  * [dec] the same amount of times that [inc] was previously called will result in the object being
  * released and disposed. If [inc] is called again at that point, a new instance will be created.
  */
-class Rc<T: Disposable>(private val create: () -> T) {
-    var value: Box<T>? = null
-        private set
+class Rc<T: Disposable>(private val create: () -> T): Reference<T> {
+    private var value: Box<T>? = null
 
     @Volatile
     private var counter = 0
@@ -29,7 +28,7 @@ class Rc<T: Disposable>(private val create: () -> T) {
     @Synchronized
     fun dec() {
         if (counter == 0) {
-            throw IllegalStateException("Unbalanced ref counting; decremented more than incremented")
+            throw IllegalStateException("Unbalanced ref counting; dec() called more than inc()")
         }
 
         --counter
@@ -38,5 +37,9 @@ class Rc<T: Disposable>(private val create: () -> T) {
             Disposer.dispose(value!!)
             value = null
         }
+    }
+
+    override fun deref(): T {
+        return value?.deref() ?: throw IllegalStateException("Using uninitialized Rc. Call inc() first?")
     }
 }

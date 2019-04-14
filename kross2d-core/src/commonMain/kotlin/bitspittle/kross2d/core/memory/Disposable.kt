@@ -76,7 +76,7 @@ inline fun disposable(crossinline block: () -> Unit): Disposable {
  * See also: [Disposer], which is responsible for boxing and disposing target [Disposable] values.
  * (A user is not allowed to create boxes themselves)
  */
-class Box<out T: Disposable>internal constructor(value: T) {
+class Box<out T: Disposable>internal constructor(value: T): Reference<T> {
     var disposed = false
         private set
 
@@ -90,19 +90,11 @@ class Box<out T: Disposable>internal constructor(value: T) {
         }
     }
 
-    fun deref(): T {
+    override fun deref(): T {
         if (disposed) {
             throw AlreadyDisposedException("Tried to use a boxed value after it was already disposed.")
         }
         return value!!
-    }
-
-    /**
-     * Convenience method for dereferencing this box and (optionally) returning a transformed
-     * result.
-     */
-    inline fun <R> deref(block: (T) -> R): R {
-        return block(deref())
     }
 
     override fun toString(): String {

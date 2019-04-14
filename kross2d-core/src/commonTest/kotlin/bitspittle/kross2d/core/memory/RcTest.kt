@@ -23,31 +23,30 @@ class RcTest {
     @Test
     fun testIncAndDec() {
         val rc = Rc { TestDisposable() }
-        assertThat(rc.value).isNull()
+        assertThrows<Exception> { rc.deref() }
 
         rc.inc()
-        rc.value.let { d ->
-            d!!
+        rc.deref { d ->
             for (i in 0..10) {
                 rc.inc()
             }
-            assertThat(rc.value).isSameAs(d)
+            assertThat(rc.deref()).isSameAs(d)
             for (i in 0..10) {
                 rc.dec()
             }
-            assertThat(rc.value).isSameAs(d)
+            assertThat(rc.deref()).isSameAs(d)
             assertThat(d.disposed).isFalse()
 
             rc.dec()
-            assertThat(rc.value).isNull()
-
+            assertThrows<Exception> { rc.deref() }
             assertThat(d.disposed).isTrue()
 
             rc.inc()
-            assertThat(rc.value!!).isNotSameAs(d)
+            assertThat(rc.deref()).isNotSameAs(d)
             rc.dec()
         }
 
-        assertThat(rc.value).isNull()
+        assertThrows<Exception> { rc.deref() }
+        assertThrows<Exception> { rc.deref { } }
     }
 }
