@@ -5,12 +5,12 @@ import bitspittle.kross2d.engine.audio.openal.AlException
 import bitspittle.kross2d.engine.audio.openal.AlGlobalState
 import bitspittle.kross2d.engine.audio.openal.AlBuffer
 import bitspittle.kross2d.engine.audio.openal.AlSource
-import bitspittle.kross2d.engine.audio.openal.wav.WavBuffer
+import bitspittle.kross2d.engine.audio.openal.wav.WavData
 import com.jogamp.openal.AL
 import com.jogamp.openal.ALFactory
 import java.io.InputStream
 
-actual class SoundHandle(buffer: AlBuffer): Disposable {
+actual class SoundHandle internal constructor(buffer: AlBuffer): Disposable {
     private val audioSource = AlSource()
         .apply { attachToBuffer(buffer) }
         .also { source -> Disposer.register(this, source) }
@@ -57,20 +57,23 @@ actual class Sound(stream: InputStream) : Disposable {
         }
     }
 
-    private val audioBuffer: Box<AlBuffer>
+    private val wavData: Box<WavData>
     private val handles = mutableListOf<Box<SoundHandle>>()
 
     init {
         AlGlobalState.INSTANCE.inc()
-        audioBuffer = Disposer.register(this, WavBuffer(stream))
+        wavData = Disposer.register(this, WavData(stream))
     }
 
     actual fun play(): Box<SoundHandle> {
         disposeStoppedSounds()
-        Disposer.register(audioBuffer, SoundHandle(audioBuffer.deref())).let { soundHandle ->
-            handles.add(soundHandle)
-            soundHandle.deref().play()
-            return soundHandle
+        wavData.deref().alBuffer.let { buffer ->
+            val handle = SoundHandle(buffer.deref())
+            handle.play()
+
+            Disposer.register(buffer, handle)
+                .also { handles.add(it) }
+                .also { return it }
         }
     }
 

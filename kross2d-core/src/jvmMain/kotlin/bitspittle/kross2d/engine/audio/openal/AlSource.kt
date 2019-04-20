@@ -13,21 +13,21 @@ class AlSource: Disposable {
     var id: Int
         private set
 
+    val isStopped: Boolean
+        get() = !isPlaying && !isPaused
+
     val isPlaying: Boolean
-        get() {
-            val stateOut = IntArray(1)
-            val al = ALFactory.getAL()
-            al.alGetSourcei(id, AL.AL_SOURCE_STATE, stateOut, 0)
-            return stateOut[0] == AL.AL_PLAYING
-        }
+        get() = query(AL.AL_PLAYING)
 
     val isPaused: Boolean
-        get() {
-            val stateOut = IntArray(1)
-            val al = ALFactory.getAL()
-            al.alGetSourcei(id, AL.AL_SOURCE_STATE, stateOut, 0)
-            return stateOut[0] == AL.AL_PAUSED
-        }
+        get() = query(AL.AL_PAUSED)
+
+    private fun query(state: Int): Boolean {
+        val statePtr = IntArray(1)
+        val al = ALFactory.getAL()
+        al.alGetSourcei(id, AL.AL_SOURCE_STATE, statePtr, 0)
+        return statePtr[0] == state
+    }
 
     private val pos = floatArrayOf(0.0f, 0.0f, 0.0f)
     private val vel = floatArrayOf(0.0f, 0.0f, 0.0f)

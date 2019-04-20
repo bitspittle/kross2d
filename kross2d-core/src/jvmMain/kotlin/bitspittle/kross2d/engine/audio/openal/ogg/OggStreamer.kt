@@ -2,12 +2,11 @@ package bitspittle.kross2d.engine.audio.openal.ogg
 
 import bitspittle.kross2d.core.memory.Disposable
 import bitspittle.kross2d.core.memory.Disposer
-import bitspittle.kross2d.core.memory.disposable
-import bitspittle.kross2d.engine.audio.openal.AlSource
+import bitspittle.kross2d.engine.audio.openal.Stream
 import com.jogamp.openal.AL
-import com.jogamp.openal.ALFactory
 import kotlinx.coroutines.delay
 import java.net.URL
+import java.nio.ByteBuffer
 
 /**
  *
@@ -23,22 +22,12 @@ class OggStreamer(url: URL): Disposable {
     companion object {
         // The size of a chunk from the stream that we want to read for each update.
         private var BUFFER_SIZE = 4096 * 16
-
-        // The number of buffers used in the audio pipeline
-        private var NUM_BUFFERS = 2
     }
 
     private val oggDecoder: OggDecoder = OggDecoder(url)
 
-    /**
-     * Buffers that hold streaming data. There will be two buffers - so at least one will always be
-     * written to while the other is read from.
-     */
-    private val buffers: Array<OggBuffer>
-    private val source = AlSource()
+    private val stream: Stream
     private val sleepTimeMs: Long = 10
-
-    private var currBuffer = 0
 
     init {
         val format = when (oggDecoder.numChannels) {
@@ -46,88 +35,36 @@ class OggStreamer(url: URL): Disposable {
             else -> AL.AL_FORMAT_STEREO16
         }
 
-        Disposer.register(this, disposable {
-            // In order to dispose buffers, we need to make sure the source they are queued up
-            // against is stopped and dequeued
-            source.stop()
-
-            val al = ALFactory.getAL()
-            val queuedOut = intArrayOf(0)
-            al.alGetSourcei(source.id, AL.AL_BUFFERS_QUEUED, queuedOut, 0)
-            val queuedCount = queuedOut[0]
-            if (queuedCount > 0) {
-                al.alSourceUnqueueBuffers(source.id, queuedCount, IntArray(queuedCount) { 0 }, 0)
-            }
-        })
-        buffers = Array(2) { OggBuffer(source, format, oggDecoder.sampleRate) }
-        buffers.forEach { buffer -> Disposer.register(this, buffer) }
-        Disposer.register(this, source)
-    }
-
-    private fun initialLoad(): Boolean {
-        for (i in 0 until NUM_BUFFERS) {
-            if (!loadNextChunkInto(buffers[i]))
-                return false
+        stream = Stream(format, oggDecoder.sampleRate) {
+            val pcm = ByteArray(BUFFER_SIZE)
+            val size = oggDecoder.readChunkInto(pcm)
+            if (size > 0) Stream.Packet(ByteBuffer.wrap(pcm, 0, size), size) else null
         }
 
-        buffers.forEach { it.enqueue() }
-        return true
-    }
-
-    private fun updateBuffers(): Boolean {
-        val processedOut = IntArray(1)
-        var isActive = true
-
-        val al = ALFactory.getAL()
-        al.alGetSourcei(source.id, AL.AL_BUFFERS_PROCESSED, processedOut, 0)
-
-        var processed = processedOut[0]
-        while (processed > 0) {
-            val buffer = buffers[currBuffer]
-            buffer.dequeue()
-            isActive = loadNextChunkInto(buffer)
-            buffer.enqueue()
-            currBuffer = (currBuffer + 1) % NUM_BUFFERS
-
-            processed--
-        }
-
-        return isActive
-    }
-
-    private fun loadNextChunkInto(buffer: OggBuffer): Boolean {
-        val pcm = ByteArray(BUFFER_SIZE)
-        val size = oggDecoder.readChunkInto(pcm)
-        if (size <= 0) return false
-
-        buffer.setData(pcm, size)
-        return true
+        Disposer.register(this, stream)
     }
 
     /**
      * The main loop to initialize and play the entire stream
      */
     suspend fun playLoop() {
-        if (!initialLoad())
-            return
-
-        source.play()
-        while (source.isPaused || (source.isPlaying && updateBuffers())) {
-            // We will try sleeping for sometime so that we dont
-            // peg the CPU...
-            delay(sleepTimeMs)
+        if (stream.start()) {
+            while (stream.update()) {
+                // We will try sleeping for sometime so that we don't peg the CPU...
+                delay(sleepTimeMs)
+            }
         }
     }
 
     fun stop() {
-        source.stop()
+        stream.stop()
     }
 
     fun pause() {
-        source.pause()
+        stream.pause()
     }
 
     fun resume() {
-        source.play()
+        stream.resume()
     }
 }
