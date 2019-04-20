@@ -1,4 +1,4 @@
-package bitspittle.kross2d.engine.audio.ogg
+package bitspittle.kross2d.engine.audio.openal.ogg
 
 import bitspittle.kross2d.core.memory.Disposable
 import de.jarnbjo.ogg.CachedUrlStream

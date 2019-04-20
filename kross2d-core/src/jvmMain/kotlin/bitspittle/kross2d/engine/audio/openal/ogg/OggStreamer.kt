@@ -1,9 +1,9 @@
-package bitspittle.kross2d.engine.audio.ogg
+package bitspittle.kross2d.engine.audio.openal.ogg
 
 import bitspittle.kross2d.core.memory.Disposable
 import bitspittle.kross2d.core.memory.Disposer
 import bitspittle.kross2d.core.memory.disposable
-import bitspittle.kross2d.engine.audio.AlSoundSource
+import bitspittle.kross2d.engine.audio.openal.AlSource
 import com.jogamp.openal.AL
 import com.jogamp.openal.ALFactory
 import kotlinx.coroutines.delay
@@ -35,7 +35,7 @@ class OggStreamer(url: URL): Disposable {
      * written to while the other is read from.
      */
     private val buffers: Array<OggBuffer>
-    private val source = AlSoundSource()
+    private val source = AlSource()
     private val sleepTimeMs: Long = 10
 
     private var currBuffer = 0

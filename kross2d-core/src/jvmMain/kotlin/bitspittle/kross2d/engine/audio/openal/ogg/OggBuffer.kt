@@ -1,14 +1,13 @@
-package bitspittle.kross2d.engine.audio.ogg
+package bitspittle.kross2d.engine.audio.openal.ogg
 
-import bitspittle.kross2d.engine.audio.AlSoundBuffer
-import bitspittle.kross2d.engine.audio.AlSoundSource
-import bitspittle.kross2d.engine.audio.throwIfError
-import com.jogamp.openal.AL
+import bitspittle.kross2d.engine.audio.openal.AlBuffer
+import bitspittle.kross2d.engine.audio.openal.AlSource
+import bitspittle.kross2d.engine.audio.openal.throwIfError
 import com.jogamp.openal.ALFactory
-import com.jogamp.openal.util.ALut
 import java.nio.ByteBuffer
 
-class OggBuffer(private val source: AlSoundSource, private val format: Int, private val rate: Int): AlSoundBuffer {
+class OggBuffer(private val source: AlSource, private val format: Int, private val rate: Int):
+    AlBuffer {
     override var id: Int = 0
         private set
 

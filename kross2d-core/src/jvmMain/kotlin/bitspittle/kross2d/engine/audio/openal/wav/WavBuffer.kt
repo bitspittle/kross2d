@@ -1,13 +1,13 @@
-package bitspittle.kross2d.engine.audio.wav
+package bitspittle.kross2d.engine.audio.openal.wav
 
-import bitspittle.kross2d.engine.audio.AlSoundBuffer
-import bitspittle.kross2d.engine.audio.throwIfError
+import bitspittle.kross2d.engine.audio.openal.AlBuffer
+import bitspittle.kross2d.engine.audio.openal.throwIfError
 import com.jogamp.openal.ALFactory
 import com.jogamp.openal.util.ALut
 import java.io.InputStream
 import java.nio.ByteBuffer
 
-class WavBuffer(stream: InputStream): AlSoundBuffer {
+class WavBuffer(stream: InputStream): AlBuffer {
     override var id: Int = 0
         private set
 
