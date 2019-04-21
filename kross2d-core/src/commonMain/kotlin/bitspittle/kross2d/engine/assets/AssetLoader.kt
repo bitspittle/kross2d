@@ -4,7 +4,7 @@ import bitspittle.kross2d.core.event.Event
 import bitspittle.kross2d.core.event.ObservableEvent
 import bitspittle.kross2d.core.memory.*
 import bitspittle.kross2d.engine.GameState
-import bitspittle.kross2d.engine.app.Application
+import bitspittle.kross2d.engine.app.ApplicationFacade
 import bitspittle.kross2d.engine.audio.Music
 import bitspittle.kross2d.engine.audio.Sound
 import bitspittle.kross2d.engine.graphics.Font
@@ -17,7 +17,7 @@ import bitspittle.kross2d.engine.graphics.Image
  * want to check [state] to see if any asset failed to load, which could be particularly useful for
  * logging errors / aborting the game.
  */
-class Asset<T: Disposable>(parent: Box<Disposable>, val path: String) : Disposable {
+class Asset<T: Disposable>(parent: Disposable, val path: String) : Disposable {
     init {
         Disposer.register(parent, this)
     }
@@ -147,15 +147,7 @@ class Asset<T: Disposable>(parent: Box<Disposable>, val path: String) : Disposab
  *     }
  *   }
  */
-class AssetLoader(root: String) {
-    /**
-     * A context which any new, loaded assets will be registered against as the owning disposable.
-     *
-     * Dev note: The [Application] class should set this to the current [GameState] before the user
-     * ever gets a chance to load assets.
-     */
-    internal lateinit var disposableContext: Box<Disposable>
-
+class AssetLoader(root: String, private val app: ApplicationFacade) {
     private val backend = AssetLoaderBackend(root)
 
     private val cachedFonts = mutableMapOf<String, Asset<Font>>()
@@ -163,9 +155,9 @@ class AssetLoader(root: String) {
     private val cachedSounds = mutableMapOf<String, Asset<Sound>>()
     private val cachedMusic = mutableMapOf<String, Asset<Music>>()
 
-    fun loadFont(relativePath: String): Asset<Font> {
+    fun loadFont(relativePath: String, lifetime: Disposable = app.activeStateLifetime): Asset<Font> {
         return cachedFonts.getOrPut(relativePath) {
-            Asset<Font>(disposableContext, relativePath).apply {
+            Asset<Font>(lifetime, relativePath).apply {
                 backend.loadFontInto(this)
                 cachedFonts[relativePath] = this
                 Disposer.register(this, disposable { cachedFonts.remove(relativePath) })
@@ -173,9 +165,9 @@ class AssetLoader(root: String) {
         }
     }
 
-    fun loadImage(relativePath: String): Asset<Image> {
+    fun loadImage(relativePath: String, lifetime: Disposable = app.activeStateLifetime): Asset<Image> {
         return cachedImages.getOrPut(relativePath) {
-            Asset<Image>(disposableContext, relativePath).apply {
+            Asset<Image>(lifetime, relativePath).apply {
                 backend.loadImageInto(this)
                 cachedImages[relativePath] = this
                 Disposer.register(this, disposable { cachedImages.remove(relativePath) })
@@ -183,9 +175,9 @@ class AssetLoader(root: String) {
         }
     }
 
-    fun loadSound(relativePath: String): Asset<Sound> {
+    fun loadSound(relativePath: String, lifetime: Disposable = app.activeStateLifetime): Asset<Sound> {
         return cachedSounds.getOrPut(relativePath) {
-            Asset<Sound>(disposableContext, relativePath).apply {
+            Asset<Sound>(lifetime, relativePath).apply {
                 backend.loadSoundInto(this)
                 cachedSounds[relativePath] = this
                 Disposer.register(this, disposable { cachedSounds.remove(relativePath) })
@@ -193,15 +185,14 @@ class AssetLoader(root: String) {
         }
     }
 
-    fun loadMusic(relativePath: String): Asset<Music> {
+    fun loadMusic(relativePath: String, lifetime: Disposable = app.activeStateLifetime): Asset<Music> {
         return cachedMusic.getOrPut(relativePath) {
-            Asset<Music>(disposableContext, relativePath).apply {
+            Asset<Music>(lifetime, relativePath).apply {
                 backend.loadMusicInto(this)
                 cachedMusic[relativePath] = this
                 Disposer.register(this, disposable { cachedMusic.remove(relativePath) })
             }
         }
-
     }
 }
 

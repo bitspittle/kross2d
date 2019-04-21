@@ -71,6 +71,33 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
                     KeyEvent.VK_8 -> Key.NUM_8
                     KeyEvent.VK_9 -> Key.NUM_9
 
+                    KeyEvent.VK_A -> Key.A
+                    KeyEvent.VK_B -> Key.B
+                    KeyEvent.VK_C -> Key.C
+                    KeyEvent.VK_D -> Key.D
+                    KeyEvent.VK_E -> Key.E
+                    KeyEvent.VK_F -> Key.F
+                    KeyEvent.VK_G -> Key.G
+                    KeyEvent.VK_H -> Key.H
+                    KeyEvent.VK_I -> Key.I
+                    KeyEvent.VK_J -> Key.J
+                    KeyEvent.VK_K -> Key.K
+                    KeyEvent.VK_L -> Key.L
+                    KeyEvent.VK_M -> Key.M
+                    KeyEvent.VK_N -> Key.N
+                    KeyEvent.VK_O -> Key.O
+                    KeyEvent.VK_P -> Key.P
+                    KeyEvent.VK_Q -> Key.Q
+                    KeyEvent.VK_R -> Key.R
+                    KeyEvent.VK_S -> Key.S
+                    KeyEvent.VK_T -> Key.T
+                    KeyEvent.VK_U -> Key.U
+                    KeyEvent.VK_V -> Key.V
+                    KeyEvent.VK_W -> Key.W
+                    KeyEvent.VK_X -> Key.X
+                    KeyEvent.VK_Y -> Key.Y
+                    KeyEvent.VK_Z -> Key.Z
+
                     KeyEvent.VK_SPACE -> Key.SPACE
                     KeyEvent.VK_TAB -> Key.TAB
                     KeyEvent.VK_BACK_SPACE -> Key.BACKSPACE

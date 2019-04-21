@@ -263,6 +263,17 @@ object Disposer {
     }
 
     /**
+     * Release the resources held by this [Disposable], as well as all its children.
+     *
+     * If the [disposable] was not previously registered, this call is a no-op.
+     *
+     * Children will be cleaned up before the parent is.
+     */
+    fun disposeIfRegistered(disposable: Disposable) {
+        boxOf(disposable)?.let { dispose(it) }
+    }
+
+    /**
      * Returns `true` if this raw [Disposable] has already been registered.
      */
     fun isRegistered(disposable: Disposable): Boolean = boxRegistry.containsKey(disposable)

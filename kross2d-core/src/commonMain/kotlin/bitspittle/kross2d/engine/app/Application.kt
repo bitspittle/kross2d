@@ -4,6 +4,7 @@ import bitspittle.kross2d.core.event.ObservableEvent
 import bitspittle.kross2d.core.memory.Box
 import bitspittle.kross2d.core.memory.Disposable
 import bitspittle.kross2d.core.memory.Disposer
+import bitspittle.kross2d.core.memory.disposable
 import bitspittle.kross2d.core.time.Duration
 import bitspittle.kross2d.core.time.Instant
 import bitspittle.kross2d.engine.GameState
@@ -23,6 +24,19 @@ import bitspittle.kross2d.engine.time.Timer
  * A subset of the application API that will be exposed to the game logic.
  */
 interface ApplicationFacade : Disposable {
+    /**
+     * A lifetime for the current state's running scope. Note that this is different from the
+     * lifetime of the state itself, which may not get disposed even after we've exited it
+     * For example, if you call [pushState], you will move to the new state but the old state will
+     * not yet be released.
+     *
+     * It may be useful to register children [Disposable]s under this lifetime, if you want to make
+     * sure they're cleaned up when the current state changes.
+     *
+     * This is the default lifetime used by [AssetLoader]
+     */
+    val activeStateLifetime: Disposable
+
     /**
      * Request that next frame, we exit and discard the current state, switching to the new state.
      *
@@ -83,13 +97,22 @@ internal class Application internal constructor(params: AppParams, initialState:
 
     private var stateChangeRequest: StateCommand? = StateCommand.Push(initialState)
     private val stateStack = mutableListOf<Box<GameState>>()
+    /**
+     * A dummy disposable used to represent the lifetime of the active game state
+     *
+     * It will be released any time the current state changes, which is most often useful for
+     * releasing assets associated with that running state.
+     */
+    private val activeStateLifetime = disposable {}
 
     init {
         val keyboard = DefaultKeyboard()
         backend.keyPressed += { key -> keyboard.handleKey(key, true) }
         backend.keyReleased += { key -> keyboard.handleKey(key, false) }
 
-        val app = Disposer.register(object : ApplicationFacade {
+        val app = object : ApplicationFacade {
+            override val activeStateLifetime = this@Application.activeStateLifetime
+
             override fun changeState(state: GameState) {
                 stateChangeRequest = StateCommand.Change(state)
             }
@@ -106,19 +129,21 @@ internal class Application internal constructor(params: AppParams, initialState:
             }
 
             override fun quit() = backend.quit()
-        })
+        }
+        Disposer.register(app)
 
         val timer = DefaultTimer()
 
-        val assetLoader = AssetLoader(params.assetsRoot)
+        val assetLoader = AssetLoader(params.assetsRoot, app)
         val initContext = object : InitContext {
+            override val app: ApplicationFacade = app
             override val assetLoader: AssetLoader = assetLoader
             override val screen: ImmutableDrawSurface = backend.drawSurface
             override val timer: Timer = timer
         }
 
         val updateContext = object : UpdateContext {
-            override val app: ApplicationFacade = app.deref()
+            override val app: ApplicationFacade = app
             override val assetLoader: AssetLoader = assetLoader
             override val screen: ImmutableDrawSurface = backend.drawSurface
             override val keyboard: Keyboard = keyboard
@@ -136,17 +161,16 @@ internal class Application internal constructor(params: AppParams, initialState:
 
         backend.runForever {
             stateChangeRequest?.let { stateCommand ->
-                stateStack.lastOrNull()?.let { Disposer.dispose(it) }
                 when (stateCommand) {
                     is StateCommand.Change -> {
-                        stateStack.removeAt(stateStack.lastIndex)
+                        stateStack.removeAt(stateStack.lastIndex).also { Disposer.dispose(it) }
                         stateStack.add(Disposer.register(app, stateCommand.gameState))
                     }
                     is StateCommand.Push -> {
                         stateStack.add(Disposer.register(app, stateCommand.gameState))
                     }
                     is StateCommand.Pop -> {
-                        stateStack.removeAt(stateStack.lastIndex)
+                        stateStack.removeAt(stateStack.lastIndex).also { Disposer.dispose(it) }
                     }
                 }
                 this.stateChangeRequest = null
@@ -154,7 +178,8 @@ internal class Application internal constructor(params: AppParams, initialState:
                 stateStack.last().let { stateToEnter ->
                     frameStart = Instant.now()
                     timer.lastFrameDuration.setFrom(Duration.ZERO)
-                    assetLoader.disposableContext = stateToEnter
+                    Disposer.disposeIfRegistered(activeStateLifetime)
+                    Disposer.register(app, activeStateLifetime)
                     currentState = stateToEnter.deref().also { it.init(initContext) }
                 }
             }
@@ -170,7 +195,7 @@ internal class Application internal constructor(params: AppParams, initialState:
         }
 
         backend.onQuit {
-            Disposer.dispose(app)
+            Disposer.disposeIfRegistered(app)
             // TODO: Default behavior is to println. If we ever add a DEBUG mode, we should
             //  throw an exception instead if in DEBUG.
             Disposer.freeRemaining()

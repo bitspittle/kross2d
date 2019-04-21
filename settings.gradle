@@ -31,4 +31,9 @@ include("$exSounds-common")
 include("$exSounds-jvm")
 include("$exSounds-js")
 
+def exManyStates = ":examples:manystates:manystates"
+include("$exManyStates-common")
+include("$exManyStates-jvm")
+include("$exManyStates-js")
+
 enableFeaturePreview("GRADLE_METADATA")
