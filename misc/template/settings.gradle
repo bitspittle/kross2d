@@ -1,0 +1,17 @@
+pluginManagement {
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "kotlin-multiplatform") {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+            }
+            else if (requested.id.id == "kotlin2js") {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+            }
+        }
+    }
+}
+// Necessary for multiplatform to work
+enableFeaturePreview("GRADLE_METADATA")
+
+rootProject.name = "yourgame"
+include(":yourgame-common")
