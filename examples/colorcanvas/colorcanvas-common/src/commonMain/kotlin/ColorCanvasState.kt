@@ -34,7 +34,7 @@ class ColorCanvasState : GameState {
     }
 
     override fun update(ctx: UpdateContext) {
-        if (ctx.keyboard.isDown(Key.ESC)) {
+        if (ctx.keyboard.isJustPressed(Key.ESC)) {
             ctx.app.quit()
         }
 

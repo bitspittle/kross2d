@@ -1,5 +1,6 @@
 import bitspittle.kross2d.core.geom.Rect
 import bitspittle.kross2d.core.graphics.Color
+import bitspittle.kross2d.core.graphics.Colors
 import bitspittle.kross2d.core.math.Pt2
 import bitspittle.kross2d.core.memory.Box
 import bitspittle.kross2d.core.memory.deref
@@ -15,8 +16,6 @@ import bitspittle.kross2d.engine.graphics.DrawSurface.TextParams.Anchor
 import bitspittle.kross2d.engine.graphics.Font
 import bitspittle.kross2d.engine.graphics.derive
 import bitspittle.kross2d.engine.input.Key
-
-private val CLEAR_COLOR = Color(0, 0, 0)
 
 /**
  * Images: A simple "game" which plays sounds.
@@ -88,7 +87,7 @@ class SoundsState : GameState {
     }
 
     override fun draw(ctx: DrawContext) {
-        ctx.screen.clear(CLEAR_COLOR)
+        ctx.screen.clear(Colors.BLACK)
 
         if (globallyPaused) {
             fontLarge?.deref { font ->
