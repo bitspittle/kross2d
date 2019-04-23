@@ -2,6 +2,7 @@ package bitspittle.kross2d.engine.audio.openal.ogg
 
 import bitspittle.kross2d.core.memory.Disposable
 import bitspittle.kross2d.core.memory.Disposer
+import bitspittle.kross2d.core.memory.setParent
 import bitspittle.kross2d.engine.audio.openal.Stream
 import com.jogamp.openal.AL
 import kotlinx.coroutines.delay
@@ -18,13 +19,13 @@ import java.nio.ByteBuffer
  *
  * @author Krishna K Gadepalli
  */
-class OggStreamer(url: URL): Disposable {
+class OggStreamer(url: URL): Disposable() {
     companion object {
         // The size of a chunk from the stream that we want to read for each update.
         private var BUFFER_SIZE = 4096 * 16
     }
 
-    private val oggDecoder: OggDecoder = OggDecoder(url)
+    private val oggDecoder: OggDecoder = OggDecoder(url).setParent(this)
 
     private val stream: Stream
     private val sleepTimeMs: Long = 10
@@ -41,7 +42,7 @@ class OggStreamer(url: URL): Disposable {
             if (size > 0) Stream.Packet(ByteBuffer.wrap(pcm, 0, size), size) else null
         }
 
-        Disposer.register(this, stream)
+        stream.setParent(this)
     }
 
     /**

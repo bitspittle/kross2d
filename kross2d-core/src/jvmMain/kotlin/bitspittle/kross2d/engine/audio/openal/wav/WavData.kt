@@ -1,16 +1,14 @@
 package bitspittle.kross2d.engine.audio.openal.wav
 
-import bitspittle.kross2d.core.memory.Box
 import bitspittle.kross2d.core.memory.Disposable
-import bitspittle.kross2d.core.memory.Disposer
+import bitspittle.kross2d.core.memory.setParent
 import bitspittle.kross2d.engine.audio.openal.AlBuffer
-import com.jogamp.openal.ALFactory
 import com.jogamp.openal.util.ALut
 import java.io.InputStream
 import java.nio.ByteBuffer
 
-class WavData(stream: InputStream): Disposable {
-    val alBuffer: Box<AlBuffer>
+class WavData(stream: InputStream): Disposable() {
+    val alBuffer: AlBuffer
 
     init {
         val formatPtr = IntArray(1)
@@ -26,8 +24,7 @@ class WavData(stream: InputStream): Disposable {
         val size = sizePtr[0]
         val freq = freqPtr[0]
 
-        val buffer = AlBuffer()
-        buffer.setData(data, size, format, freq)
-        alBuffer = Disposer.register(this, buffer)
+        alBuffer = AlBuffer().setParent(this)
+        alBuffer.setData(data, size, format, freq)
     }
 }

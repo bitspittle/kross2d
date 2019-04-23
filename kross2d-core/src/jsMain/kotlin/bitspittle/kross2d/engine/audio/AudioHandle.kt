@@ -4,7 +4,7 @@ import bitspittle.kross2d.core.memory.Disposable
 import bitspittle.kross2d.engine.dom.clearSource
 import org.w3c.dom.Audio
 
-class AudioHandle(jsAudio: Audio): Disposable {
+class AudioHandle(jsAudio: Audio): Disposable() {
     internal val jsAudioPtr = (jsAudio.cloneNode() as Audio)
 
     internal fun play() {
@@ -26,7 +26,7 @@ class AudioHandle(jsAudio: Audio): Disposable {
         jsAudioPtr.play()
     }
 
-    override fun dispose() {
+    override fun onDisposed() {
         stop()
         jsAudioPtr.clearSource()
     }

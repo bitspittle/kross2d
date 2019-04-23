@@ -9,7 +9,7 @@ import com.jogamp.openal.util.ALut
 /**
  * OpenAL global state / singletons, e.g. the listener's position, global init/exit calls, etc.
  */
-class AlGlobalState: Disposable {
+class AlGlobalState private constructor(): Disposable() {
     companion object {
         internal val INSTANCE =
             Rc { AlGlobalState() }
@@ -29,7 +29,7 @@ class AlGlobalState: Disposable {
         al.alListenerfv(AL.AL_ORIENTATION, listenerOrientation, 0)
     }
 
-    override fun dispose() {
+    override fun onDisposed() {
         ALut.alutExit()
     }
 }

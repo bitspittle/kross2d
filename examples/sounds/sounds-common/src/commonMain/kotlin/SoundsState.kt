@@ -1,9 +1,6 @@
 import bitspittle.kross2d.core.geom.Rect
-import bitspittle.kross2d.core.graphics.Color
 import bitspittle.kross2d.core.graphics.Colors
 import bitspittle.kross2d.core.math.Pt2
-import bitspittle.kross2d.core.memory.Box
-import bitspittle.kross2d.core.memory.deref
 import bitspittle.kross2d.engine.GameState
 import bitspittle.kross2d.engine.assets.Asset
 import bitspittle.kross2d.engine.audio.Music
@@ -14,7 +11,6 @@ import bitspittle.kross2d.engine.context.UpdateContext
 import bitspittle.kross2d.engine.graphics.DrawSurface.TextParams
 import bitspittle.kross2d.engine.graphics.DrawSurface.TextParams.Anchor
 import bitspittle.kross2d.engine.graphics.Font
-import bitspittle.kross2d.engine.graphics.derive
 import bitspittle.kross2d.engine.input.Key
 
 /**
@@ -40,8 +36,8 @@ class SoundsState : GameState {
 
     private lateinit var sounds: List<Asset<Sound>>
     private lateinit var music: Asset<Music>
-    private var font: Box<Font>? = null
-    private var fontLarge: Box<Font>? = null
+    private var font: Font? = null
+    private var fontLarge: Font? = null
     private var globallyPaused = false
 
     override fun init(ctx: InitContext) {
@@ -59,7 +55,7 @@ class SoundsState : GameState {
             .map { filename -> ctx.assetLoader.loadSound(filename) }
         ctx.assetLoader.loadFont("square.ttf").onLoaded += { font = it; fontLarge = it.derive(24f) }
         music = ctx.assetLoader.loadMusic("battle.ogg")
-        music.onLoaded += { it.deref().play() }
+        music.onLoaded += { it.play() }
     }
 
     override fun update(ctx: UpdateContext) {
@@ -70,17 +66,17 @@ class SoundsState : GameState {
         if (ctx.keyboard.isJustPressed(Key.SPACE)) {
             globallyPaused = !globallyPaused
             sounds
-                .mapNotNull { it.value?.deref() }
+                .mapNotNull { it.value }
                 .forEach { if (globallyPaused) it.pause() else it.resume() }
 
-            music.ifLoaded { if (globallyPaused) it.pause() else it.resume() }
+            music.value?.let { if (globallyPaused) it.pause() else it.resume() }
         }
 
         if (!globallyPaused) {
             (Key.NUM_0.ordinal..Key.NUM_9.ordinal).forEachIndexed { i, keyOrdinal ->
                 val key = Key.values()[keyOrdinal]
                 if (ctx.keyboard.isJustPressed(key)) {
-                    sounds[i].ifLoaded { it.play() }
+                    sounds[i].value?.play()
                 }
             }
         }
@@ -90,13 +86,13 @@ class SoundsState : GameState {
         ctx.screen.clear(Colors.BLACK)
 
         if (globallyPaused) {
-            fontLarge?.deref { font ->
+            fontLarge?.let { font ->
                 ctx.screen.drawText(font, STR_PAUSED,
                     TextParams(pt = Rect(ctx.screen.size).center, anchor = Anchor.CENTER))
             }
         }
         else {
-            font?.deref { font ->
+            font?.let { font ->
                 ctx.screen.drawText(
                     font,
                     STR_MESSAGE,

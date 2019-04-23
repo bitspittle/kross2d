@@ -1,9 +1,6 @@
 package bitspittle.kross2d.engine.graphics
 
-import bitspittle.kross2d.core.memory.Box
-import bitspittle.kross2d.core.memory.Disposable
-import bitspittle.kross2d.core.memory.Disposer
-import bitspittle.kross2d.core.memory.deref
+import bitspittle.kross2d.core.memory.*
 
 /**
  * A true-type font which can be used to render text.
@@ -13,17 +10,14 @@ import bitspittle.kross2d.core.memory.deref
  *
  * See also: [DrawSurface.drawText]
  */
-class Font internal constructor(internal val fontData: FontData): Disposable {
+class Font internal constructor(internal val fontData: FontData): Disposable() {
     companion object {
         const val DEFAULT_SIZE = 12f
     }
 
     val size = fontData.size
-}
-
-fun Box<Font>.derive(fontSize: Float): Box<Font> {
-    return this.deref { font ->
-        Disposer.register(this, Font(font.fontData.derive(fontSize)))
+    fun derive(fontSize: Float): Font {
+        return Font(fontData.derive(fontSize)).setParent(this)
     }
 }
 

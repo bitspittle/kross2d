@@ -14,9 +14,9 @@ import bitspittle.kross2d.engine.input.Key
 
 class MiddleState(private val font: Asset<Font>) : GameState {
     override fun init(ctx: InitContext) {
-        Disposer.register(ctx.app.activeStateLifetime, disposable {
+        disposable(ctx.lifetimes.currState) {
             println("MiddleState is no longer active")
-        })
+        }
     }
 
     override fun update(ctx: UpdateContext) {
@@ -30,7 +30,7 @@ class MiddleState(private val font: Asset<Font>) : GameState {
 
     override fun draw(ctx: DrawContext) {
         ctx.screen.clear(Colors.BLACK)
-        font.ifLoaded { font ->
+        font.value?.let { font ->
             ctx.screen.drawText(
                 font, """
                 MIDDLE STATE
@@ -41,9 +41,5 @@ class MiddleState(private val font: Asset<Font>) : GameState {
                 DrawSurface.TextParams(Rect(ctx.screen.size).center, DrawSurface.TextParams.Anchor.BOTTOM)
             )
         }
-    }
-
-    override fun dispose() {
-        println("! MiddleState was disposed")
     }
 }

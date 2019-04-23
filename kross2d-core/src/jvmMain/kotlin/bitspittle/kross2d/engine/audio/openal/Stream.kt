@@ -1,8 +1,8 @@
 package bitspittle.kross2d.engine.audio.openal
 
 import bitspittle.kross2d.core.memory.Disposable
-import bitspittle.kross2d.core.memory.Disposer
 import bitspittle.kross2d.core.memory.disposable
+import bitspittle.kross2d.core.memory.setParent
 import com.jogamp.openal.AL
 import com.jogamp.openal.ALFactory
 import java.nio.ByteBuffer
@@ -36,7 +36,7 @@ typealias DataProvider = () -> Stream.Packet?
  *
  * If you want to restart the song, call [stop] then [start] again.
  */
-class Stream(private val format: Int, private val freq: Int, private val dataProvider: DataProvider): Disposable {
+class Stream(private val format: Int, private val freq: Int, private val dataProvider: DataProvider): Disposable() {
     class Packet(val data: ByteBuffer, val size: Int)
 
     private val alSource = AlSource()
@@ -50,10 +50,10 @@ class Stream(private val format: Int, private val freq: Int, private val dataPro
 
     init {
         // In order to allow buffers to properly dispose, we need to make sure the source they
-        // are queued up against is stopped and dequeued
-        Disposer.register(this, disposable { stop() })
-        Disposer.register(this, alSource)
-        alBuffers.forEach { Disposer.register(this, it) }
+        // are queued up against is stopped and dequeued (in that order)
+        disposable { stop() }.setParent(this)
+        alSource.setParent(this)
+        alBuffers.forEach { it.setParent(this) }
     }
 
     fun start(): Boolean {

@@ -1,13 +1,10 @@
 package bitspittle.kross2d.engine.audio
 
-import bitspittle.kross2d.core.memory.Box
-import bitspittle.kross2d.core.memory.Disposable
-import bitspittle.kross2d.core.memory.Disposer
-import bitspittle.kross2d.core.memory.deref
+import bitspittle.kross2d.core.memory.*
 import bitspittle.kross2d.engine.dom.clearSource
 import org.w3c.dom.Audio
 
-actual class SoundHandle(audio: Audio): Disposable {
+actual class SoundHandle(audio: Audio): Disposable() {
     // Delegate all work to audioHandle, which also handles music
     internal val innerHandler = AudioHandle(audio)
 
@@ -16,33 +13,31 @@ actual class SoundHandle(audio: Audio): Disposable {
     }
 }
 
-actual class Sound(path: String): Disposable {
+actual class Sound(path: String): Disposable() {
     val jsAudio = Audio(path)
-    private val handles = mutableListOf<Box<SoundHandle>>()
+    private val handles = mutableListOf<SoundHandle>()
 
-    actual fun play(): Box<SoundHandle> {
-        return Disposer.register(this, SoundHandle(jsAudio)).also { soundHandle ->
+    actual fun play(): SoundHandle {
+        return SoundHandle(jsAudio).setParent(this).also { soundHandle ->
             handles.add(soundHandle)
-            soundHandle.deref {
-                it.innerHandler.jsAudioPtr.onended = { handles.remove(soundHandle) }
-                it.innerHandler.play()
-            }
+            soundHandle.innerHandler.jsAudioPtr.onended = { handles.remove(soundHandle) }
+            soundHandle.innerHandler.play()
         }
     }
 
-    actual fun stop(handle: Box<SoundHandle>?) {
-        handles.forEach { if (handle == null || handle == it) it.deref().innerHandler.stop() }
+    actual fun stop(handle: SoundHandle?) {
+        handles.forEach { if (handle == null || handle == it) it.innerHandler.stop() }
     }
 
-    actual fun pause(handle: Box<SoundHandle>?) {
-        handles.forEach { if (handle == null || handle == it) it.deref().innerHandler.pause() }
+    actual fun pause(handle: SoundHandle?) {
+        handles.forEach { if (handle == null || handle == it) it.innerHandler.pause() }
     }
 
-    actual fun resume(handle: Box<SoundHandle>?) {
-        handles.forEach { if (handle == null || handle == it) it.deref().innerHandler.resume() }
+    actual fun resume(handle: SoundHandle?) {
+        handles.forEach { if (handle == null || handle == it) it.innerHandler.resume() }
     }
 
-    override fun dispose() {
+    override fun onDisposed() {
         jsAudio.clearSource()
     }
 }

@@ -1,6 +1,17 @@
 package bitspittle.kross2d.core.memory
 
+import kotlin.jvm.Synchronized
+
 class AlreadyDisposedException(msg: String) : Exception(msg)
+
+/**
+ * Read-only handle to a [Disposable]. You can use this handle to check if the value is already
+ * disposed as well as set it as the parent of another [Disposable], but otherwise you can't
+ * interact with it (e.g. to delete it using [Disposer]).
+ */
+interface ImmutableDisposable {
+    val disposed: Boolean
+}
 
 /**
  * Interface to mark classes that either themselves contain heavy resources (that should be
@@ -15,7 +26,20 @@ class AlreadyDisposedException(msg: String) : Exception(msg)
  * depending on the context) are disposable containers, so if you register your disposable
  * against them, they will be automatically cleaned up when those objects go out of scope.
  */
-interface Disposable {
+abstract class Disposable(parent: ImmutableDisposable? = null) : ImmutableDisposable {
+    init {
+        if (parent == null) Disposer.register(this) else Disposer.register(parent, this)
+    }
+
+    private var _disposed = false
+    final override val disposed: Boolean
+        get() = _disposed
+
+    internal fun dispose() {
+        _disposed = true
+        onDisposed()
+    }
+
     /**
      * Release any resources held by this object.
      *
@@ -23,7 +47,28 @@ interface Disposable {
      * This way, you are guaranteed that this method will only ever be called once, and also any
      * children disposables will also be cleaned up.
      */
-    fun dispose() {}
+    protected open fun onDisposed() {}
+}
+
+/**
+ * Convenience function for calling [Disposer.reparent] indirectly, in a chain-friendly way
+ *
+ * Compare:
+ *
+ * ```
+ * val child = SomeDisposable()
+ * Disposer.reparent(parent, child)
+ * ```
+ *
+ * to
+ *
+ * ```
+ * val child = SomeDisposable().setParent(parent)
+ * ```
+ */
+fun <D: Disposable> D.setParent(parent: ImmutableDisposable): D {
+    Disposer.reparent(parent, this)
+    return this
 }
 
 /**
@@ -31,12 +76,14 @@ interface Disposable {
  * disposable will be disposed.
  */
 inline fun <D: Disposable> D.use(block: (D) -> Unit) {
-    val box = Disposer.register(this)
+    if (this.disposed) {
+        throw AlreadyDisposedException("Can't use disposed Disposable")
+    }
     try {
         block(this)
     }
     finally {
-        Disposer.dispose(box)
+        Disposer.dispose(this)
     }
 }
 
@@ -44,61 +91,21 @@ inline fun <D: Disposable> D.use(block: (D) -> Unit) {
  * Convenience function for creating an anonymous disposable
  */
 inline fun disposable(crossinline block: () -> Unit): Disposable {
-    return object : Disposable {
-        override fun dispose() {
+    return object : Disposable() {
+        override fun onDisposed() {
             block()
         }
     }
 }
 
 /**
- * A wrapper class that boxes a target disposable, ensuring access to it verifies it hasn't already
- * been disposed.
- *
- * To open a box, you [deref] it. For example:
- *
- * ```
- * val image: Box<Image>
- *
- * // In GameState#draw
- * ctx.screen.drawImage(image.deref())
- * // or image.deref { ctx.screen.drawImage(it) }
- * ```
- *
- * Ideally, users shouldn't hold onto the target [Disposable] directly - instead, they should always
- * access it by dereferenicing this box. This way, the code will fail fast if there's ever a time
- * that a disposed object is accessed.
- *
- * APIs should think carefully about whether they expose a disposable object directly, vs. a box.
- * If you are confident that the code won't hold onto the disposable longer than it will live,
- * then sharing it is OK. Otherwise, share a `Box<Disposable>` instead.
- *
- * See also: [Disposer], which is responsible for boxing and disposing target [Disposable] values.
- * (A user is not allowed to create boxes themselves)
+ * Convenience function for creating a parented anonymous disposable
  */
-class Box<out T: Disposable>internal constructor(value: T): Reference<T> {
-    var disposed = false
-        private set
-
-    private var value: T? = value
-
-    internal fun dispose() {
-        value!!.let {
-            disposed = true
-            it.dispose()
-            value = null
+inline fun disposable(parent: ImmutableDisposable, crossinline block: () -> Unit): Disposable {
+    return object : Disposable(parent) {
+        override fun onDisposed() {
+            block()
         }
-    }
-
-    override fun deref(): T {
-        if (disposed) {
-            throw AlreadyDisposedException("Tried to use a boxed value after it was already disposed.")
-        }
-        return value!!
-    }
-
-    override fun toString(): String {
-        value?.let { return "Box { $it }" } ?: return "Box {}"
     }
 }
 
@@ -106,137 +113,126 @@ class Box<out T: Disposable>internal constructor(value: T): Reference<T> {
  * A global object useful for explicitly tracking and releasing [Disposable] objects, when waiting
  * on the GC to lazily run isn't viable.
  *
- * A disposer is responsible for wrapping a [Disposable] with a [Box]. Users probably shouldn't
- * even create their disposables without immediately boxing them:
+ * When you instantiate a [Disposable] (or subclass), it automatically gets registered with
+ * this global disposer, and you really should call [Disposer.dispose] on it at some point.
+ *
+ * You should also call [Disposer.freeRemaining] right before you exit your app, as that will
+ * report if any disposables were not explicitly freed (meaning you have a memory leak!)
+ *
+ * Disposables can (and should!) be parented hierarchically, via [Disposer.reparent] (or
+ * the convenience function [Disposable.setParent]:
  *
  * ```
- * // Best practice
- * val dbConn: Box<DbConn> = Disposer.register(DbConn())
- *
- * // Avoid
- * val dbConn = DbConn()
- * val dbConnBox = Disposer.register(dbConn)
+ * val app = App()
+ * val project1 = Project().setParent(app) // Or Disposer.reparent(app, project1)
+ * val project2 = Project().setParent(app)
+ * val resource = Resource().setParent(project1)
  * ```
  *
- * Having a `Box<T>` in your API advertises that the item being boxed sits on top of a heavy
- * resource and needs to be explicitly disposed at some point.
- *
- * Disposables can (and should!) be chained, via [Disposer.register]:
- *
- * ```
- * val app = Disposer.register(App())
- * val project1 = Disposer.register(app, Project())
- * val project2 = Disposer.register(app, Project())
- * val resource = Disposer.register(project1, Resource())
- * ```
- *
- * To release a boxed disposable, just call [Disposer.dispose]:
+ * To release a chain of disposables, just call [Disposer.dispose]:
  *
  * ```
  * Disposer.dispose(app)
  * assert(project1.disposed == true)
+ * assert(project2.disposed == true)
  * assert(resource.disposed == true)
  * ```
  */
 object Disposer {
     class IllegalDisposerOperation(msg: String) : Exception(msg)
 
+    private val roots = mutableListOf<Disposable>()
+
     /** Map of a Disposable to any children registered with it **/
-    private val childrenOf = mutableMapOf<Box<Disposable>, MutableList<Box<Disposable>>>()
+    private val childrenOf = mutableMapOf<ImmutableDisposable, MutableList<Disposable>>()
 
     /** Map of a Disposable to its parent **/
-    private val parentOf = mutableMapOf<Box<Disposable>, Box<Disposable>>()
-
-    private val boxRegistry = mutableMapOf<Disposable, Box<Disposable>>()
-
-    /**
-     * This class maintains a tree structure of [Disposable] instances, and this stubbed instance
-     * serves as the root of everything, so that any [Disposable] that a caller [register]s will
-     * have something that can be set as its parent.
-     */
-    private val ROOT = Box(disposable {})
+    private val parentOf = mutableMapOf<Disposable, ImmutableDisposable>()
 
     /**
      * Register a top-level disposable.
      *
      * Usually, it's better to register a disposable underneath a parent, so you can chain their
-     * release at the same time.
-     *
-     * Note that calling this method on a disposable that's already been registered will move it to
-     * the top-level.
+     * release at the same time. You can still call [reparent] later if necessary.
      */
-    fun <D : Disposable> register(disposable: D): Box<D> {
-        return register(ROOT, disposable)
+    @Synchronized
+    internal fun <D : Disposable> register(disposable: D) {
+        verifyNewDisposable(disposable)
+        roots.add(disposable)
+
+        if ((disposable as Disposable?) == null) {
+            println("WTF")
+        }
     }
 
     /**
-     * Register a disposable underneath a boxed parent. When a caller requests for the parent to be
+     * Register a disposable underneath a parent. When a caller requests for the parent to be
      * disposed, its children will all be disposed first (and so-on).
      *
      * Note that calling this method on a disposable that's already been registered will reparent
      * it (as long as doing so doesn't cause an infinite cycle, e.g. setting your kid as your
      * parent)
      */
-    fun <D1 : Disposable, D2 : Disposable> register(parentBox: Box<D1>, child: D2): Box<D2> {
-        val childBox = boxOf(child) ?: Box(child).also { boxRegistry[child] = it }
-        reparent(parentBox, childBox)
-        return childBox
+    @Synchronized
+    internal fun <D1 : ImmutableDisposable, D2 : Disposable> register(parent: D1, child: D2) {
+        verifyNewDisposable(child)
+        reparent(parent, child)
     }
 
-    /**
-     * Like the other [register] method, but will box the [parent] as well if not already boxed.
-     *
-     * While it's encouraged to register against a [Box] for clarity, there are times where you
-     * may not have one. For example, a class in its constructor may want to register some
-     * children against itself, before the caller creating that class can itself box it. Other
-     * times, you may have an API that exposes a [Disposable] and not its box, but it may still
-     * make sense to register against it (e.g. a disposable representing the global lifetime of the
-     * application itself.
-     */
-    fun <D1 : Disposable, D2 : Disposable> register(parent: D1, child: D2): Box<D2> {
-        val parentBox = boxRegistry.getOrPut(parent) { register(parent) }
-
-        boxOf(child)?.let { childBox ->
-            reparent(parentBox, childBox)
-            return childBox
+    private fun <D : Disposable> verifyNewDisposable(disposable: D) {
+        if (disposable.disposed) {
+            throw AlreadyDisposedException("Can't register a pre-disposed disposable")
         }
 
-        return register(parentBox, child)
+        if (parentOf[disposable] != null || roots.contains(disposable)) {
+            throw IllegalDisposerOperation("A disposable can only be registered once")
+        }
     }
 
     /**
-     * Move a boxed disposable to a new parent.
+     * Move a disposable to a new parent.
      */
-    fun <D1 : Disposable, D2 : Disposable> reparent(newParentBox: Box<D1>, childBox: Box<D2>) {
-        parentOf[childBox]?.let { oldParentBox ->
-            if (oldParentBox === newParentBox) {
+    @Synchronized
+    fun <D1 : ImmutableDisposable, D2 : Disposable> reparent(newParent: D1, child: D2) {
+        if (newParent.disposed) {
+            throw AlreadyDisposedException("Tried to reparent onto a disposable that has already been disposed")
+        }
+        if (child.disposed) {
+            throw AlreadyDisposedException("Tried to reparent a disposable that has already been disposed")
+        }
+
+        // You are allowed to change the parent, but no paradoxes allowed!
+        if (newParent.isSelfOrDescendantOf(child)) {
+            throw IllegalDisposerOperation("Can't reparent a disposable underneath itself.")
+        }
+
+        parentOf[child]?.let { oldParent ->
+            if (oldParent === newParent) {
                 return // The parent didn't change, so this is a no-op request
             }
-
-            // You are allowed to change the parent, but no paradoxes allowed!
-            if (newParentBox.isSelfOrDescendantOf(childBox)) {
-                throw IllegalDisposerOperation("Can't reparent a disposable underneath itself.")
-            }
-            removeFromSiblings(childBox)
         }
 
-        parentOf[childBox] = newParentBox
-        childrenOf.getOrPut(newParentBox) { mutableListOf() }.add(childBox)
+        removeFromSiblings(child)
+
+        parentOf[child] = newParent
+        childrenOf.getOrPut(newParent) { mutableListOf() }.add(child)
     }
 
+
     /**
-     * Move all boxed children from one owner to another.
+     * Move all children from one owner to another.
      *
-     * This will fail if you try to move children to a box that, itself, is
+     * This will fail if you try to move children to a new parent that, itself, is
      * owned by the first one.
      */
-    fun transferChildren(from: Box<Disposable>, to: Box<Disposable>) {
+    @Synchronized
+    fun transferChildren(from: ImmutableDisposable, to: ImmutableDisposable) {
         if (from === to) {
             return
         }
 
-        if (to.isSelfOrDescendantOf(from)) {
-            throw IllegalDisposerOperation("Can't transfer boxes to a new parent owned by the first.")
+        if (to.isDescendantOf(from)) {
+            throw IllegalDisposerOperation("Can't transfer to a new parent owned by the existing parent.")
         }
 
         val newChildren = childrenOf.getOrPut(to) { mutableListOf() }
@@ -252,45 +248,39 @@ object Disposer {
      *
      * Children will be cleaned up before the parent is.
      */
-    fun dispose(box: Box<Disposable>) {
-        if (box.disposed) {
+    @Synchronized
+    fun dispose(disposable: Disposable) {
+        if (disposable.disposed) {
             throw AlreadyDisposedException("Tried to dispose a box that has already been disposed")
         }
 
-        handleDisposeChildren(box)
-        removeFromSiblings(box)
-        handleDispose(box)
+        handleDisposeChildren(disposable)
+        removeFromSiblings(disposable)
+        handleDispose(disposable)
     }
 
     /**
-     * Release the resources held by this [Disposable], as well as all its children.
-     *
-     * If the [disposable] was not previously registered, this call is a no-op.
-     *
-     * Children will be cleaned up before the parent is.
+     * A safe version of [dispose] that won't throw an exception if the target disposable is
+     * already disposed.
      */
-    fun disposeIfRegistered(disposable: Disposable) {
-        boxOf(disposable)?.let { dispose(it) }
-    }
-
-    /**
-     * Returns `true` if this raw [Disposable] has already been registered.
-     */
-    fun isRegistered(disposable: Disposable): Boolean = boxRegistry.containsKey(disposable)
-
-    private fun <D : Disposable> boxOf(disposable: D): Box<D>? {
-        @Suppress("UNCHECKED_CAST") // Disposable of type D is always registered as Box<D>
-        return boxRegistry[disposable] as Box<D>?
-    }
-
-    private fun removeFromSiblings(box: Box<Disposable>) {
-        val parent = parentOf.remove(box)!!
-        childrenOf[parent]!!.let { siblings ->
-            siblings.remove(box)
-            if (siblings.isEmpty()) {
-                childrenOf.remove(parent)
-            }
+    @Synchronized
+    fun tryDispose(disposable: Disposable): Boolean {
+        if (!disposable.disposed) {
+            dispose(disposable)
+            return true
         }
+        return false
+    }
+
+    private fun removeFromSiblings(child: Disposable) {
+        parentOf.remove(child)?.let { parent ->
+            childrenOf[parent]!!.let { siblings ->
+                siblings.remove(child)
+                if (siblings.isEmpty()) {
+                    childrenOf.remove(parent)
+                }
+            }
+        } ?: roots.remove(child)
     }
 
     /**
@@ -302,52 +292,61 @@ object Disposer {
      * to consider are to print to console (default), do nothing, or throw an exception.
      */
     fun freeRemaining(notify: (String) -> Unit = { println(it) }) {
-        val topLevelBoxes = childrenOf[ROOT] ?: return
+        if (roots.isEmpty()) return
 
         run {
             val strBuilder = StringBuilder()
             strBuilder.append("Some disposables were not cleaned up:\n")
-            topLevelBoxes.forEach { box ->
+            roots.forEach { root ->
                 strBuilder.append('\n')
-                addIndentedNames(strBuilder, "", box) }
+                addIndentedNames(strBuilder, "", root)
+            }
             notify(strBuilder.toString())
         }
 
-        handleDisposeChildren(ROOT)
-    }
-
-    private fun handleDisposeChildren(box: Box<Disposable>) {
-        val siblings = childrenOf.remove(box)
-
-        siblings?.forEach { childBox ->
-            parentOf.remove(childBox)
-            handleDisposeChildren(childBox)
-            handleDispose(childBox)
+        while (roots.isNotEmpty()) {
+            // Avoid concurrent modification exception
+            dispose(roots[0])
         }
     }
 
-    private fun handleDispose(box: Box<Disposable>) {
-        boxRegistry.remove(box.deref())
-        box.dispose()
+    private fun handleDisposeChildren(parent: Disposable) {
+        val siblings = childrenOf.remove(parent)
+
+        siblings?.forEach { child ->
+            parentOf.remove(child)
+            handleDisposeChildren(child)
+            handleDispose(child)
+        }
+    }
+
+    private fun handleDispose(disposable: Disposable) {
+        if (disposable.disposed) {
+            throw AlreadyDisposedException("Attempting to dispose a pre-disposed disposable")
+        }
+        disposable.dispose()
     }
 
     /**
      * Add the target [disposable]'s name as well as its children, indented, in breadth first order.
      */
-    private fun addIndentedNames(strBuilder: StringBuilder, indent: String, box: Box<Disposable>) {
-        val disposable = box.deref()
+    private fun addIndentedNames(strBuilder: StringBuilder, indent: String, disposable: ImmutableDisposable) {
         strBuilder.append(indent).append(disposable.toString()).append('\n')
         val nextIndent = "$indent  "
-        childrenOf[box]?.forEach { childBox -> addIndentedNames(strBuilder, nextIndent, childBox) }
+        childrenOf[disposable]?.forEach { child -> addIndentedNames(strBuilder, nextIndent, child) }
     }
 
-    private fun Box<Disposable>.isSelfOrDescendantOf(potentialAncestor: Box<Disposable>): Boolean {
-        var currBox = this
-        while (currBox != ROOT) {
-            if (currBox == potentialAncestor) {
+    private fun ImmutableDisposable.isSelfOrDescendantOf(potentialAncestor: ImmutableDisposable): Boolean {
+        return this === potentialAncestor || this.isDescendantOf(potentialAncestor)
+    }
+
+    private fun ImmutableDisposable.isDescendantOf(potentialAncestor: ImmutableDisposable): Boolean {
+        var curr: ImmutableDisposable? = parentOf[this]
+        while (curr != null) {
+            if (curr === potentialAncestor) {
                 return true
             }
-            currBox = parentOf[currBox] ?: break
+            curr = parentOf[curr] ?: break
         }
         return false
     }

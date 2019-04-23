@@ -4,10 +4,7 @@ import bitspittle.kross2d.core.math.ImmutablePt2
 import bitspittle.kross2d.core.math.ImmutableVec2
 import bitspittle.kross2d.core.math.Pt2
 import bitspittle.kross2d.core.math.Vec2
-import bitspittle.kross2d.core.memory.Box
-import bitspittle.kross2d.core.memory.Disposable
-import bitspittle.kross2d.core.memory.Disposer
-import bitspittle.kross2d.core.memory.deref
+import bitspittle.kross2d.core.memory.*
 
 /**
  * A 2D image (or sub-portion of that image).
@@ -17,7 +14,7 @@ import bitspittle.kross2d.core.memory.deref
 class Image internal constructor(
     internal val data: ImageData,
     internal val pos: ImmutablePt2,
-    private val sizeOverride: ImmutableVec2?) : Disposable {
+    private val sizeOverride: ImmutableVec2?) : Disposable() {
 
     /**
      * Construct an initial image, backed by image data
@@ -26,10 +23,10 @@ class Image internal constructor(
 
     val size: ImmutableVec2
         get() = sizeOverride ?: data.size
-}
 
-fun Box<Image>.subimage(pos: ImmutablePt2, size: ImmutableVec2): Box<Image> {
-    return this.deref { image -> Disposer.register(this, Image(image.data, pos, size)) }
+    fun subimage(pos: ImmutablePt2, size: ImmutableVec2): Image {
+        return Image(data, pos, size).setParent(this)
+    }
 }
 
 /**

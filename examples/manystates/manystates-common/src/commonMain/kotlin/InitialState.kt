@@ -2,6 +2,7 @@ import bitspittle.kross2d.core.geom.Rect
 import bitspittle.kross2d.core.graphics.Colors
 import bitspittle.kross2d.core.memory.Disposer
 import bitspittle.kross2d.core.memory.disposable
+import bitspittle.kross2d.core.memory.setParent
 import bitspittle.kross2d.engine.GameState
 import bitspittle.kross2d.engine.app.ApplicationFacade
 import bitspittle.kross2d.engine.assets.Asset
@@ -39,16 +40,15 @@ class InitialState : GameState {
         // initial state until we finally quit
         // If we didn't do this, the font would be tied to the active state and would get released
         // as soon as we pushed to a new state.
-        font = ctx.assetLoader.loadFont("square.ttf", this)
+        font = ctx.assetLoader.loadFont("square.ttf", ctx.lifetimes.app)
 
-        // Remember, init can get called multiple times. Only register this listener once
-        if (!Disposer.isRegistered(fontDisposedListener)) {
-            Disposer.register(font, fontDisposedListener)
-        }
+        // Remember, init can get called multiple times. Subsequent calls to reparent are
+        // no-ops.
+        fontDisposedListener.setParent(font)
 
-        Disposer.register(ctx.app.activeStateLifetime, disposable {
+        disposable(ctx.lifetimes.currState) {
             println("InitialState is no longer active")
-        })
+        }
     }
 
     override fun update(ctx: UpdateContext) {
@@ -62,7 +62,7 @@ class InitialState : GameState {
 
     override fun draw(ctx: DrawContext) {
         ctx.screen.clear(Colors.BLACK)
-        font.ifLoaded { font ->
+        font.value?.let { font ->
             ctx.screen.drawText(
                 font, """
                 INITIAL STATE
@@ -73,10 +73,5 @@ class InitialState : GameState {
                 TextParams(Rect(ctx.screen.size).center, TextParams.Anchor.BOTTOM)
             )
         }
-    }
-
-    override fun dispose() {
-        // Should only happen right before exiting the app
-        println("! InitialState was disposed")
     }
 }

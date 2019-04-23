@@ -4,7 +4,7 @@ import bitspittle.kross2d.core.memory.Disposable
 import com.jogamp.openal.ALFactory
 import java.nio.ByteBuffer
 
-class AlBuffer: Disposable {
+class AlBuffer: Disposable() {
     val id: Int
     private val idPtr: IntArray
 
@@ -37,7 +37,7 @@ class AlBuffer: Disposable {
         al.throwIfError("Unable to unenqueue buffer")
     }
 
-    override fun dispose() {
+    override fun onDisposed() {
         val al = ALFactory.getAL()
 
         al.alDeleteBuffers(1, idPtr, 0)

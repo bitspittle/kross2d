@@ -5,7 +5,7 @@ import bitspittle.kross2d.core.memory.Disposer
 import bitspittle.kross2d.engine.dom.clearSource
 import org.w3c.dom.Audio
 
-actual class Music(path: String) : Disposable {
+actual class Music(path: String) : Disposable() {
     val jsAudio = Audio(path)
     private val audioHandle = AudioHandle(jsAudio)
 
@@ -29,7 +29,7 @@ actual class Music(path: String) : Disposable {
         audioHandle.resume()
     }
 
-    override fun dispose() {
+    override fun onDisposed() {
         jsAudio.clearSource()
     }
 }

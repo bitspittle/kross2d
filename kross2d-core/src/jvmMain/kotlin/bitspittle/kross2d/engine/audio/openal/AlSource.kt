@@ -4,12 +4,7 @@ import bitspittle.kross2d.core.memory.Disposable
 import com.jogamp.openal.AL
 import com.jogamp.openal.ALFactory
 
-/**
- * This file contains OpenAL-related classes shared by both [Sound] and [Music] classes.
- */
-
-
-class AlSource: Disposable {
+class AlSource: Disposable() {
     var id: Int
         private set
 
@@ -72,7 +67,7 @@ class AlSource: Disposable {
         al.alSourcePause(id)
     }
 
-    override fun dispose() {
+    override fun onDisposed() {
         val al = ALFactory.getAL()
         al.alDeleteSources(1, intArrayOf(id), 0)
         id = -1

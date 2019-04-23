@@ -5,6 +5,7 @@ import bitspittle.kross2d.engine.app.ApplicationFacade
 import bitspittle.kross2d.engine.assets.AssetLoader
 import bitspittle.kross2d.engine.graphics.ImmutableDrawSurface
 import bitspittle.kross2d.engine.input.Keyboard
+import bitspittle.kross2d.engine.memory.Lifetimes
 import bitspittle.kross2d.engine.time.Timer
 
 /**
@@ -16,4 +17,5 @@ interface UpdateContext {
     val screen: ImmutableDrawSurface
     val keyboard: Keyboard
     val timer: Timer
+    val lifetimes: Lifetimes
 }

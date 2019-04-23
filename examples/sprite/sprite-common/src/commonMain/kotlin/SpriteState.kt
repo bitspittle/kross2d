@@ -90,7 +90,7 @@ class SpriteState : GameState {
 
         fun draw(ctx: DrawContext) {
             val tileX = currAnim.value // We only use the first row of tiles
-            ctx.screen.drawImage(playerTiles.getTile(tileX, 0).deref(), ImageParams(pos, drawSize))
+            ctx.screen.drawImage(playerTiles.getTile(tileX, 0), ImageParams(pos, drawSize))
         }
     }
 
@@ -114,7 +114,7 @@ class SpriteState : GameState {
     override fun draw(ctx: DrawContext) {
         ctx.screen.clear(CLEAR_COLOR)
 
-        grassAsset.ifLoaded { grassTile ->
+        grassAsset.value?.let { grassTile ->
             val numTiles = ctx.screen.size / grassTile.size
             for (i in 0..numTiles.x.toInt()) {
                 for (j in 0..numTiles.y.toInt()) {

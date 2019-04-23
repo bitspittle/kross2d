@@ -10,12 +10,8 @@ import kotlin.test.fail
 // Disposer.register assigned to vars even if not needed, for readability
 @Suppress("UNUSED_VARIABLE")
 class DisposableTest {
-    class TestDisposable(private val displayName: String? = null) : Disposable {
-        var disposed = false
-        override fun dispose() {
-            disposed = true
-        }
-
+    class TestDisposable(parent: TestDisposable? = null, private val displayName: String? = null) : Disposable(parent) {
+        constructor(displayName: String): this(null, displayName)
         override fun toString() = "TestDisposable { $displayName }"
     }
 
@@ -26,108 +22,97 @@ class DisposableTest {
     }
 
     @Test
-    fun testRegisterAndDispose() {
+    fun disposablesAutomaticallyRegisteredAndCallingTwiceThrows() {
         val d1 = TestDisposable()
         val d2 = TestDisposable()
 
-        assertThat(Disposer.isRegistered(d1)).isFalse()
-        assertThat(Disposer.isRegistered(d2)).isFalse()
+        // Normally, `register` is internal so users can't call it themselves, but just in
+        // case, we verify if we make a logic mistake in this library, we'd throw
+        assertThrows<IllegalDisposerOperation> {
+            Disposer.register(d1)
+        }
+        assertThrows<IllegalDisposerOperation> {
+            Disposer.register(d1, d2)
+        }
+    }
 
-        val d1Box = Disposer.register(d1)
-        val d2Box = Disposer.register(d2)
+    @Test
+    fun testBasicDispose() {
+        val d1 = TestDisposable()
+        val d2 = TestDisposable()
 
-        assertThat(Disposer.isRegistered(d1)).isTrue()
-        assertThat(Disposer.isRegistered(d2)).isTrue()
         assertThat(d1.disposed).isFalse()
         assertThat(d2.disposed).isFalse()
 
-        Disposer.dispose(d2Box)
-
-        assertThat(Disposer.isRegistered(d1)).isTrue()
-        assertThat(Disposer.isRegistered(d2)).isFalse()
+        Disposer.dispose(d2)
         assertThat(d1.disposed).isFalse()
         assertThat(d2.disposed).isTrue()
 
-        Disposer.dispose(d1Box)
-
-        assertThat(Disposer.isRegistered(d1)).isFalse()
-        assertThat(Disposer.isRegistered(d2)).isFalse()
+        Disposer.dispose(d1)
         assertThat(d1.disposed).isTrue()
         assertThat(d2.disposed).isTrue()
     }
 
     @Test
-    fun reregistrationAllowedIfPossible() {
+    fun cannotDisposeIfAlreadyDisposed() {
+        val d = TestDisposable()
+        Disposer.dispose(d)
+        assertThrows<AlreadyDisposedException> {
+            Disposer.dispose(d)
+        }
+
+        assertThat(Disposer.tryDispose(d)).isFalse()
+    }
+
+    @Test
+    fun reparentingAllowedIfNoParadox() {
         val grandparent = TestDisposable()
         val parent = TestDisposable()
         val child = TestDisposable()
 
-        Disposer.register(grandparent)
-        Disposer.register(parent)
-        Disposer.register(child)
-
-        // No-op
-        Disposer.register(grandparent)
-        Disposer.register(parent)
-        Disposer.register(child)
-
-        // Change parent
-        Disposer.register(grandparent, parent)
-        Disposer.register(parent, child)
+        Disposer.reparent(grandparent, parent)
+        Disposer.reparent(parent, child)
 
         assertThrows<IllegalDisposerOperation> {
-            Disposer.register(child, grandparent)
+            Disposer.reparent(child, grandparent)
+        }
+
+        assertThrows<IllegalDisposerOperation> {
+            Disposer.reparent(grandparent, grandparent)
         }
     }
 
     @Test
-    fun canRegisterViaRawParent() {
+    fun reparentingNotAllowedAgainstDisposedParent() {
         val parent = TestDisposable()
         val child = TestDisposable()
 
-        val parentBox = Disposer.register(parent)
-        val childBox = Disposer.register(parent, child)
+        Disposer.dispose(parent)
 
-        Disposer.dispose(parentBox)
-        assertThat(childBox.disposed).isTrue()
+        assertThrows<AlreadyDisposedException> {
+            Disposer.reparent(parent, child)
+        }
     }
 
     @Test
-    fun canReparentViaRawChild() {
-        val parent1Box = Disposer.register(TestDisposable())
-        val parent2Box = Disposer.register(TestDisposable())
+    fun reparentingNotAllowedWithDisposedChild() {
+        val parent = TestDisposable()
         val child = TestDisposable()
 
-        Disposer.register(child)
-        Disposer.register(parent1Box, child)
-        Disposer.register(parent2Box, child)
+        Disposer.dispose(child)
 
-        Disposer.dispose(parent1Box)
-        assertThat(child.disposed).isFalse()
-
-        Disposer.dispose(parent2Box)
-        assertThat(child.disposed).isTrue()
-
-        // Should be a no-op. Everything was already freed!
-        Disposer.freeRemaining { fail(it) }
-    }
-
-    @Test
-    fun cannotDisposeAnAlreadyDisposedBox() {
-        val box = Disposer.register(TestDisposable())
-        Disposer.dispose(box)
         assertThrows<AlreadyDisposedException> {
-            Disposer.dispose(box)
+            Disposer.reparent(parent, child)
         }
     }
 
     @Test
     fun canDisposeRecursivelyViaParents() {
-        val b1 = Disposer.register(TestDisposable())
-        val b11 = Disposer.register(b1, TestDisposable())
-        val b111 = Disposer.register(b11, TestDisposable())
-        val b1111 = Disposer.register(b111, TestDisposable())
-        val b2 = Disposer.register(TestDisposable())
+        val b1 = TestDisposable()
+        val b11 = TestDisposable(b1)
+        val b111 = TestDisposable(b11)
+        val b1111 = TestDisposable(b111)
+        val b2 = TestDisposable()
 
         Disposer.dispose(b111)
 
@@ -148,54 +133,43 @@ class DisposableTest {
 
     @Test
     fun canRegisterAndDisposeViaUse() {
-        TestDisposable().let { d ->
-            assertThat(Disposer.isRegistered(d)).isFalse()
-            assertThat(d.disposed).isFalse()
-            d.use {
-                assertThat(d.disposed).isFalse()
-                assertThat(Disposer.isRegistered(d)).isTrue()
-            }
-            assertThat(Disposer.isRegistered(d)).isFalse()
+        // Basic usage
+        run {
+            val d = TestDisposable()
+            d.use {}
             assertThat(d.disposed).isTrue()
         }
 
-        TestDisposable().use {
-            assertThat(Disposer.isRegistered(it)).isTrue()
-            assertThat(it.disposed).isFalse()
-        }
-
         // use block still disposes even if an exception is thrown
-        TestDisposable().let { d ->
+        run {
+            val d = TestDisposable()
             assertThrows<RuntimeException> {
                 d.use {
                     throw RuntimeException()
                 }
             }
             assertThat(d.disposed).isTrue()
-            assertThat(Disposer.isRegistered(d)).isFalse()
         }
     }
 
     @Test
     fun canCreateDisposableViaConvenienceConstructionMethod() {
-        var disposed = false
-        val d = disposable { disposed = true }
+        var onDisposed = false
+        val d = disposable { onDisposed = true }
 
-        assertThat(disposed).isFalse()
-        val box = Disposer.register(d)
-        assertThat(disposed).isFalse()
-        Disposer.dispose(box)
-        assertThat(disposed).isTrue()
+        assertThat(onDisposed).isFalse()
+        Disposer.dispose(d)
+        assertThat(onDisposed).isTrue()
     }
 
     @Test
     fun canTransferOwnershipOfDisposables() {
-        val parent1 = Disposer.register(TestDisposable())
-        val parent2 = Disposer.register(TestDisposable())
+        val parent1 = TestDisposable()
+        val parent2 = TestDisposable()
 
-        val child1 = Disposer.register(parent1, TestDisposable())
-        val child2 = Disposer.register(parent1, TestDisposable())
-        val child3 = Disposer.register(parent1, TestDisposable())
+        val child1 = TestDisposable(parent1)
+        val child2 = TestDisposable(parent1)
+        val child3 = TestDisposable(parent1)
 
         Disposer.transferChildren(from = parent1, to = parent2)
 
@@ -215,11 +189,11 @@ class DisposableTest {
 
     @Test
     fun transferringOwernshipFromAndToTheSameLeavesChildrenUnmoved() {
-        val parent = Disposer.register(TestDisposable())
+        val parent = TestDisposable()
 
-        val child1 = Disposer.register(parent, TestDisposable())
-        val child2 = Disposer.register(parent, TestDisposable())
-        val child3 = Disposer.register(parent, TestDisposable())
+        val child1 = TestDisposable(parent)
+        val child2 = TestDisposable(parent)
+        val child3 = TestDisposable(parent)
 
         Disposer.transferChildren(from = parent, to = parent)
 
@@ -231,11 +205,11 @@ class DisposableTest {
 
     @Test
     fun transferringOwernshipToAChildDisposableThrowsAnException() {
-        val parent = Disposer.register(TestDisposable())
+        val parent = TestDisposable()
 
-        val child1 = Disposer.register(parent, TestDisposable())
-        val child2 = Disposer.register(parent, TestDisposable())
-        val child3 = Disposer.register(parent, TestDisposable())
+        val child1 = TestDisposable(parent)
+        val child2 = TestDisposable(parent)
+        val child3 = TestDisposable(parent)
 
         assertThrows<IllegalDisposerOperation> {
             Disposer.transferChildren(from = parent, to = child2)
@@ -244,22 +218,22 @@ class DisposableTest {
 
     @Test
     fun testFreeRemainingMessage() {
-        val b1 = Disposer.register(TestDisposable("b1"))
-        val b11 = Disposer.register(b1, TestDisposable("b11"))
-        val b12 = Disposer.register(b1, TestDisposable("b12"))
-        val b121 = Disposer.register(b12, TestDisposable("b121"))
-        val b13 = Disposer.register(b1, TestDisposable("b13"))
-        val b131 = Disposer.register(b13, TestDisposable("b131"))
-        val b132 = Disposer.register(b13, TestDisposable("b132"))
+        val b1 = TestDisposable("b1")
+        val b11 = TestDisposable(b1, "b11")
+        val b12 = TestDisposable(b1, "b12")
+        val b121 = TestDisposable(b12, "b121")
+        val b13 = TestDisposable(b1, "b13")
+        val b131 = TestDisposable(b13, "b131")
+        val b132 = TestDisposable(b13, "b132")
 
-        val b2 = Disposer.register(TestDisposable("b2"))
-        val b21 = Disposer.register(b2, TestDisposable("b21"))
-        val b22 = Disposer.register(b2,TestDisposable("b22"))
-        val b221 = Disposer.register(b22, TestDisposable("b221"))
-        val b2211 = Disposer.register(b221, TestDisposable("b2211"))
+        val b2 = TestDisposable("b2")
+        val b21 = TestDisposable(b2, "b21")
+        val b22 = TestDisposable(b2,"b22")
+        val b221 = TestDisposable(b22, "b221")
+        val b2211 = TestDisposable(b221, "b2211")
 
-        val b3 = Disposer.register(TestDisposable("b3"))
-        val b31 = Disposer.register(b3, TestDisposable("b31"))
+        val b3 = TestDisposable("b3")
+        val b31 = TestDisposable(b3, "b31")
 
         Disposer.freeRemaining {
             assertThat(it.trim()).isEqualTo(

@@ -10,10 +10,8 @@ import com.jogamp.openal.AL
 import com.jogamp.openal.ALFactory
 import java.io.InputStream
 
-actual class SoundHandle internal constructor(buffer: AlBuffer): Disposable {
-    private val audioSource = AlSource()
-        .apply { attachToBuffer(buffer) }
-        .also { source -> Disposer.register(this, source) }
+actual class SoundHandle internal constructor(buffer: AlBuffer): Disposable() {
+    private val audioSource = AlSource().setParent(this).apply { attachToBuffer(buffer) }
 
     private val al = ALFactory.getAL()
     private val isValid
@@ -46,7 +44,7 @@ actual class SoundHandle internal constructor(buffer: AlBuffer): Disposable {
     }
 }
 
-actual class Sound(stream: InputStream) : Disposable {
+actual class Sound(stream: InputStream) : Disposable() {
     companion object {
         fun tryCreate(stream: InputStream): Sound? {
             return try {
@@ -57,39 +55,37 @@ actual class Sound(stream: InputStream) : Disposable {
         }
     }
 
-    private val wavData: Box<WavData>
-    private val handles = mutableListOf<Box<SoundHandle>>()
+    private val wavData: WavData
+    private val handles = mutableListOf<SoundHandle>()
 
     init {
         AlGlobalState.INSTANCE.inc()
-        wavData = Disposer.register(this, WavData(stream))
+        wavData = WavData(stream).setParent(this)
     }
 
-    actual fun play(): Box<SoundHandle> {
+    actual fun play(): SoundHandle {
         disposeStoppedSounds()
-        wavData.deref().alBuffer.let { buffer ->
-            val handle = SoundHandle(buffer.deref())
+        wavData.alBuffer.let { buffer ->
+            val handle = SoundHandle(buffer)
+            handles.add(handle)
             handle.play()
-
-            Disposer.register(buffer, handle)
-                .also { handles.add(it) }
-                .also { return it }
+            return handle
         }
     }
 
-    actual fun stop(handle: Box<SoundHandle>?) {
-        handles.forEach { if (handle == null || handle === it) it.deref().stop() }
+    actual fun stop(handle: SoundHandle?) {
+        handles.forEach { if (handle == null || handle === it) it.stop() }
         disposeStoppedSounds()
     }
 
-    actual fun pause(handle: Box<SoundHandle>?) {
+    actual fun pause(handle: SoundHandle?) {
         disposeStoppedSounds()
-        handles.forEach { if (handle == null || handle === it) it.deref().pause() }
+        handles.forEach { if (handle == null || handle === it) it.pause() }
     }
 
-    actual fun resume(handle: Box<SoundHandle>?) {
+    actual fun resume(handle: SoundHandle?) {
         disposeStoppedSounds()
-        handles.forEach { if (handle == null || handle === it) it.deref().play() }
+        handles.forEach { if (handle == null || handle === it) it.play() }
     }
 
     /**
@@ -98,11 +94,11 @@ actual class Sound(stream: InputStream) : Disposable {
      * with our API.
      */
     private fun disposeStoppedSounds() {
-        handles.forEach { if (it.deref().isStopped()) Disposer.dispose(it) }
+        handles.forEach { if (it.isStopped()) Disposer.dispose(it) }
         handles.removeAll { it.disposed }
     }
 
-    override fun dispose() {
+    override fun onDisposed() {
         AlGlobalState.INSTANCE.dec()
     }
 }

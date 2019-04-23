@@ -1,7 +1,7 @@
 package bitspittle.kross2d.engine.audio
 
-import bitspittle.kross2d.core.memory.Box
 import bitspittle.kross2d.core.memory.Disposable
+import bitspittle.kross2d.core.memory.ImmutableDisposable
 
 /**
  * Represents a handle to an instance of a sound (as the same sound can be played multiple times
@@ -23,7 +23,7 @@ expect class Sound : Disposable {
      * second copy of sound. Use the returned [SoundHandle] to interact with individual instances
      * of playing sounds.
      */
-    fun play(): Box<SoundHandle>
+    fun play(): SoundHandle
 
     /**
      * Stop (and thereby kill) any active sound. This is a no-op if the sound isn't playing.
@@ -31,20 +31,20 @@ expect class Sound : Disposable {
      *
      * If [handle] is not specified, then all active instances of this sound are stopped.
      */
-    fun stop(handle: Box<SoundHandle>? = null)
+    fun stop(handle: SoundHandle? = null)
 
     /**
      * Pause the playing sound. This is a no-op if the sound isn't playing.
      *
      * If [handle] is not specified, then all active instances of this sound are paused.
      */
-    fun pause(handle: Box<SoundHandle>? = null)
+    fun pause(handle: SoundHandle? = null)
 
     /**
      * Resume any sound paused by [pause]. This is a no-op if the sound isn't paused.
      *
      * If [handle] is not specified, then all active instances of this sound are paused.
      */
-    fun resume(handle: Box<SoundHandle>? = null)
+    fun resume(handle: SoundHandle? = null)
 }
 

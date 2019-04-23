@@ -10,9 +10,13 @@ import kotlin.jvm.Volatile
  * for the first time will trigger the instantiation and register the disposable. Later, calling
  * [dec] the same amount of times that [inc] was previously called will result in the object being
  * released and disposed. If [inc] is called again at that point, a new instance will be created.
+ *
+ * Use [value] to query the current value of this class. It will be `null` if [inc] was not yet
+ * called (or [dec] was called an equal number of times)
  */
-class Rc<T: Disposable>(private val create: () -> T): Reference<T> {
-    private var value: Box<T>? = null
+class Rc<D: Disposable>(private val create: () -> D) {
+    var value: D? = null
+        private set
 
     @Volatile
     private var counter = 0
@@ -20,7 +24,7 @@ class Rc<T: Disposable>(private val create: () -> T): Reference<T> {
     @Synchronized
     fun inc() {
         if (counter == 0) {
-            value = Disposer.register(create())
+            value = create()
         }
         ++counter
     }
@@ -37,9 +41,5 @@ class Rc<T: Disposable>(private val create: () -> T): Reference<T> {
             Disposer.dispose(value!!)
             value = null
         }
-    }
-
-    override fun deref(): T {
-        return value?.deref() ?: throw IllegalStateException("Using uninitialized Rc. Call inc() first?")
     }
 }

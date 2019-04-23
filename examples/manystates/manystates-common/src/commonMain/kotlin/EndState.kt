@@ -13,9 +13,9 @@ import bitspittle.kross2d.engine.input.Key
 
 class EndState(private val font: Asset<Font>) : GameState {
     override fun init(ctx: InitContext) {
-        Disposer.register(ctx.app.activeStateLifetime, disposable {
+        disposable(ctx.lifetimes.currState) {
             println("EndState is no longer active")
-        })
+        }
     }
 
     override fun update(ctx: UpdateContext) {
@@ -26,7 +26,7 @@ class EndState(private val font: Asset<Font>) : GameState {
 
     override fun draw(ctx: DrawContext) {
         ctx.screen.clear(Colors.BLACK)
-        font.ifLoaded { font ->
+        font.value?.let { font ->
             ctx.screen.drawText(
                 font, """
                 END STATE
@@ -36,9 +36,5 @@ class EndState(private val font: Asset<Font>) : GameState {
                 TextParams(Rect(ctx.screen.size).center, TextParams.Anchor.BOTTOM)
             )
         }
-    }
-
-    override fun dispose() {
-        println("! EndState was disposed")
     }
 }
