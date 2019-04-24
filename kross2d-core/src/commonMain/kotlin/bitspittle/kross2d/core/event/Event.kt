@@ -1,5 +1,8 @@
 package bitspittle.kross2d.core.event
 
+import bitspittle.kross2d.core.memory.ImmutableDisposable
+import bitspittle.kross2d.core.memory.disposable
+
 /**
  * The part of an event responsible for registering listeners but not firing. This can safely be
  * exposed publicly.
@@ -23,10 +26,18 @@ package bitspittle.kross2d.core.event
 abstract class ObservableEvent<P>(private val onAdded: () -> Unit) {
     protected val observers: MutableList<(P) -> Unit> = mutableListOf()
 
-    // TODO: Worry about memory leaks? Maybe change te API to `event.listenWith(owner) { (param) -> ... }`
     operator fun plusAssign(observer: (P) -> Unit) {
         observers.add(observer)
         onAdded()
+    }
+
+    operator fun plusAssign(scopedObserver: ScopedObserver<P>) {
+        disposable(scopedObserver.scope) { minusAssign(scopedObserver.observer) }
+        plusAssign(scopedObserver.observer)
+    }
+
+    operator fun minusAssign(observer: (P) -> Unit) {
+        observers.remove(observer)
     }
 }
 
@@ -58,3 +69,22 @@ class Event<P>(onAdded: () -> Unit = {}) : ObservableEvent<P>(onAdded) {
         observers.clear()
     }
 }
+
+/**
+ * Create an observer that will get automatically cleaned up when it goes out of scope.
+ *
+ * This is particularly useful in game states:
+ *
+ * ```
+ * // In enter
+ * // Prefer this:
+ * globalLives.onChanged += ScopedObserver(ctx.scopes.state) { updateUi() }
+ *
+ * // Over this:
+ * // globalLives.onChanged += { updateUi() }
+ * ```
+ *
+ * to ensure that listeners won't stay attached after the current state exits, as well as to
+ * prevent multiple listeners from being added if `enter` is called multiple times.
+ */
+class ScopedObserver<P>(internal val scope: ImmutableDisposable, internal val observer: (P) -> Unit)
