@@ -26,7 +26,7 @@ import bitspittle.kross2d.engine.input.Key
  * Demonstrated:
  * - Using [ApplicationFacade.pushState], [ApplicationFacade.changeState], and
  *   [ApplicationFacade.popState]
- * - Understanding lifetimes (i.e. when assets are released)
+ * - Understanding scopes (i.e. when assets are released)
  */
 class InitialState : GameState {
     private lateinit var font: Asset<Font>
@@ -35,17 +35,14 @@ class InitialState : GameState {
     }
 
     override fun enter(ctx: EnterContext) {
-        // Note: We load the font using `this` as its lifetime, since we don't actually kill the
-        // initial state until we finally quit
-        // If we didn't do this, the font would be tied to the active state and would get released
-        // as soon as we pushed to a new state.
-        font = ctx.assetLoader.loadFont("square.ttf", ctx.lifetimes.app)
+        // The font will live across all states so register it to the global `app` scope
+        font = ctx.assetLoader.loadFont("square.ttf", ctx.scopes.app)
 
         // Remember, enter can get called multiple times. Subsequent calls to reparent are
         // no-ops.
         fontDisposedListener.setParent(font)
 
-        disposable(ctx.lifetimes.currState) {
+        disposable(ctx.scopes.currState) {
             println("InitialState is no longer active")
         }
     }

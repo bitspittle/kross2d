@@ -8,22 +8,22 @@ import bitspittle.kross2d.engine.assets.AssetLoader
 
 
 /**
- * A collection of useful lifetimes to scope [Disposable]s to.
+ * A collection of useful scopes to register [Disposable]s against.
  *
- * If your own game has its own unique lifetimes, you are encourages to use extension methods so
+ * If your own game has its own unique scopes, you are encouraged to use extension properties so
  * they show up in here.
  */
-interface Lifetimes {
+interface Scopes {
     /**
-     * A lifetime that doesn't end until just before the app quits
+     * A scope that is active until just before the app quits
      */
     val app: ImmutableDisposable
 
     /**
-     * A lifetime that ends as soon as the current state exits (e.g. into a new state or back into
-     * an old state).
+     * A scope that is active while the current state is running (e.g. until it transitions into a
+     * new state or back into an old state).
      *
-     * This is the default lifetime that [AssetLoader] sets its [Asset]s to.
+     * This is the default scope that [AssetLoader] sets its [Asset]s to.
      *
      * See also: [ApplicationFacade.pushState], [ApplicationFacade.popState],
      * [ApplicationFacade.changeState]

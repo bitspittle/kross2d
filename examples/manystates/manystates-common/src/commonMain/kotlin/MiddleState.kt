@@ -13,7 +13,7 @@ import bitspittle.kross2d.engine.input.Key
 
 class MiddleState(private val font: Asset<Font>) : GameState {
     override fun enter(ctx: EnterContext) {
-        disposable(ctx.lifetimes.currState) {
+        disposable(ctx.scopes.currState) {
             println("MiddleState is no longer active")
         }
     }

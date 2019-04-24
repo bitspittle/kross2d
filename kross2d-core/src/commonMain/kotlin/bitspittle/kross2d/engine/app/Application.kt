@@ -16,7 +16,7 @@ import bitspittle.kross2d.engine.graphics.ImmutableDrawSurface
 import bitspittle.kross2d.engine.input.DefaultKeyboard
 import bitspittle.kross2d.engine.input.Key
 import bitspittle.kross2d.engine.input.Keyboard
-import bitspittle.kross2d.engine.memory.Lifetimes
+import bitspittle.kross2d.engine.memory.Scopes
 import bitspittle.kross2d.engine.time.DefaultTimer
 import bitspittle.kross2d.engine.time.Timer
 
@@ -90,7 +90,7 @@ internal class Application internal constructor(params: AppParams, initialState:
         backend.keyPressed += { key -> keyboard.handleKey(key, true) }
         backend.keyReleased += { key -> keyboard.handleKey(key, false) }
 
-        val lifetimes = object : Lifetimes {
+        val scopes = object : Scopes {
             override val app: Disposable = disposable { }
             override var currState: Disposable = disposable { }
         }
@@ -115,12 +115,12 @@ internal class Application internal constructor(params: AppParams, initialState:
         }
         val timer = DefaultTimer()
 
-        val assetLoader = AssetLoader(params.assetsRoot, lifetimes)
+        val assetLoader = AssetLoader(params.assetsRoot, scopes)
         val initContext = object : EnterContext {
             override val assetLoader: AssetLoader = assetLoader
             override val screen: ImmutableDrawSurface = backend.drawSurface
             override val timer: Timer = timer
-            override val lifetimes: Lifetimes = lifetimes
+            override val scopes: Scopes = scopes
         }
 
         val updateContext = object : UpdateContext {
@@ -129,7 +129,7 @@ internal class Application internal constructor(params: AppParams, initialState:
             override val screen: ImmutableDrawSurface = backend.drawSurface
             override val keyboard: Keyboard = keyboard
             override val timer: Timer = timer
-            override val lifetimes: Lifetimes = lifetimes
+            override val scopes: Scopes = scopes
         }
 
         val drawContext = object : DrawContext {
@@ -160,8 +160,8 @@ internal class Application internal constructor(params: AppParams, initialState:
                 stateStack.last().let { stateToEnter ->
                     frameStart = Instant.now()
                     timer.lastFrameDuration.setFrom(Duration.ZERO)
-                    Disposer.dispose(lifetimes.currState)
-                    lifetimes.currState = disposable {}
+                    Disposer.dispose(scopes.currState)
+                    scopes.currState = disposable {}
                     currentState = stateToEnter
                     stateToEnter.enter(initContext)
                 }
@@ -178,8 +178,8 @@ internal class Application internal constructor(params: AppParams, initialState:
         }
 
         backend.onQuit {
-            Disposer.dispose(lifetimes.currState)
-            Disposer.dispose(lifetimes.app)
+            Disposer.dispose(scopes.currState)
+            Disposer.dispose(scopes.app)
             // TODO: Default behavior is to println. If we ever add a DEBUG mode, we should
             //  throw an exception instead if in DEBUG.
             Disposer.freeRemaining()
