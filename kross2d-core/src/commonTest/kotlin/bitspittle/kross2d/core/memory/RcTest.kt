@@ -30,6 +30,7 @@ class RcTest {
             assertThat(d.disposed).isFalse()
 
             rc.dec()
+            @Suppress("USELESS_CAST") // Compiler bug? I get an error if I remove the cast
             assertThat(rc.value as Disposable?).isNull()
             assertThat(d.disposed).isTrue()
 
