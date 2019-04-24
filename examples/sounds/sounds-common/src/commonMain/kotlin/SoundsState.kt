@@ -6,7 +6,7 @@ import bitspittle.kross2d.engine.assets.Asset
 import bitspittle.kross2d.engine.audio.Music
 import bitspittle.kross2d.engine.audio.Sound
 import bitspittle.kross2d.engine.context.DrawContext
-import bitspittle.kross2d.engine.context.InitContext
+import bitspittle.kross2d.engine.context.EnterContext
 import bitspittle.kross2d.engine.context.UpdateContext
 import bitspittle.kross2d.engine.graphics.DrawSurface.TextParams
 import bitspittle.kross2d.engine.graphics.DrawSurface.TextParams.Anchor
@@ -40,7 +40,7 @@ class SoundsState : GameState {
     private var fontLarge: Font? = null
     private var globallyPaused = false
 
-    override fun init(ctx: InitContext) {
+    override fun enter(ctx: EnterContext) {
         sounds = listOf(
             "boing.wav",
             "boxing_bell.wav",

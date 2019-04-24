@@ -1,7 +1,7 @@
 package bitspittle.kross2d.engine
 
 import bitspittle.kross2d.engine.context.DrawContext
-import bitspittle.kross2d.engine.context.InitContext
+import bitspittle.kross2d.engine.context.EnterContext
 import bitspittle.kross2d.engine.context.UpdateContext
 
 /**
@@ -11,7 +11,7 @@ import bitspittle.kross2d.engine.context.UpdateContext
  * game, end credits, etc.)
  */
 interface GameState {
-    fun init(ctx: InitContext) {}
+    fun enter(ctx: EnterContext) {}
     fun update(ctx: UpdateContext)
     fun draw(ctx: DrawContext)
 }

@@ -9,7 +9,7 @@ import bitspittle.kross2d.engine.GameState
 import bitspittle.kross2d.engine.assets.Asset
 import bitspittle.kross2d.engine.assets.AssetLoader
 import bitspittle.kross2d.engine.context.DrawContext
-import bitspittle.kross2d.engine.context.InitContext
+import bitspittle.kross2d.engine.context.EnterContext
 import bitspittle.kross2d.engine.context.UpdateContext
 import bitspittle.kross2d.engine.graphics.DrawSurface
 import bitspittle.kross2d.engine.graphics.DrawSurface.ImageParams
@@ -54,7 +54,7 @@ class SpriteState : GameState {
         private val vel = Vec2()
         private var currAnim = FACING_TO_ANIM.getValue(Dir.S)
 
-        fun init(ctx: InitContext) {
+        fun init(ctx: EnterContext) {
             pos.set(drawSize.centerIn(Rect(ctx.screen.size)))
         }
 
@@ -97,7 +97,7 @@ class SpriteState : GameState {
     private lateinit var grassAsset: Asset<Image>
     private var player: Player? = null
 
-    override fun init(ctx: InitContext) {
+    override fun enter(ctx: EnterContext) {
         grassAsset = ctx.assetLoader.loadImage("grass.png")
         ctx.assetLoader.loadImage("player.png").onLoaded += { image ->
             player = Player(Tiles(image, Vec2(16, 16))).apply { init(ctx) }

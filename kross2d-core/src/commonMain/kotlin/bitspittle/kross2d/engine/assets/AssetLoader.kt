@@ -94,7 +94,7 @@ class Asset<D: Disposable>(parent: ImmutableDisposable, val path: String) : Disp
  * manually. The application itself is a disposable, so you could write something like this:
  *
  * ```
- *   // init
+ *   // enter
  *   val asset = ctx.assetLoader.loadImage("cursor.png").also { Disposer.register(ctx.app, it) }
  * ```
  *
@@ -111,7 +111,7 @@ class Asset<D: Disposable>(parent: ImmutableDisposable, val path: String) : Disp
  *   class LoadingState : GameState() {
  *     private lateinit var gameAssets: GameAssets
  *
- *     // init
+ *     // enter
  *     gameAssets = GameAssets(
  *       player = ctx.assetLoader.loadImage("player.png"),
  *       background = ctx.assetLoader.loadImage("background.png")

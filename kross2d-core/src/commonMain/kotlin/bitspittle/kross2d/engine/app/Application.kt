@@ -9,7 +9,7 @@ import bitspittle.kross2d.core.time.Instant
 import bitspittle.kross2d.engine.GameState
 import bitspittle.kross2d.engine.assets.AssetLoader
 import bitspittle.kross2d.engine.context.DrawContext
-import bitspittle.kross2d.engine.context.InitContext
+import bitspittle.kross2d.engine.context.EnterContext
 import bitspittle.kross2d.engine.context.UpdateContext
 import bitspittle.kross2d.engine.graphics.DrawSurface
 import bitspittle.kross2d.engine.graphics.ImmutableDrawSurface
@@ -116,7 +116,7 @@ internal class Application internal constructor(params: AppParams, initialState:
         val timer = DefaultTimer()
 
         val assetLoader = AssetLoader(params.assetsRoot, lifetimes)
-        val initContext = object : InitContext {
+        val initContext = object : EnterContext {
             override val assetLoader: AssetLoader = assetLoader
             override val screen: ImmutableDrawSurface = backend.drawSurface
             override val timer: Timer = timer
@@ -163,7 +163,7 @@ internal class Application internal constructor(params: AppParams, initialState:
                     Disposer.dispose(lifetimes.currState)
                     lifetimes.currState = disposable {}
                     currentState = stateToEnter
-                    stateToEnter.init(initContext)
+                    stateToEnter.enter(initContext)
                 }
             }
 

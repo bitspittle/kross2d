@@ -109,7 +109,7 @@ class BouncingPlayStrategy : PlayStrategy {
  * 300ms long, you could register them like so:
  *
  * ```
- * // In init()
+ * // In enter()
  * val FRAME_DURATION = Duration.ofMillis(300)
  * anim = Anim(FRAME_DURATION, image1, image2, image3)
  *

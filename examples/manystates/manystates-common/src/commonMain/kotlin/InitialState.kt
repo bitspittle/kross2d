@@ -1,13 +1,12 @@
 import bitspittle.kross2d.core.geom.Rect
 import bitspittle.kross2d.core.graphics.Colors
-import bitspittle.kross2d.core.memory.Disposer
 import bitspittle.kross2d.core.memory.disposable
 import bitspittle.kross2d.core.memory.setParent
 import bitspittle.kross2d.engine.GameState
 import bitspittle.kross2d.engine.app.ApplicationFacade
 import bitspittle.kross2d.engine.assets.Asset
 import bitspittle.kross2d.engine.context.DrawContext
-import bitspittle.kross2d.engine.context.InitContext
+import bitspittle.kross2d.engine.context.EnterContext
 import bitspittle.kross2d.engine.context.UpdateContext
 import bitspittle.kross2d.engine.graphics.DrawSurface.TextParams
 import bitspittle.kross2d.engine.graphics.Font
@@ -35,14 +34,14 @@ class InitialState : GameState {
         println("Font was disposed")
     }
 
-    override fun init(ctx: InitContext) {
+    override fun enter(ctx: EnterContext) {
         // Note: We load the font using `this` as its lifetime, since we don't actually kill the
         // initial state until we finally quit
         // If we didn't do this, the font would be tied to the active state and would get released
         // as soon as we pushed to a new state.
         font = ctx.assetLoader.loadFont("square.ttf", ctx.lifetimes.app)
 
-        // Remember, init can get called multiple times. Subsequent calls to reparent are
+        // Remember, enter can get called multiple times. Subsequent calls to reparent are
         // no-ops.
         fontDisposedListener.setParent(font)
 
