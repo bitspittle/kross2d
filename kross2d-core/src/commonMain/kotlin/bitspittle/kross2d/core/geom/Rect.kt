@@ -24,7 +24,6 @@ abstract class ImmutableRect : ImmutableShape {
     open val y2: Float
         get() = y + h
 
-
     override val center: ImmutablePt2
         get() = Pt2(x + w / 2f, y + h / 2f)
 

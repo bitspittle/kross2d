@@ -1,0 +1,54 @@
+plugins {
+    id 'kotlin-multiplatform'
+}
+
+group = "io.github.bitspittle"
+version = "0.0.1"
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+kotlin {
+    jvm()
+    js()
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation kotlin("stdlib-common")
+                implementation project(":kross2d")
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation kotlin("test-common")
+                implementation kotlin("test-annotations-common")
+                implementation "io.github.bitspittle:truthish:0.6.0"
+            }
+        }
+        jvmMain {
+            dependencies {
+                implementation kotlin("stdlib-jdk8")
+                implementation project(":kross2d")
+            }
+        }
+        jvmTest {
+            dependencies {
+                implementation kotlin("test")
+                implementation kotlin("test-junit")
+            }
+        }
+        jsMain {
+            dependencies {
+                implementation kotlin("stdlib-js")
+                implementation project(":kross2d")
+            }
+        }
+        jsTest {
+            dependencies {
+                implementation kotlin("test-js")
+            }
+        }
+    }
+}

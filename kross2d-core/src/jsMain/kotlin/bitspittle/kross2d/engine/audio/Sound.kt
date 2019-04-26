@@ -6,11 +6,7 @@ import org.w3c.dom.Audio
 
 actual class SoundHandle(audio: Audio): Disposable() {
     // Delegate all work to audioHandle, which also handles music
-    internal val innerHandler = AudioHandle(audio)
-
-    init {
-        Disposer.register(this, innerHandler)
-    }
+    internal val innerHandler = AudioHandle(audio).setParent(this)
 }
 
 actual class Sound(path: String): Disposable() {

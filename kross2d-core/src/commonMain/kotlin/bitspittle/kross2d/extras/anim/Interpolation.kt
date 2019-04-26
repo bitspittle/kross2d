@@ -1,12 +1,10 @@
 package bitspittle.kross2d.extras.anim
 
-import kotlin.math.PI
+import bitspittle.kross2d.core.math.HALF_PI
 import kotlin.math.cos
 import kotlin.math.sin
 
 typealias Lerp<T> = (Float, T, T) -> T
-
-private const val HALF_PI = (PI / 2).toFloat()
 
 @Suppress("UNUSED_PARAMETER") // Any unused parameters are there to match Lerp signature
 object Lerps {

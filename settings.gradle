@@ -16,6 +16,13 @@ rootProject.name = "kross2d"
 include(":kross2d-core")
 project(":kross2d-core").name = "kross2d"
 
+// Extras
+
+include(":kross2d-extras-ecs")
+project(":kross2d-extras-ecs").name = "kross2d-ecs"
+
+// Examples
+
 def exColorCanvas = ":examples:colorcanvas:colorcanvas"
 include("$exColorCanvas-common")
 include("$exColorCanvas-jvm")
@@ -35,5 +42,10 @@ def exManyStates = ":examples:manystates:manystates"
 include("$exManyStates-common")
 include("$exManyStates-jvm")
 include("$exManyStates-js")
+
+def exPong = ":examples:pong:pong"
+include("$exPong-common")
+include("$exPong-jvm")
+include("$exPong-js")
 
 enableFeaturePreview("GRADLE_METADATA")
