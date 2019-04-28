@@ -13,6 +13,8 @@ import bitspittle.kross2d.engine.context.EnterContext
 import bitspittle.kross2d.engine.context.UpdateContext
 import bitspittle.kross2d.engine.graphics.DrawSurface
 import bitspittle.kross2d.engine.graphics.ImmutableDrawSurface
+import bitspittle.kross2d.engine.graphics.ImmutableScreen
+import bitspittle.kross2d.engine.graphics.Screen
 import bitspittle.kross2d.engine.input.DefaultKeyboard
 import bitspittle.kross2d.engine.input.Key
 import bitspittle.kross2d.engine.input.Keyboard
@@ -118,7 +120,7 @@ internal class Application internal constructor(params: AppParams, initialState:
         val assetLoader = AssetLoader(params.assetsRoot, scopes)
         val initContext = object : EnterContext {
             override val assetLoader: AssetLoader = assetLoader
-            override val screen: ImmutableDrawSurface = backend.drawSurface
+            override val screen: ImmutableScreen = backend.screen
             override val timer: Timer = timer
             override val scopes: Scopes = scopes
         }
@@ -126,14 +128,14 @@ internal class Application internal constructor(params: AppParams, initialState:
         val updateContext = object : UpdateContext {
             override val app: ApplicationFacade = app
             override val assetLoader: AssetLoader = assetLoader
-            override val screen: ImmutableDrawSurface = backend.drawSurface
+            override val screen: ImmutableScreen = backend.screen
             override val keyboard: Keyboard = keyboard
             override val timer: Timer = timer
             override val scopes: Scopes = scopes
         }
 
         val drawContext = object : DrawContext {
-            override val screen: DrawSurface = backend.drawSurface
+            override val screen: Screen = backend.screen
             override val timer: Timer = timer
         }
 
@@ -188,7 +190,7 @@ internal class Application internal constructor(params: AppParams, initialState:
 }
 
 internal expect class ApplicationBackend(params: AppParams) {
-    val drawSurface: DrawSurface
+    actual val screen: Screen
 
     val keyPressed: ObservableEvent<Key>
     val keyReleased: ObservableEvent<Key>

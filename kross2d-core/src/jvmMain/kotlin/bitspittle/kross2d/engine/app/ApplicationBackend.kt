@@ -6,8 +6,11 @@ import bitspittle.kross2d.core.graphics.ImmutableColor
 import bitspittle.kross2d.core.math.ImmutableVec2
 import bitspittle.kross2d.engine.graphics.DrawSurface
 import bitspittle.kross2d.engine.graphics.DrawSurface.ImageParams
+import bitspittle.kross2d.engine.graphics.Screen.Transform
+import bitspittle.kross2d.engine.graphics.Screen.Transform.*
 import bitspittle.kross2d.engine.graphics.Font
 import bitspittle.kross2d.engine.graphics.Image
+import bitspittle.kross2d.engine.graphics.Screen
 import bitspittle.kross2d.engine.input.Key
 import java.awt.Dimension
 import java.awt.Graphics
@@ -17,6 +20,7 @@ import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
+import java.awt.geom.AffineTransform
 import javax.swing.JFrame
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
@@ -30,7 +34,7 @@ fun ImmutableVec2.toDimension() = Dimension(x.roundToInt(), y.roundToInt())
 
 internal actual class ApplicationBackend actual constructor(params: AppParams) {
     private val frame: JFrame
-    private val screen: Screen
+    actual val screen: Screen
 
     init {
         System.setProperty("sun.java2d.opengl", "true") // For hardware accelerated rendering
@@ -42,7 +46,7 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
             }
         })
 
-        screen = Screen(params.size)
+        screen = AwtScreen(params.size)
         frame.contentPane.add(screen)
         frame.isResizable = false
         frame.pack()
@@ -119,8 +123,6 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
         frame.isVisible = true
     }
 
-    actual val drawSurface: DrawSurface = screen
-
     private val _keyPressed = Event<Key>()
     actual val keyPressed: ObservableEvent<Key> = _keyPressed
 
@@ -143,12 +145,13 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
         frame.dispose()
     }
 
-    private class Screen(override val size: ImmutableVec2) : JPanel(), DrawSurface {
+    private class AwtScreen(override val size: ImmutableVec2) : JPanel(), Screen {
         /**
          * Buffer of draw commands. We receive requests to draw to the screen outside of a time we
          * can actually draw them, so we save them up until the next paint happens.
          */
         private val drawCommands = mutableListOf<(Graphics2D) -> Unit>()
+        private val restoreTransforms = mutableListOf<AffineTransform>()
 
         init {
             preferredSize = size.toDimension()
@@ -165,6 +168,28 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
             enqueueCommand { g ->
                 g.background = color.toAwtColor()
                 g.clearRect(0, 0, width, height)
+            }
+        }
+
+        override fun pushTransform(transform: Transform) {
+            enqueueCommand { g ->
+                restoreTransforms.add(g.transform)
+                applyTransform(g, transform)
+            }
+        }
+
+        override fun popTransform() {
+            enqueueCommand { g -> g.transform = restoreTransforms.removeAt(restoreTransforms.lastIndex) }
+        }
+
+        private fun applyTransform(g: Graphics2D, transform: Transform) {
+            when (transform) {
+                is Scale -> g.scale(transform.x, transform.y)
+                is Translate -> g.translate(transform.x, transform.y)
+                is Composite -> {
+                    applyTransform(g, transform.lhs)
+                    applyTransform(g, transform.rhs)
+                }
             }
         }
 

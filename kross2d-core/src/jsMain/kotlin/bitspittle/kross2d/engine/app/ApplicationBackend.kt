@@ -3,6 +3,7 @@ package bitspittle.kross2d.engine.app
 import bitspittle.kross2d.core.event.Event
 import bitspittle.kross2d.core.event.ObservableEvent
 import bitspittle.kross2d.core.graphics.Color
+import bitspittle.kross2d.core.graphics.Colors
 import bitspittle.kross2d.core.graphics.ImmutableColor
 import bitspittle.kross2d.core.math.ImmutableVec2
 import bitspittle.kross2d.core.math.Vec2
@@ -10,8 +11,13 @@ import bitspittle.kross2d.engine.graphics.DrawSurface
 import bitspittle.kross2d.engine.graphics.DrawSurface.ImageParams
 import bitspittle.kross2d.engine.graphics.Font
 import bitspittle.kross2d.engine.graphics.Image
+import bitspittle.kross2d.engine.graphics.Screen
+import bitspittle.kross2d.engine.graphics.Screen.Transform
+import bitspittle.kross2d.engine.graphics.Screen.Transform.*
 import bitspittle.kross2d.engine.input.Key
 import org.w3c.dom.CanvasRenderingContext2D
+import org.w3c.dom.CanvasTransform
+import org.w3c.dom.DOMMatrix
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.events.KeyboardEvent
 import kotlin.browser.window
@@ -95,12 +101,29 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
         window.onkeyup = { handleKeyEvent(it, isDown = false) }
     }
 
-    actual val drawSurface: DrawSurface = object : DrawSurface {
+    actual val screen: Screen = object : Screen {
         override val size: ImmutableVec2 = params.canvasElement.let { Vec2(it.width, it.height) }
 
         override fun clear(color: ImmutableColor) {
             ctx.fillStyle = color.toHtmlColor()
             ctx.fillRect(0.0, 0.0, size.x.toDouble(), size.y.toDouble())
+        }
+
+        override fun pushTransform(transform: Transform) {
+            ctx.save()
+            applyTransform(transform)
+        }
+
+        override fun popTransform() {
+            ctx.restore()
+        }
+
+        private fun applyTransform(transform: Transform) {
+            when (transform) {
+                is Scale -> ctx.scale(transform.x, transform.y)
+                is Translate -> ctx.translate(transform.x, transform.y)
+                is Composite -> { applyTransform(transform.lhs); applyTransform(transform.rhs) }
+            }
         }
 
         override fun drawImage(image: Image, params: ImageParams) {
@@ -159,7 +182,7 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
         // Enqueue final instructions, instead of running them immediately, to ensure they get run
         // after any final frames that might still be in the pipeline
         window.setTimeout({
-            drawSurface.clear(Color(0, 0, 0))
+            screen.clear(Colors.BLACK)
             quitBlock()
         }, 0)
     }
