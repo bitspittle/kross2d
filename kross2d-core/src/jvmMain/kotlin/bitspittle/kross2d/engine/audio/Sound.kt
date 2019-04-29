@@ -11,7 +11,7 @@ import com.jogamp.openal.ALFactory
 import java.io.InputStream
 
 actual class SoundHandle internal constructor(buffer: AlBuffer): Disposable() {
-    private val audioSource = AlSource().setParent(this).apply { attachToBuffer(buffer) }
+    private val audioSource = AlSource().setParent(buffer).apply { attachToBuffer(buffer) }
 
     private val al = ALFactory.getAL()
     private val isValid
@@ -66,7 +66,7 @@ actual class Sound(stream: InputStream) : Disposable() {
     actual fun play(): SoundHandle {
         disposeStoppedSounds()
         wavData.alBuffer.let { buffer ->
-            val handle = SoundHandle(buffer)
+            val handle = SoundHandle(buffer).setParent(wavData)
             handles.add(handle)
             handle.play()
             return handle
