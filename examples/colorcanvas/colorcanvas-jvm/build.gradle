@@ -10,7 +10,7 @@ dependencies {
     compile project(":examples:colorcanvas:colorcanvas-common")
 }
 
-def mainClass = 'ColorCanvasJvmRunnerKt'
+def mainClass = 'ColorCanvasRunnerKt'
 
 jar {
     manifest {

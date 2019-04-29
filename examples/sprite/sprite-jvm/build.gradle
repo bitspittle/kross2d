@@ -10,7 +10,7 @@ dependencies {
     compile project(":examples:sprite:sprite-common")
 }
 
-def mainClass = 'SpriteJvmRunnerKt'
+def mainClass = 'SpriteRunnerKt'
 
 jar {
     manifest {

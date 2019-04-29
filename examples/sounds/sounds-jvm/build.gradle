@@ -10,7 +10,7 @@ dependencies {
     compile project(":examples:sounds:sounds-common")
 }
 
-def mainClass = 'SoundsJvmRunnerKt'
+def mainClass = 'SoundsRunnerKt'
 
 jar {
     manifest {

@@ -10,7 +10,7 @@ information. These classes can be found in those project's
 
 Every platform-specific implementation has an application runner, which you can
 find in the `$platform/src/main/kotlin` folder (e.g.
-`colorcanvas-jvm/src/main/kotlin/ColorCanvasJvmRunner.kt`).
+`colorcanvas-jvm/src/main/kotlin/ColorCanvasRunner.kt`).
 
 ## Color Canvas
 
