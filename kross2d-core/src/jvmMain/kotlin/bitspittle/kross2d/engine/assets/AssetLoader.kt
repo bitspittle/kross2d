@@ -13,7 +13,7 @@ actual class AssetLoaderBackend actual constructor(root: String) {
 
     actual fun loadFontInto(asset: Asset<Font>) {
         GlobalScope.launch(Dispatchers.IO) {
-            asset.setValue(
+            asset.setData(
                 resourceLoader.stream(asset.path)
                     ?.let { FontData.tryCreate(it) }
                     ?.let { fontData -> Font(fontData) })
@@ -22,19 +22,19 @@ actual class AssetLoaderBackend actual constructor(root: String) {
 
     actual fun loadImageInto(asset: Asset<Image>) {
         GlobalScope.launch(Dispatchers.IO) {
-            asset.setValue(resourceLoader.load(asset.path)?.let { Image(ImageData(it)) })
+            asset.setData(resourceLoader.load(asset.path)?.let { Image(ImageData(it)) })
         }
     }
 
     actual fun loadSoundInto(asset: Asset<Sound>) {
         GlobalScope.launch(Dispatchers.IO) {
-            asset.setValue(resourceLoader.stream(asset.path)?.let { Sound.tryCreate(it) })
+            asset.setData(resourceLoader.stream(asset.path)?.let { Sound.tryCreate(it) })
         }
     }
 
     actual fun loadMusicInto(asset: Asset<Music>) {
         GlobalScope.launch(Dispatchers.IO) {
-            asset.setValue(resourceLoader.url(asset.path)?.let { Music.tryCreate(it) })
+            asset.setData(resourceLoader.url(asset.path)?.let { Music.tryCreate(it) })
         }
     }
 }

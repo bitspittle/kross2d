@@ -66,17 +66,17 @@ class SoundsState : GameState {
         if (ctx.keyboard.isJustPressed(Key.SPACE)) {
             globallyPaused = !globallyPaused
             sounds
-                .mapNotNull { it.value }
+                .mapNotNull { it.data }
                 .forEach { if (globallyPaused) it.pause() else it.resume() }
 
-            music.value?.let { if (globallyPaused) it.pause() else it.resume() }
+            music.data?.let { if (globallyPaused) it.pause() else it.resume() }
         }
 
         if (!globallyPaused) {
             (Key.NUM_0.ordinal..Key.NUM_9.ordinal).forEachIndexed { i, keyOrdinal ->
                 val key = Key.values()[keyOrdinal]
                 if (ctx.keyboard.isJustPressed(key)) {
-                    sounds[i].value?.play()
+                    sounds[i].data?.play()
                 }
             }
         }

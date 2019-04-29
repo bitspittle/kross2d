@@ -25,7 +25,7 @@ class EndState(private val font: Asset<Font>) : GameState {
 
     override fun draw(ctx: DrawContext) {
         ctx.screen.clear(Colors.BLACK)
-        font.value?.let { font ->
+        font.data?.let { font ->
             ctx.screen.drawText(
                 font, """
                 END STATE

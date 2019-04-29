@@ -13,7 +13,7 @@ import bitspittle.kross2d.engine.memory.Scopes
 /**
  * A handle to an asset that will get loaded asynchronously.
  *
- * If [value] is non-null, this particular asset loaded successfully. Otherwise, the caller may
+ * If [data] is non-null, this particular asset loaded successfully. Otherwise, the caller may
  * want to check [state] to see if any asset failed to load, which could be particularly useful for
  * logging errors / aborting the game.
  */
@@ -28,33 +28,33 @@ class Asset<D: Disposable>(parent: ImmutableDisposable, val path: String) : Disp
         private set(value) {
             field = value
             if (field == State.LOADED) {
-                fireOnLoaded(this.value!!)
+                fireOnLoaded(this.data!!)
             }
             _onLoaded.clear()
         }
 
-    private val _onLoaded = Event<D> { value?.let { fireOnLoaded(it) } }
+    private val _onLoaded = Event<D> { data?.let { fireOnLoaded(it) } }
     val onLoaded: ObservableEvent<D> = _onLoaded
 
     /**
      * The value of this handle. Will only be non-null if the current [state] is [State.LOADED]
      */
-    var value: D? = null
+    var data: D? = null
         private set
 
-    internal fun setValue(value: D?) {
+    internal fun setData(data: D?) {
         if (this.disposed) {
             // It's possible that this asset shell already got disposed by the time we finished
             // loading the underlying data. This probably won't happen in practice, but just in
             // case, let's handle it by consuming the data.
-            value?.use {}
+            data?.use {}
             return
         }
 
         assertLoading()
-        if (value != null) {
-            Disposer.reparent(this, value)
-            this.value = value
+        if (data != null) {
+            Disposer.reparent(this, data)
+            this.data = data
             state = State.LOADED
         }
         else {
@@ -62,14 +62,14 @@ class Asset<D: Disposable>(parent: ImmutableDisposable, val path: String) : Disp
         }
     }
 
-    private fun fireOnLoaded(value: D) {
-        _onLoaded(value)
+    private fun fireOnLoaded(data: D) {
+        _onLoaded(data)
         _onLoaded.clear()
     }
 
     internal fun notifyFailure() {
         if (this.disposed) {
-            // We got disposed before the target value had a chance to fail loading. This probably
+            // We got disposed before the target data had a chance to fail loading. This probably
             // won't happen in practice, but if it does, who cares! Let's just ignore it.
             return
         }

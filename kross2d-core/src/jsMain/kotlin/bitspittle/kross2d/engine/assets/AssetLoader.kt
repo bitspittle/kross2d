@@ -15,26 +15,26 @@ actual class AssetLoaderBackend actual constructor(private val root: String) {
         data.jsFont.loaded
             .then {
                 document.asDynamic().fonts.add(it) // At this time, document.fonts is still experimental
-                asset.setValue(Font(data))
+                asset.setData(Font(data))
             }
             .catch { asset.notifyFailure() }
     }
 
     actual fun loadImageInto(asset: Asset<Image>) {
         val data = ImageData("$root/${asset.path}")
-        data.jsImage.onload = { asset.setValue(Image(data)) }
+        data.jsImage.onload = { asset.setData(Image(data)) }
         data.jsImage.onerror = { _, _, _, _, _ -> asset.notifyFailure() }
     }
 
     actual fun loadSoundInto(asset: Asset<Sound>) {
         val sound = Sound("$root/${asset.path}")
-        sound.jsAudio.onloadeddata = { asset.setValue(sound) }
+        sound.jsAudio.onloadeddata = { asset.setData(sound) }
         sound.jsAudio.onerror = { _, _, _, _, _ -> asset.notifyFailure() }
     }
 
     actual fun loadMusicInto(asset: Asset<Music>) {
         val music = Music("$root/${asset.path}")
-        music.jsAudio.onloadeddata = { asset.setValue(music) }
+        music.jsAudio.onloadeddata = { asset.setData(music) }
         music.jsAudio.onerror = { _, _, _, _, _ -> asset.notifyFailure() }
     }
 }
