@@ -38,7 +38,7 @@ class ColorCanvasState : GameState {
             ctx.app.quit()
         }
 
-        elapsed += ctx.timer.lastFrameDuration
+        elapsed += ctx.timer.lastFrame
 
         // Update color, cycling its r, g, b parts at different rates so you don't just get a
         // boring "black -> grey -> white and back" effect

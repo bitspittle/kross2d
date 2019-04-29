@@ -59,7 +59,7 @@ class SpriteState : GameState {
         }
 
         fun update(ctx: UpdateContext) {
-            currAnim.elapse(ctx.timer.lastFrameDuration)
+            currAnim.elapse(ctx.timer.lastFrame)
 
             // Allow up/down and left/right to cancel each other out
             vel.set(Pt2.ZERO)
@@ -69,7 +69,7 @@ class SpriteState : GameState {
             if (ctx.keyboard.isDown(Key.RIGHT)) vel.x += 1f
             vel.normalize() // Make sure even diagonal directions move a consistent speed
             // Travel at a speed so you cross the screen in a few seconds
-            vel *= (200.0 * ctx.timer.lastFrameDuration.secs).toFloat()
+            vel *= (200.0 * ctx.timer.lastFrame.secs).toFloat()
 
             when {
                 vel.x > 0 -> Dir.E

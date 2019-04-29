@@ -114,7 +114,7 @@ class BouncingPlayStrategy : PlayStrategy {
  * anim = Anim(FRAME_DURATION, image1, image2, image3)
  *
  * // In update()
- * anim.elapse(ctx.timer.lastFrameDuration)
+ * anim.elapse(ctx.timer.lastFrame)
  *
  * // In draw()
  * ctx.screen.drawImage(anim.value, ... params ...)

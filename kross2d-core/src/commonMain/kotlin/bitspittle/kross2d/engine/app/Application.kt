@@ -11,8 +11,6 @@ import bitspittle.kross2d.engine.assets.AssetLoader
 import bitspittle.kross2d.engine.context.DrawContext
 import bitspittle.kross2d.engine.context.EnterContext
 import bitspittle.kross2d.engine.context.UpdateContext
-import bitspittle.kross2d.engine.graphics.DrawSurface
-import bitspittle.kross2d.engine.graphics.ImmutableDrawSurface
 import bitspittle.kross2d.engine.graphics.ImmutableScreen
 import bitspittle.kross2d.engine.graphics.Screen
 import bitspittle.kross2d.engine.input.DefaultKeyboard
@@ -161,7 +159,7 @@ internal class Application internal constructor(params: AppParams, initialState:
 
                 stateStack.last().let { stateToEnter ->
                     frameStart = Instant.now()
-                    timer.lastFrameDuration.setFrom(Duration.ZERO)
+                    timer.lastFrame.setFrom(Duration.ZERO)
                     Disposer.dispose(scopes.currState)
                     scopes.currState = disposable {}
                     currentState = stateToEnter
@@ -171,7 +169,7 @@ internal class Application internal constructor(params: AppParams, initialState:
 
             val lastFrameStart = frameStart
             frameStart = Instant.now()
-            timer.lastFrameDuration.setFrom(frameStart - lastFrameStart)
+            timer.lastFrame.setFrom(frameStart - lastFrameStart)
 
             currentState.update(updateContext)
             keyboard.step()

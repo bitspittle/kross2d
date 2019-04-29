@@ -10,11 +10,14 @@ import bitspittle.kross2d.core.time.Instant
 interface Timer {
     /**
      * A measurement of time between the last frame starting and the current frame starting.
+     *
+     * A useful value to add to some accumulating `elapsed` timer or pass to classes expecting
+     * some sort of tick update.
      */
-    val lastFrameDuration: ImmutableDuration
+    val lastFrame: ImmutableDuration
 }
 
-internal class DefaultTimer(override val lastFrameDuration: Duration = Duration.zero()): Timer
+internal class DefaultTimer(override val lastFrame: Duration = Duration.zero()): Timer
 
 /**
  * Shortcut for [Instant.now] for simplicity, allowing users of the *kross2d* API to find every
