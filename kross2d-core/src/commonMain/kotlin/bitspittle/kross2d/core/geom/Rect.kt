@@ -7,7 +7,7 @@ import bitspittle.kross2d.core.math.Vec2
 import kotlin.math.max
 import kotlin.math.min
 
-abstract class ImmutableRect {
+abstract class ImmutableRect : ImmutableShape {
     abstract val pos: ImmutablePt2
     abstract val size: ImmutableVec2
 
@@ -19,12 +19,19 @@ abstract class ImmutableRect {
         get() = size.x
     open val h: Float
         get() = size.y
+    open val x2: Float
+        get() = x + w
+    open val y2: Float
+        get() = y + h
 
-    val center: ImmutablePt2
+
+    override val center: ImmutablePt2
         get() = Pt2(x + w / 2f, y + h / 2f)
 
-    val area: Float
+    override val area: Float
         get() = size.x * size.y
+
+    override fun toBoundingRect() = this
 
     fun intersects(other: ImmutableRect): Boolean {
         return when {
@@ -103,6 +110,14 @@ class Rect(pos: ImmutablePt2, size: ImmutableVec2) : ImmutableRect() {
     override var h: Float
         get() = super.h
         set(value) { size.y = value }
+
+    override var x2: Float
+        get() = super.x2
+        set(value) { size.x = value - x }
+
+    override var y2: Float
+        get() = super.y2
+        set(value) { size.y = value - y }
 
     fun set(other: ImmutableRect) {
         pos.set(other.pos)
