@@ -33,6 +33,7 @@ task assembleWeb(type: Sync) {
 }
 
 task cleanWeb(type: Delete) {
+    group = 'Build'
     delete "${projectDir}/web/lib"
 }
 
