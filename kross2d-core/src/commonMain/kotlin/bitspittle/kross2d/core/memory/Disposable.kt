@@ -159,10 +159,6 @@ object Disposer {
     internal fun <D : Disposable> register(disposable: D) {
         verifyNewDisposable(disposable)
         roots.add(disposable)
-
-        if ((disposable as Disposable?) == null) {
-            println("WTF")
-        }
     }
 
     /**
