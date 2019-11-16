@@ -2,10 +2,11 @@ package bitspittle.kross2d.engine.app
 
 import bitspittle.kross2d.core.event.Event
 import bitspittle.kross2d.core.event.ObservableEvent
-import bitspittle.kross2d.core.graphics.Color
 import bitspittle.kross2d.core.graphics.Colors
 import bitspittle.kross2d.core.graphics.ImmutableColor
+import bitspittle.kross2d.core.math.ImmutablePt2
 import bitspittle.kross2d.core.math.ImmutableVec2
+import bitspittle.kross2d.core.math.Pt2
 import bitspittle.kross2d.core.math.Vec2
 import bitspittle.kross2d.engine.graphics.DrawSurface
 import bitspittle.kross2d.engine.graphics.DrawSurface.ImageParams
@@ -14,15 +15,14 @@ import bitspittle.kross2d.engine.graphics.Image
 import bitspittle.kross2d.engine.graphics.Screen
 import bitspittle.kross2d.engine.graphics.Screen.Transform
 import bitspittle.kross2d.engine.graphics.Screen.Transform.*
+import bitspittle.kross2d.engine.input.Button
 import bitspittle.kross2d.engine.input.Key
 import org.w3c.dom.CanvasRenderingContext2D
-import org.w3c.dom.CanvasTransform
-import org.w3c.dom.DOMMatrix
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.events.KeyboardEvent
+import org.w3c.dom.events.MouseEvent
 import kotlin.browser.window
 import kotlin.math.roundToInt
-import org.khronos.webgl.WebGLRenderingContext as GL
 
 fun ImmutableColor.toHtmlColor() = "rgb($r, $g, $b)"
 fun Font.toHtmlFont() = "${fontData.size.roundToInt()}px ${fontData.name}"
@@ -99,6 +99,28 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
         }
         window.onkeydown = { handleKeyEvent(it, isDown = true) }
         window.onkeyup = { handleKeyEvent(it, isDown = false) }
+
+        val mousePos = Pt2()
+        fun handleMouseMoveEvent(mouseEvent: MouseEvent) {
+            val x = mouseEvent.clientX - ctx.canvas.offsetLeft
+            val y = mouseEvent.clientY - ctx.canvas.offsetTop
+
+            mousePos.set(x, y)
+            _mouseMoved(mousePos)
+        }
+        fun handleMouseButtonEvent(mouseEvent: MouseEvent, isDown: Boolean) {
+            val button = when(mouseEvent.button.toInt()) {
+                0 -> Button.LEFT
+                1 -> Button.MIDDLE
+                2 -> Button.RIGHT
+                else -> return
+            }
+            if (isDown) _buttonPressed(button) else _buttonReleased(button)
+        }
+
+        ctx.canvas.onmousemove = { handleMouseMoveEvent(it)}
+        ctx.canvas.onmousedown = { handleMouseButtonEvent(it, isDown = true) }
+        ctx.canvas.onmouseup = { handleMouseButtonEvent(it, isDown = false) }
     }
 
     actual val screen: Screen = object : Screen {
@@ -124,6 +146,14 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
                 is Translate -> ctx.translate(transform.x, transform.y)
                 is Composite -> { applyTransform(transform.lhs); applyTransform(transform.rhs) }
             }
+        }
+
+        override fun drawLine(pt1: ImmutablePt2, pt2: ImmutablePt2, color: ImmutableColor) {
+            ctx.beginPath()
+            ctx.strokeStyle = color.toHtmlColor()
+            ctx.moveTo(pt1.x.toDouble(), pt1.y.toDouble())
+            ctx.lineTo(pt2.x.toDouble(), pt2.y.toDouble())
+            ctx.stroke()
         }
 
         override fun drawImage(image: Image, params: ImageParams) {
@@ -160,11 +190,21 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
             }
         }
     }
+
     private val _keyPressed = Event<Key>()
     actual val keyPressed: ObservableEvent<Key> = _keyPressed
 
     private val _keyReleased = Event<Key>()
     actual val keyReleased: ObservableEvent<Key> = _keyReleased
+
+    private val _mouseMoved = Event<ImmutablePt2>()
+    actual val mouseMoved: ObservableEvent<ImmutablePt2> = _mouseMoved
+
+    private val _buttonPressed = Event<Button>()
+    actual val buttonPressed: ObservableEvent<Button> = _buttonPressed
+
+    private val _buttonReleased = Event<Button>()
+    actual val buttonReleased: ObservableEvent<Button> = _buttonReleased
 
     private var frameStepHandle: Int = 0
     private lateinit var quitBlock: () -> Unit

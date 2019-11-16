@@ -1,6 +1,7 @@
 package bitspittle.kross2d.engine.app
 
 import bitspittle.kross2d.core.event.ObservableEvent
+import bitspittle.kross2d.core.math.ImmutablePt2
 import bitspittle.kross2d.core.memory.Disposable
 import bitspittle.kross2d.core.memory.Disposer
 import bitspittle.kross2d.core.memory.disposable
@@ -13,9 +14,9 @@ import bitspittle.kross2d.engine.context.EnterContext
 import bitspittle.kross2d.engine.context.UpdateContext
 import bitspittle.kross2d.engine.graphics.ImmutableScreen
 import bitspittle.kross2d.engine.graphics.Screen
+import bitspittle.kross2d.engine.input.*
 import bitspittle.kross2d.engine.input.DefaultKeyboard
-import bitspittle.kross2d.engine.input.Key
-import bitspittle.kross2d.engine.input.Keyboard
+import bitspittle.kross2d.engine.input.DefaultMouse
 import bitspittle.kross2d.engine.memory.Scopes
 import bitspittle.kross2d.engine.time.DefaultTimer
 import bitspittle.kross2d.engine.time.Timer
@@ -90,6 +91,11 @@ internal class Application internal constructor(params: AppParams, initialState:
         backend.keyPressed += { key -> keyboard.handleKey(key, true) }
         backend.keyReleased += { key -> keyboard.handleKey(key, false) }
 
+        val mouse = DefaultMouse()
+        backend.mouseMoved += { pos -> mouse.pos.set(pos) }
+        backend.buttonPressed += { button -> mouse.handleButton(button, true) }
+        backend.buttonReleased += { button -> mouse.handleButton(button, false) }
+
         val scopes = object : Scopes {
             override val app: Disposable = disposable { }
             override var currState: Disposable = disposable { }
@@ -128,6 +134,7 @@ internal class Application internal constructor(params: AppParams, initialState:
             override val assetLoader: AssetLoader = assetLoader
             override val screen: ImmutableScreen = backend.screen
             override val keyboard: Keyboard = keyboard
+            override val mouse: Mouse = mouse
             override val timer: Timer = timer
             override val scopes: Scopes = scopes
         }
@@ -173,6 +180,7 @@ internal class Application internal constructor(params: AppParams, initialState:
 
             currentState.update(updateContext)
             keyboard.step()
+            mouse.step()
 
             currentState.draw(drawContext)
         }
@@ -192,6 +200,10 @@ internal expect class ApplicationBackend(params: AppParams) {
 
     val keyPressed: ObservableEvent<Key>
     val keyReleased: ObservableEvent<Key>
+
+    val mouseMoved: ObservableEvent<ImmutablePt2>
+    val buttonPressed: ObservableEvent<Button>
+    val buttonReleased: ObservableEvent<Button>
 
     /**
      * The backend is handed a function which, when called, steps the game loop one frame forward.

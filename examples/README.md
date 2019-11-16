@@ -26,3 +26,10 @@ Demonstrates the loading and rendering of images.
 Run on desktop: `gradlew :examples:colorcanvas:sprite-jvm:run`
 Run in browser: `gradlew :examples:colorcanvas:sprite-js:run`
 
+## Sprite
+
+Demonstrates mouse input.
+
+Run on desktop: `gradlew :examples:paint:paint-jvm:run`
+Run in browser: `gradlew :examples:paint:paint-js:run`
+

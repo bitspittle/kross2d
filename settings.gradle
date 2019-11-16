@@ -48,4 +48,9 @@ include("$exPong-common")
 include("$exPong-jvm")
 include("$exPong-js")
 
+def exPaint = ":examples:paint:paint"
+include("$exPaint-common")
+include("$exPaint-jvm")
+include("$exPaint-js")
+
 enableFeaturePreview("GRADLE_METADATA")

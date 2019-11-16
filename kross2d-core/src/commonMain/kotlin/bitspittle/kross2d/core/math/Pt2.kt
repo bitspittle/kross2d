@@ -43,6 +43,16 @@ class Pt2(override var x: Float, override var y: Float) : ImmutablePt2() {
         }
     }
 
+    fun set(x: Float, y: Float) {
+        this.x = x
+        this.y = y
+    }
+
+    fun set(x: Int, y: Int) {
+        this.x = x.toFloat()
+        this.y = y.toFloat()
+    }
+
     fun set(other: ImmutablePt2) {
         x = other.x
         y = other.y

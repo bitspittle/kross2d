@@ -69,6 +69,8 @@ interface DrawSurface : ImmutableDrawSurface {
 
     fun clear(color: ImmutableColor)
 
+    fun drawLine(pt1: ImmutablePt2, pt2: ImmutablePt2, color: ImmutableColor)
+
     /**
      * Draw the target image onto this surface.
      *

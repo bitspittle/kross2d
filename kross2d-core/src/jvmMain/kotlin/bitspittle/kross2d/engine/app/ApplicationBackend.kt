@@ -3,7 +3,9 @@ package bitspittle.kross2d.engine.app
 import bitspittle.kross2d.core.event.Event
 import bitspittle.kross2d.core.event.ObservableEvent
 import bitspittle.kross2d.core.graphics.ImmutableColor
+import bitspittle.kross2d.core.math.ImmutablePt2
 import bitspittle.kross2d.core.math.ImmutableVec2
+import bitspittle.kross2d.core.math.Pt2
 import bitspittle.kross2d.engine.graphics.DrawSurface
 import bitspittle.kross2d.engine.graphics.DrawSurface.ImageParams
 import bitspittle.kross2d.engine.graphics.Screen.Transform
@@ -11,15 +13,11 @@ import bitspittle.kross2d.engine.graphics.Screen.Transform.*
 import bitspittle.kross2d.engine.graphics.Font
 import bitspittle.kross2d.engine.graphics.Image
 import bitspittle.kross2d.engine.graphics.Screen
+import bitspittle.kross2d.engine.graphics.Screen.Transform.Composite
 import bitspittle.kross2d.engine.input.Key
-import java.awt.Dimension
-import java.awt.Graphics
-import java.awt.Graphics2D
-import java.awt.RenderingHints
-import java.awt.event.KeyAdapter
-import java.awt.event.KeyEvent
-import java.awt.event.WindowAdapter
-import java.awt.event.WindowEvent
+import bitspittle.kross2d.engine.input.Button
+import java.awt.*
+import java.awt.event.*
 import java.awt.geom.AffineTransform
 import javax.swing.JFrame
 import javax.swing.JPanel
@@ -120,6 +118,44 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
             }
         })
 
+        val mousePos = Pt2()
+        fun updateMousePosAndFireEvent(e: MouseEvent) {
+            mousePos.set(e.x, e.y)
+            _mouseMoved(mousePos)
+        }
+        frame.addMouseMotionListener(object : MouseAdapter() {
+            override fun mouseMoved(e: MouseEvent) {
+                updateMousePosAndFireEvent(e)
+            }
+
+            override fun mouseDragged(e: MouseEvent) {
+                updateMousePosAndFireEvent(e)
+            }
+        })
+        frame.addMouseListener(object : MouseAdapter() {
+            private fun handleAwtButton(awtButton: Int, isDown: Boolean) {
+                val button = when(awtButton) {
+                    1 -> Button.LEFT
+                    2 -> Button.MIDDLE
+                    3 -> Button.RIGHT
+                    else -> return
+                }
+                if (isDown) _buttonPressed(button) else _buttonReleased(button)
+            }
+
+            override fun mousePressed(e: MouseEvent) {
+                handleAwtButton(e.button, true)
+            }
+
+            override fun mouseReleased(e: MouseEvent) {
+                handleAwtButton(e.button, false)
+            }
+
+            override fun mouseDragged(e: MouseEvent) {
+                updateMousePosAndFireEvent(e)
+            }
+        })
+
         frame.isVisible = true
     }
 
@@ -128,6 +164,15 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
 
     private val _keyReleased = Event<Key>()
     actual val keyReleased: ObservableEvent<Key> = _keyReleased
+
+    private val _mouseMoved = Event<ImmutablePt2>()
+    actual val mouseMoved: ObservableEvent<ImmutablePt2> = _mouseMoved
+
+    private val _buttonPressed = Event<Button>()
+    actual val buttonPressed: ObservableEvent<Button> = _buttonPressed
+
+    private val _buttonReleased = Event<Button>()
+    actual val buttonReleased: ObservableEvent<Button> = _buttonReleased
 
     actual fun runForever(frameStep: () -> Unit) {
         while (frame.isVisible) {
@@ -190,6 +235,13 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
                     applyTransform(g, transform.lhs)
                     applyTransform(g, transform.rhs)
                 }
+            }
+        }
+
+        override fun drawLine(pt1: ImmutablePt2, pt2: ImmutablePt2, color: ImmutableColor) {
+            enqueueCommand { g ->
+                g.color = color.toAwtColor()
+                g.drawLine(pt1.x.roundToInt(), pt1.y.roundToInt(), pt2.x.roundToInt(), pt2.y.roundToInt())
             }
         }
 
