@@ -23,32 +23,34 @@ project(":kross2d-extras-ecs").name = "kross2d-ecs"
 
 // Examples
 
-def exColorCanvas = ":examples:colorcanvas:colorcanvas"
-include("$exColorCanvas-common")
-include("$exColorCanvas-jvm")
-include("$exColorCanvas-js")
+def examplesRoot = ":docs:examples"
 
-def exSprite = ":examples:sprite:sprite"
+def exHelloWorld = "$examplesRoot:helloworld:helloworld"
+include("$exHelloWorld-common")
+include("$exHelloWorld-jvm")
+include("$exHelloWorld-js")
+
+def exSprite = "$examplesRoot:sprite:sprite"
 include("$exSprite-common")
 include("$exSprite-jvm")
 include("$exSprite-js")
 
-def exSounds = ":examples:sounds:sounds"
+def exSounds = "$examplesRoot:sounds:sounds"
 include("$exSounds-common")
 include("$exSounds-jvm")
 include("$exSounds-js")
 
-def exManyStates = ":examples:manystates:manystates"
+def exManyStates = "$examplesRoot:manystates:manystates"
 include("$exManyStates-common")
 include("$exManyStates-jvm")
 include("$exManyStates-js")
 
-def exPong = ":examples:pong:pong"
+def exPong = "$examplesRoot:pong:pong"
 include("$exPong-common")
 include("$exPong-jvm")
 include("$exPong-js")
 
-def exPaint = ":examples:paint:paint"
+def exPaint = "$examplesRoot:paint:paint"
 include("$exPaint-common")
 include("$exPaint-jvm")
 include("$exPaint-js")
