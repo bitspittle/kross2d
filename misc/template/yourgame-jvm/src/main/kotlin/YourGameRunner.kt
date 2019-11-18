@@ -5,6 +5,6 @@ import bitspittle.kross2d.engine.app.launch
 fun main() {
     val screenSize = Vec2(640, 480)
     launch(
-        AppParams("Color Canvas", screenSize),
-        initialState = ColorCanvasState())
+        AppParams("Your Game", screenSize),
+        initialState = YourGameState())
 }
