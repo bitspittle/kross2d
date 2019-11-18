@@ -1,0 +1,1 @@
+// Kotlin.kotlin_module_metadata(393729, "helloworld-js", "H4sIAAAAAAAAAGMQcuIS4WLJTczM42LLzi/JAdIsoXmZJUI8XEwCjFxsHAwCTBIMUuJSnAIMUkwGjDs4GGZw/IcBxkkcTFwMUlCdUuzZRfnFxUYpUoIZqTk5+eX5RTkpusn5ubn5eQD9IqPJaQAAAA==");
