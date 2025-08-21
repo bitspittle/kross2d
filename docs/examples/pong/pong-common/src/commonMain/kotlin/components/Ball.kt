@@ -1,8 +1,8 @@
 package components
 
-import bitspittle.kross2d.core.geom.Circle
-import bitspittle.kross2d.core.math.Vec2
-import bitspittle.kross2d.extras.ecs.Component
+import dev.bitspittle.kross2d.core.geom.Circle
+import dev.bitspittle.kross2d.core.math.Vec2
+import dev.bitspittle.kross2d.extras.ecs.Component
 
 class Ball : Component {
     val shape = Circle()

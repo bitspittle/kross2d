@@ -1,13 +1,13 @@
 package systems
 
-import bitspittle.kross2d.core.math.ImmutableVec2
-import bitspittle.kross2d.engine.assets.Asset
-import bitspittle.kross2d.engine.audio.Sound
-import bitspittle.kross2d.engine.context.UpdateContext
-import bitspittle.kross2d.extras.ecs.Entity
-import bitspittle.kross2d.extras.ecs.Family
-import bitspittle.kross2d.extras.ecs.UpdateSystem
-import bitspittle.kross2d.extras.ecs.World
+import dev.bitspittle.kross2d.core.math.ImmutableVec2
+import dev.bitspittle.kross2d.engine.assets.Asset
+import dev.bitspittle.kross2d.engine.audio.Sound
+import dev.bitspittle.kross2d.engine.context.UpdateContext
+import dev.bitspittle.kross2d.extras.ecs.Entity
+import dev.bitspittle.kross2d.extras.ecs.Family
+import dev.bitspittle.kross2d.extras.ecs.UpdateSystem
+import dev.bitspittle.kross2d.extras.ecs.World
 import components.Ball
 import components.Body
 import components.Paddle

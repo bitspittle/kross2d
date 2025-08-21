@@ -1,22 +1,22 @@
-import bitspittle.kross2d.core.geom.Rect
-import bitspittle.kross2d.core.geom.centerIn
-import bitspittle.kross2d.core.graphics.Color
-import bitspittle.kross2d.core.math.Pt2
-import bitspittle.kross2d.core.math.Vec2
-import bitspittle.kross2d.core.math.clamp
-import bitspittle.kross2d.core.time.Duration
-import bitspittle.kross2d.engine.GameState
-import bitspittle.kross2d.engine.assets.Asset
-import bitspittle.kross2d.engine.assets.AssetLoader
-import bitspittle.kross2d.engine.context.DrawContext
-import bitspittle.kross2d.engine.context.EnterContext
-import bitspittle.kross2d.engine.context.UpdateContext
-import bitspittle.kross2d.engine.graphics.DrawSurface
-import bitspittle.kross2d.engine.graphics.DrawSurface.ImageParams
-import bitspittle.kross2d.engine.graphics.Image
-import bitspittle.kross2d.engine.input.Key
-import bitspittle.kross2d.extras.anim.Anim
-import bitspittle.kross2d.extras.graphics.Tiles
+import dev.bitspittle.kross2d.core.geom.Rect
+import dev.bitspittle.kross2d.core.geom.centerIn
+import dev.bitspittle.kross2d.core.graphics.Color
+import dev.bitspittle.kross2d.core.math.Pt2
+import dev.bitspittle.kross2d.core.math.Vec2
+import dev.bitspittle.kross2d.core.math.clamp
+import dev.bitspittle.kross2d.core.time.Duration
+import dev.bitspittle.kross2d.engine.GameState
+import dev.bitspittle.kross2d.engine.assets.Asset
+import dev.bitspittle.kross2d.engine.assets.AssetLoader
+import dev.bitspittle.kross2d.engine.context.DrawContext
+import dev.bitspittle.kross2d.engine.context.EnterContext
+import dev.bitspittle.kross2d.engine.context.UpdateContext
+import dev.bitspittle.kross2d.engine.graphics.DrawSurface
+import dev.bitspittle.kross2d.engine.graphics.DrawSurface.ImageParams
+import dev.bitspittle.kross2d.engine.graphics.Image
+import dev.bitspittle.kross2d.engine.input.Key
+import dev.bitspittle.kross2d.extras.anim.Anim
+import dev.bitspittle.kross2d.extras.graphics.Tiles
 
 private val CLEAR_COLOR = Color(0, 0, 0)
 

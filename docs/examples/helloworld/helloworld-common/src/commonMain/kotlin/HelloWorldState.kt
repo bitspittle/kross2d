@@ -1,12 +1,12 @@
-import bitspittle.kross2d.core.graphics.Color
-import bitspittle.kross2d.core.time.Duration
-import bitspittle.kross2d.core.time.ImmutableDuration
-import bitspittle.kross2d.engine.GameState
-import bitspittle.kross2d.engine.context.DrawContext
-import bitspittle.kross2d.engine.context.UpdateContext
-import bitspittle.kross2d.engine.input.Key
-import bitspittle.kross2d.engine.input.Keyboard
-import bitspittle.kross2d.engine.time.Timer
+import dev.bitspittle.kross2d.core.graphics.Color
+import dev.bitspittle.kross2d.core.time.Duration
+import dev.bitspittle.kross2d.core.time.ImmutableDuration
+import dev.bitspittle.kross2d.engine.GameState
+import dev.bitspittle.kross2d.engine.context.DrawContext
+import dev.bitspittle.kross2d.engine.context.UpdateContext
+import dev.bitspittle.kross2d.engine.input.Key
+import dev.bitspittle.kross2d.engine.input.Keyboard
+import dev.bitspittle.kross2d.engine.time.Timer
 import kotlin.math.sin
 
 /**

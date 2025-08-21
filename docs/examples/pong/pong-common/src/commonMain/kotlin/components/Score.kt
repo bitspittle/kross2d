@@ -1,6 +1,6 @@
 package components
 
-import bitspittle.kross2d.extras.ecs.Component
+import dev.bitspittle.kross2d.extras.ecs.Component
 import objects.ScoreBoard
 import objects.Side
 

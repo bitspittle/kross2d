@@ -1,5 +1,5 @@
-import bitspittle.kross2d.engine.app.AppParams
-import bitspittle.kross2d.engine.app.launch
+import dev.bitspittle.kross2d.engine.app.AppParams
+import dev.bitspittle.kross2d.engine.app.launch
 
 fun main() {
     val screenSize = PongState.ARENA_SIZE * 5f

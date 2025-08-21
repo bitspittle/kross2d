@@ -1,13 +1,13 @@
-import bitspittle.kross2d.core.graphics.Colors
-import bitspittle.kross2d.core.math.ImmutablePt2
-import bitspittle.kross2d.core.math.Pt2
-import bitspittle.kross2d.engine.GameState
-import bitspittle.kross2d.engine.context.DrawContext
-import bitspittle.kross2d.engine.context.UpdateContext
-import bitspittle.kross2d.engine.graphics.DrawSurface
-import bitspittle.kross2d.engine.input.Button
-import bitspittle.kross2d.engine.input.Key
-import bitspittle.kross2d.engine.input.Mouse
+import dev.bitspittle.kross2d.core.graphics.Colors
+import dev.bitspittle.kross2d.core.math.ImmutablePt2
+import dev.bitspittle.kross2d.core.math.Pt2
+import dev.bitspittle.kross2d.engine.GameState
+import dev.bitspittle.kross2d.engine.context.DrawContext
+import dev.bitspittle.kross2d.engine.context.UpdateContext
+import dev.bitspittle.kross2d.engine.graphics.DrawSurface
+import dev.bitspittle.kross2d.engine.input.Button
+import dev.bitspittle.kross2d.engine.input.Key
+import dev.bitspittle.kross2d.engine.input.Mouse
 
 private val CLEAR_COLOR = Colors.GREY192
 

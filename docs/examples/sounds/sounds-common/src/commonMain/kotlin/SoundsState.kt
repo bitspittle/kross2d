@@ -1,17 +1,17 @@
-import bitspittle.kross2d.core.geom.Rect
-import bitspittle.kross2d.core.graphics.Colors
-import bitspittle.kross2d.core.math.Pt2
-import bitspittle.kross2d.engine.GameState
-import bitspittle.kross2d.engine.assets.Asset
-import bitspittle.kross2d.engine.audio.Music
-import bitspittle.kross2d.engine.audio.Sound
-import bitspittle.kross2d.engine.context.DrawContext
-import bitspittle.kross2d.engine.context.EnterContext
-import bitspittle.kross2d.engine.context.UpdateContext
-import bitspittle.kross2d.engine.graphics.DrawSurface.TextParams
-import bitspittle.kross2d.engine.graphics.DrawSurface.TextParams.Anchor
-import bitspittle.kross2d.engine.graphics.Font
-import bitspittle.kross2d.engine.input.Key
+import dev.bitspittle.kross2d.core.geom.Rect
+import dev.bitspittle.kross2d.core.graphics.Colors
+import dev.bitspittle.kross2d.core.math.Pt2
+import dev.bitspittle.kross2d.engine.GameState
+import dev.bitspittle.kross2d.engine.assets.Asset
+import dev.bitspittle.kross2d.engine.audio.Music
+import dev.bitspittle.kross2d.engine.audio.Sound
+import dev.bitspittle.kross2d.engine.context.DrawContext
+import dev.bitspittle.kross2d.engine.context.EnterContext
+import dev.bitspittle.kross2d.engine.context.UpdateContext
+import dev.bitspittle.kross2d.engine.graphics.DrawSurface.TextParams
+import dev.bitspittle.kross2d.engine.graphics.DrawSurface.TextParams.Anchor
+import dev.bitspittle.kross2d.engine.graphics.Font
+import dev.bitspittle.kross2d.engine.input.Key
 
 /**
  * Images: A simple "game" which plays sounds.
