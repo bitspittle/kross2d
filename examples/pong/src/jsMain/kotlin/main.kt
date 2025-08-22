@@ -2,10 +2,20 @@ import dev.bitspittle.kross2d.engine.app.AppParams
 import dev.bitspittle.kross2d.engine.app.launch
 import org.w3c.dom.HTMLCanvasElement
 import kotlinx.browser.document
+import org.w3c.dom.HTMLButtonElement
 
 fun main() {
+    // Delay playing any demo with sounds, because on web, it is an error to play sounds before the
+    // user interacts with the site first.
+    val playButton = document.querySelector("#playButton") as HTMLButtonElement
     val canvas = document.querySelector("#glCanvas") as HTMLCanvasElement
-    launch(
-        AppParams(canvas),
-        initialState = PongState())
+
+    playButton.onclick = {
+        playButton.hidden = true
+        canvas.hidden = false
+
+        launch(
+            AppParams(canvas),
+            initialState = PongState())
+    }
 }
