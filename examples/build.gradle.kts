@@ -2,7 +2,6 @@
 // applied multiple times.
 plugins {
     alias(libs.plugins.kotlin.multiplatform) apply false
-    alias(libs.plugins.kotlin.jvm) apply false
 }
 
 subprojects {
@@ -20,9 +19,9 @@ subprojects {
 
     afterEvaluate {
         tasks.findByName("jsBrowserProductionRun")?.let { jsRun ->
-            tasks.register("run") {
+            tasks.register("runJs") {
                 group = "application"
-                description = "Alias for jsBrowserProductionRun"
+                description = "Alias for jsBrowserProductionRun / companion to runJvm"
                 dependsOn(jsRun)
             }
         }

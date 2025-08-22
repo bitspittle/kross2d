@@ -1,9 +1,9 @@
 includeBuild("..") // include kross2d
 
-listOf("helloworld", "sprite", "sounds", "manystates", "pong", "paint").forEach { exampleName ->
-    val gradleTaskPrefix = "$exampleName:$exampleName-"
+include("helloworld")
+include("sprite")
+include("sounds")
+include("manystates")
+include("pong")
+include("paint")
 
-    listOf("common", "jvm", "js").forEach { targetName ->
-        include("$gradleTaskPrefix$targetName")
-    }
-}

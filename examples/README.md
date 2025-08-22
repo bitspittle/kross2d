@@ -16,40 +16,41 @@ find in the `$platform/src/main/kotlin` folder (e.g.
 
 Demonstrates a minimal skeleton for an app using *Kross2D*.
 
-Run on desktop: `gradlew :helloworld:helloworld-jvm:run`
-Run in browser: `gradlew :helloworld:helloworld-js:run`
+Run on desktop: `gradlew :helloworld:runJvm`
+Run in browser: `gradlew :helloworld:runJs`
 
 ## Sprite
 
 Demonstrates the loading and rendering of images.
 
-Run on desktop: `gradlew :sprite:sprite-jvm:run`
-Run in browser: `gradlew :sprite:sprite-js:run`
+Run on desktop: `gradlew :sprite:runJvm`
+Run in browser: `gradlew :sprite:runJs`
 
 ## Sounds
 
 Demonstrates music and sound effects.
 
-Run on desktop: `gradlew :sounds:sounds-jvm:run`
-Run in browser: `gradlew :sounds:sounds-js:run`
+Run on desktop: `gradlew :sounds:runJvm`
+Run in browser: `gradlew :sounds:runJs`
 
 ## Many States
 
 Demonstrates how you can split a game into multiple separate game states.
 
-Run on desktop: `gradlew :manystates:manystates-jvm:run`
-Run in browser: `gradlew :manystates:manystates-js:run`
+Run on desktop: `gradlew :manystates:runJvm`
+Run in browser: `gradlew :manystates:runJs`
 
 ## Paint
 
 Demonstrates mouse input.
 
-Run on desktop: `gradlew :paint:paint-jvm:run`
-Run in browser: `gradlew :paint:paint-js:run`
+Run on desktop: `gradlew :paint:runJvm`
+Run in browser: `gradlew :paint:runJs`
 
 ## Pong
 
-Demonstrates a simple yet complete game. Also, uses the ECS library.
+Demonstrates a simple yet complete game. Also, uses the ECS library.ls
 
-Run on desktop: `gradlew :pong:pong-jvm:run`
-Run in browser: `gradlew :pong:pong-js:run`
+
+Run on desktop: `gradlew :pong:runJvm`
+Run in browser: `gradlew :pong:runJs`
