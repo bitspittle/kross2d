@@ -10,7 +10,7 @@ kotlin {
     js { browser() }
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":kross2d"))
+            implementation(project(":kross2d:kross2d"))
         }
         commonTest.dependencies {
             implementation(libs.truthish)
