@@ -7,5 +7,5 @@ fun main() {
     val canvas = document.querySelector("#glCanvas") as HTMLCanvasElement
     launch(
         AppParams(canvas),
-        initialState = YourGameState())
+        initialState = InitialState())
 }
