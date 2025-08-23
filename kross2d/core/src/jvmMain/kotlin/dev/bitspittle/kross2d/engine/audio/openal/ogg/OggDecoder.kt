@@ -1,5 +1,6 @@
 package dev.bitspittle.kross2d.engine.audio.openal.ogg
 
+import dev.bitspittle.kross2d.core.memory.Disposer
 import dev.bitspittle.kross2d.core.memory.Disposable
 import de.jarnbjo.ogg.CachedUrlStream
 import de.jarnbjo.ogg.EndOfOggStreamException
@@ -18,7 +19,7 @@ import java.net.URL
  * external [ByteArray] buffers that can be used by OpenAL.
  *
  * To use this, instantiate it and then repeatedly call [readChunkInto] until it returns 0. If you
- * need to start from the beginning, just [dispose] this instance and create a new one.
+ * need to start from the beginning, just [Disposer.dispose] this instance and create a new one.
  *
  * See also: [JOAL tutorials, lesson 8](https://jogamp.org/joal-demos/www/devmaster/lesson8.html)
  */

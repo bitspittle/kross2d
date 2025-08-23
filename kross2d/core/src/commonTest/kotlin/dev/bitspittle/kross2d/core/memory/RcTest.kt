@@ -2,6 +2,7 @@ package dev.bitspittle.kross2d.core.memory
 
 import com.varabyte.truthish.assertThat
 import com.varabyte.truthish.assertThrows
+import com.varabyte.truthish.assertWithMessage
 import kotlin.test.AfterTest
 import kotlin.test.Test
 
@@ -15,6 +16,7 @@ class RcTest {
     @Test
     fun testIncAndDec() {
         val rc = Rc { disposable {} }
+
         assertThat(rc.value).isNull()
 
         rc.inc()
@@ -27,12 +29,13 @@ class RcTest {
                 rc.dec()
             }
             assertThat(rc.value!!).isSameAs(d)
+
             assertThat(d.disposed).isFalse()
 
             rc.dec()
-            @Suppress("USELESS_CAST") // Compiler bug? I get an error if I remove the cast
-            assertThat(rc.value as Disposable?).isNull()
             assertThat(d.disposed).isTrue()
+
+            assertThat(rc.value).isNull()
 
             rc.inc()
             assertThat(rc.value!!).isNotSameAs(d)
@@ -41,6 +44,93 @@ class RcTest {
 
         assertThrows<IllegalStateException> {
             rc.dec()
+        }
+    }
+
+    @Test
+    fun testRcRecoversFromCreationFailing() {
+        var allowCreatingDisposable = false
+        val rc = Rc { if (allowCreatingDisposable) disposable {  } else error("boom") }
+
+        assertThat(rc.value).isNull()
+
+        assertThrows<IllegalStateException> {
+            rc.inc()
+        }
+        assertThat(rc.value).isNull()
+
+        // RC can recover
+        allowCreatingDisposable = true
+        rc.inc()
+        assertThat(rc.value).isNotNull()
+        rc.dec()
+
+        assertThrows<IllegalStateException> {
+            rc.dec()
+        }
+    }
+
+    @Test
+    fun testWithValue() {
+
+        // withValue basic behavior for initial RC (cleans up afterwards)
+        run {
+            val rc = Rc { disposable {} }
+
+            var withValueCalled = false
+            rc.withValue { d ->
+                assertThat(rc.value).isSameAs(d)
+                withValueCalled = true
+            }
+            assertThat(withValueCalled).isTrue()
+            assertThat(rc.value).isNull()
+        }
+
+        // withValue basic behavior for already incremented RC
+        run {
+            val rc = Rc { disposable {} }
+
+            var withValueCalled = false
+            rc.inc()
+            val d = rc.value!!
+            rc.withValue { d2 ->
+                assertThat(d2).isSameAs(d)
+                withValueCalled = true
+            }
+            assertThat(withValueCalled).isTrue()
+            assertThat(rc.value).isSameAs(d)
+            rc.dec()
+            assertThat(rc.value).isNull()
+        }
+
+        // withValue can return a value
+        run {
+            val rc = Rc { disposable {} }
+
+            var withValueCalled = false
+            val result = rc.withValue {
+                withValueCalled = true
+                42
+            }
+            assertThat(withValueCalled).isTrue()
+            assertThat(result).isEqualTo(42)
+            assertThat(rc.value).isNull()
+        }
+
+
+        // withValue cleans up after exceptions
+        run {
+            val rc = Rc { disposable {} }
+
+            var withValueCalled = false
+            assertThrows<IllegalStateException> {
+                rc.withValue {
+                    withValueCalled = true
+                    error("boom")
+                }
+            }
+            assertThat(withValueCalled).isTrue()
+            assertThat(rc.value).isNull()
         }
     }
 }

@@ -1,6 +1,6 @@
 package dev.bitspittle.kross2d.core.memory
 
-import dev.bitspittle.kross2d.core.concurrency.Synchronized
+import dev.bitspittle.kross2d.core.concurrency.synchronized
 
 class AlreadyDisposedException(msg: String) : Exception(msg)
 
@@ -35,6 +35,7 @@ abstract class Disposable(parent: ImmutableDisposable? = null) : ImmutableDispos
     final override val disposed: Boolean
         get() = _disposed
 
+    // This should ONLY be called by [Disposer.dispose]
     internal fun dispose() {
         _disposed = true
         onDisposed()
@@ -141,6 +142,8 @@ inline fun disposable(parent: ImmutableDisposable, crossinline block: () -> Unit
 object Disposer {
     class IllegalDisposerOperation(msg: String) : Exception(msg)
 
+    private val lock = Any()
+
     private val roots = mutableListOf<Disposable>()
 
     /** Map of a Disposable to any children registered with it **/
@@ -155,8 +158,7 @@ object Disposer {
      * Usually, it's better to register a disposable underneath a parent, so you can chain their
      * release at the same time. You can still call [reparent] later if necessary.
      */
-    @Synchronized
-    internal fun <D : Disposable> register(disposable: D) {
+    internal fun <D : Disposable> register(disposable: D) = synchronized(lock) {
         verifyNewDisposable(disposable)
         roots.add(disposable)
     }
@@ -169,8 +171,7 @@ object Disposer {
      * it (as long as doing so doesn't cause an infinite cycle, e.g. setting your kid as your
      * parent)
      */
-    @Synchronized
-    internal fun <D1 : ImmutableDisposable, D2 : Disposable> register(parent: D1, child: D2) {
+    internal fun <D1 : ImmutableDisposable, D2 : Disposable> register(parent: D1, child: D2) = synchronized(lock) {
         verifyNewDisposable(child)
         reparent(parent, child)
     }
@@ -188,8 +189,7 @@ object Disposer {
     /**
      * Move a disposable to a new parent.
      */
-    @Synchronized
-    fun <D1 : ImmutableDisposable, D2 : Disposable> reparent(newParent: D1, child: D2) {
+    fun <D1 : ImmutableDisposable, D2 : Disposable> reparent(newParent: D1, child: D2): Unit = synchronized(lock) {
         if (newParent.disposed) {
             throw AlreadyDisposedException("Tried to reparent onto a disposable that has already been disposed")
         }
@@ -221,8 +221,7 @@ object Disposer {
      * This will fail if you try to move children to a new parent that, itself, is
      * owned by the first one.
      */
-    @Synchronized
-    fun transferChildren(from: ImmutableDisposable, to: ImmutableDisposable) {
+    fun transferChildren(from: ImmutableDisposable, to: ImmutableDisposable) = synchronized(lock) {
         if (from === to) {
             return
         }
@@ -244,8 +243,7 @@ object Disposer {
      *
      * Children will be cleaned up before the parent is.
      */
-    @Synchronized
-    fun dispose(disposable: Disposable) {
+    fun dispose(disposable: Disposable) = synchronized(lock) {
         if (disposable.disposed) {
             throw AlreadyDisposedException("Tried to dispose a box that has already been disposed")
         }
@@ -259,8 +257,7 @@ object Disposer {
      * A safe version of [dispose] that won't throw an exception if the target disposable is
      * already disposed.
      */
-    @Synchronized
-    fun tryDispose(disposable: Disposable): Boolean {
+    fun tryDispose(disposable: Disposable): Boolean = synchronized(lock) {
         if (!disposable.disposed) {
             dispose(disposable)
             return true
