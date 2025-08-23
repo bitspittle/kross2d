@@ -38,9 +38,6 @@ class PongState : GameState {
     private val world = World()
     private val scoreBoard = ScoreBoard()
 
-    private var spritePaddle: Image? = null
-    private var spriteBall: Image? = null
-
     override fun enter(ctx: EnterContext) {
         ctx.assetLoader.loadFont("font/square.ttf").onLoaded += ScopedObserver(ctx.scopes.currState) {
             val font = it.derive(16f)
@@ -52,35 +49,35 @@ class PongState : GameState {
             }
         }
         ctx.assetLoader.loadImage("image/pong.png").onLoaded += ScopedObserver(ctx.scopes.currState) {
-            spritePaddle = it.subimage(Pt2.ZERO, Vec2(4, 16))
-            spriteBall = it.subimage(Pt2(4, 0), Vec2(4, 4))
+            val spritePaddle = it.subimage(Pt2.ZERO, Vec2(4, 16))
+            val spriteBall = it.subimage(Pt2(4, 0), Vec2(4, 4))
 
             Paddle(Side.LEFT).let { paddleL ->
-                paddleL.shape.size.set(spritePaddle!!.size)
+                paddleL.shape.size.set(spritePaddle.size)
                 paddleL.shape.y = (ARENA_SIZE.y - paddleL.shape.h) / 2f
 
                 world.createEntity().apply {
                     add(paddleL)
                     add(Body(paddleL.shape))
-                    add(Renderable(spritePaddle!!))
+                    add(Renderable(spritePaddle))
                 }
             }
 
             Paddle(Side.RIGHT).let { paddleR ->
-                paddleR.shape.size.set(spritePaddle!!.size)
+                paddleR.shape.size.set(spritePaddle.size)
                 paddleR.shape.x = (ARENA_SIZE.x - paddleR.shape.w)
                 paddleR.shape.y = (ARENA_SIZE.y - paddleR.shape.h) / 2f
 
                 world.createEntity().apply {
                     add(paddleR)
                     add(Body(paddleR.shape))
-                    add(Renderable(spritePaddle!!))
+                    add(Renderable(spritePaddle))
                 }
             }
 
             Ball().let { ball ->
                 ball.shape.center.set(Rect(ARENA_SIZE).center)
-                ball.shape.radius = spriteBall!!.size.y / 2
+                ball.shape.radius = spriteBall.size.y / 2
                 val randomSignX = if (Random.nextBoolean()) 1 else -1
                 val randomSignY = if (Random.nextBoolean()) 1 else -1
                 ball.vel.set(Vec2( 75 * randomSignX, 50 * randomSignY))
@@ -88,7 +85,7 @@ class PongState : GameState {
                 world.createEntity().apply {
                     add(ball)
                     add(Body(ball.shape))
-                    add(Renderable(spriteBall!!))
+                    add(Renderable(spriteBall))
                 }
             }
         }
