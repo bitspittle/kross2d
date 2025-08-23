@@ -23,7 +23,7 @@ actual class Music(url: URL) : Disposable() {
     }
 
     init {
-        AlGlobalState.INSTANCE.inc()
+        AlGlobalState.Instance.inc()
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -49,6 +49,6 @@ actual class Music(url: URL) : Disposable() {
     }
 
     override fun onDisposed() {
-        AlGlobalState.INSTANCE.dec()
+        AlGlobalState.Instance.dec()
     }
 }

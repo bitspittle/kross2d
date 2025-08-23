@@ -11,7 +11,7 @@ import com.jogamp.openal.util.ALut
  */
 class AlGlobalState private constructor(): Disposable() {
     companion object {
-        internal val INSTANCE =
+        internal val Instance =
             Rc { AlGlobalState() }
     }
 

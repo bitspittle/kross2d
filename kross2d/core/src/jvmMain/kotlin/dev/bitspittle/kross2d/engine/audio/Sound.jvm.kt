@@ -59,7 +59,7 @@ actual class Sound(stream: InputStream) : Disposable() {
     private val handles = mutableListOf<SoundHandle>()
 
     init {
-        AlGlobalState.INSTANCE.inc()
+        AlGlobalState.Instance.inc()
         wavData = WavData(stream).setParent(this)
     }
 
@@ -99,6 +99,6 @@ actual class Sound(stream: InputStream) : Disposable() {
     }
 
     override fun onDisposed() {
-        AlGlobalState.INSTANCE.dec()
+        AlGlobalState.Instance.dec()
     }
 }
