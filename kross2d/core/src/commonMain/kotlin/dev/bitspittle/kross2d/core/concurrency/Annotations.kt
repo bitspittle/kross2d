@@ -1,4 +1,4 @@
-package dev.bitspittle.kross2d.core.memory
+package dev.bitspittle.kross2d.core.concurrency
 
 import kotlin.annotation.AnnotationTarget.FIELD
 import kotlin.annotation.AnnotationTarget.FUNCTION
@@ -9,10 +9,10 @@ import kotlin.annotation.AnnotationTarget.PROPERTY_SETTER
 @Retention(AnnotationRetention.SOURCE)
 @OptIn(ExperimentalMultiplatform::class)
 @OptionalExpectation
-expect annotation class Synchronized()
+internal expect annotation class Synchronized()
 
 @Target(FIELD)
 @Retention(AnnotationRetention.SOURCE)
 @OptIn(ExperimentalMultiplatform::class)
 @OptionalExpectation
-expect annotation class Volatile()
+internal expect annotation class Volatile()

@@ -1,5 +1,8 @@
 package dev.bitspittle.kross2d.core.memory
 
+import dev.bitspittle.kross2d.core.concurrency.Synchronized
+import dev.bitspittle.kross2d.core.concurrency.Volatile
+
 /**
  * A simple, thread-safe reference counting solution for target [Disposable] objects.
  *

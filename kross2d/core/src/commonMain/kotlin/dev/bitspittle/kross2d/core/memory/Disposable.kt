@@ -1,5 +1,7 @@
 package dev.bitspittle.kross2d.core.memory
 
+import dev.bitspittle.kross2d.core.concurrency.Synchronized
+
 class AlreadyDisposedException(msg: String) : Exception(msg)
 
 /**
