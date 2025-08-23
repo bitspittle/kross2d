@@ -9,13 +9,16 @@ kotlin {
     jvm()
     js { browser() }
     sourceSets {
+        commonMain.dependencies {
+            implementation(libs.kotlinx.coroutines.core)
+        }
+
         commonTest.dependencies {
             implementation(libs.truthish)
             implementation(kotlin("test"))
         }
 
         jvmMain.dependencies {
-            implementation(libs.kotlinx.coroutines.core)
             implementation(libs.bundles.jvm.audio)
         }
     }
