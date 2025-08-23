@@ -6,7 +6,6 @@ import dev.bitspittle.kross2d.core.math.ImmutablePt2
 import dev.bitspittle.kross2d.core.math.ImmutableVec2
 import dev.bitspittle.kross2d.core.math.Pt2
 import dev.bitspittle.kross2d.core.math.Vec2
-import dev.bitspittle.kross2d.engine.graphics.DrawSurface.TextParams.Anchor
 
 /**
  * Read-only properties of a [DrawSurface]
@@ -19,12 +18,12 @@ interface ImmutableDrawSurface {
  * A surface area for rendering, which may be on or off-screen.
  */
 interface DrawSurface : ImmutableDrawSurface {
-    class ImageParams(val dest: ImmutablePt2 = Pt2.ZERO, val destSize: ImmutableVec2? = null)
+    class ImageParams(val dest: ImmutablePt2 = Pt2.Zero, val destSize: ImmutableVec2? = null)
     class TextParams(
         /**
          * The point which the text is drawn from. See also [anchor].
          */
-        val pt: ImmutablePt2 = Pt2.ZERO,
+        val pt: ImmutablePt2 = Pt2.Zero,
 
         /**
          * The anchor point which influences the behavior of [pt].

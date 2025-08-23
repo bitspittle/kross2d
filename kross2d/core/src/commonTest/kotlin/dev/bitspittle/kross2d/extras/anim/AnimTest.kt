@@ -159,7 +159,7 @@ class AnimTest {
     fun bouncingAnimsLerpInReverseAsWell() {
         val floatAnim = Anim(
             KeyFrame(0f, Duration.ofMillis(100), Lerps::linear),
-            KeyFrame(10f, Duration.ZERO),
+            KeyFrame(10f, Duration.Zero),
             playStrategy = BouncingPlayStrategy()
         )
 

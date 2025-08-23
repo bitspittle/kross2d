@@ -3,7 +3,6 @@ package dev.bitspittle.kross2d.engine.graphics
 import dev.bitspittle.kross2d.core.math.ImmutablePt2
 import dev.bitspittle.kross2d.core.math.ImmutableVec2
 import dev.bitspittle.kross2d.core.math.Pt2
-import dev.bitspittle.kross2d.core.math.Vec2
 import dev.bitspittle.kross2d.core.memory.*
 
 /**
@@ -19,7 +18,7 @@ class Image internal constructor(
     /**
      * Construct an initial image, backed by image data
      */
-    internal constructor(data: ImageData) : this(data, Pt2.ZERO, null)
+    internal constructor(data: ImageData) : this(data, Pt2.Zero, null)
 
     val size: ImmutableVec2
         get() = sizeOverride ?: data.size

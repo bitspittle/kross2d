@@ -9,7 +9,7 @@ class Pt2Vec2Test {
         run {
             // Pt2 default constructor
             val pt = Pt2()
-            assertThat(pt).isEqualTo(Pt2.ZERO)
+            assertThat(pt).isEqualTo(Pt2.Zero)
         }
 
         run {
@@ -45,7 +45,7 @@ class Pt2Vec2Test {
         run {
             // Vec2 default constructor
             val vec = Vec2()
-            assertThat(vec).isEqualTo(Vec2.ZERO)
+            assertThat(vec).isEqualTo(Vec2.Zero)
         }
 
         run {
@@ -86,11 +86,11 @@ class Pt2Vec2Test {
             assertThat(pt.isZero()).isTrue()
             pt.x += 1
             assertThat(pt.isZero()).isFalse()
-            pt.set(Pt2.ZERO)
+            pt.set(Pt2.Zero)
             assertThat(pt.isZero()).isTrue()
             pt.y -= 1
             assertThat(pt.isZero()).isFalse()
-            pt.set(Vec2.ZERO)
+            pt.set(Vec2.Zero)
             assertThat(pt.isZero()).isTrue()
         }
 
@@ -99,11 +99,11 @@ class Pt2Vec2Test {
             assertThat(vec.isZero()).isTrue()
             vec.x += 1
             assertThat(vec.isZero()).isFalse()
-            vec.set(Vec2.ZERO)
+            vec.set(Vec2.Zero)
             assertThat(vec.isZero()).isTrue()
             vec.y -= 1
             assertThat(vec.isZero()).isFalse()
-            vec.set(Pt2.ZERO)
+            vec.set(Pt2.Zero)
             assertThat(vec.isZero()).isTrue()
         }
     }
@@ -259,9 +259,9 @@ class Pt2Vec2Test {
         run {
             // Special case: 0-length vecs remain 0 when normalized
             val vec = Vec2()
-            assertThat(vec.normalized()).isEqualTo(Vec2.ZERO)
+            assertThat(vec.normalized()).isEqualTo(Vec2.Zero)
             vec.normalize()
-            assertThat(vec).isEqualTo(Vec2.ZERO)
+            assertThat(vec).isEqualTo(Vec2.Zero)
         }
     }
 }

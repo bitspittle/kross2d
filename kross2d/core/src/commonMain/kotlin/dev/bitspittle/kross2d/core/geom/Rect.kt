@@ -78,16 +78,16 @@ fun ImmutableVec2.centerIn(rect: ImmutableRect): Pt2 {
 }
 
 class Rect(pos: ImmutablePt2, size: ImmutableVec2) : ImmutableRect() {
-    constructor(): this(Pt2.ZERO, Vec2.ZERO)
-    constructor(size: ImmutableVec2): this(Pt2.ZERO, size)
+    constructor(): this(Pt2.Zero, Vec2.Zero)
+    constructor(size: ImmutableVec2): this(Pt2.Zero, size)
     constructor(x: Float, y: Float, w: Float, h: Float): this(Pt2(x, y), Vec2(w, h))
     constructor(x: Int, y: Int, w: Int, h: Int): this(Pt2(x, y), Vec2(w, h))
     constructor(other: ImmutableRect): this(other.pos, other.size)
 
     companion object {
-        val EMPTY: ImmutableRect = object : ImmutableRect() {
-            override val pos = Pt2.ZERO
-            override val size = Vec2.ZERO
+        val Empty: ImmutableRect = object : ImmutableRect() {
+            override val pos = Pt2.Zero
+            override val size = Vec2.Zero
         }
     }
 

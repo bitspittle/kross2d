@@ -166,7 +166,7 @@ internal class Application internal constructor(params: AppParams, initialState:
 
                 stateStack.last().let { stateToEnter ->
                     frameStart = Instant.now()
-                    timer.lastFrame.setFrom(Duration.ZERO)
+                    timer.lastFrame.setFrom(Duration.Zero)
                     Disposer.dispose(scopes.currState)
                     scopes.currState = disposable {}
                     currentState = stateToEnter

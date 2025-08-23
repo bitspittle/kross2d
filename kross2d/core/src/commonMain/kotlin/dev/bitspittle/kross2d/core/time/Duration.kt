@@ -52,7 +52,7 @@ class Duration
  */
 internal constructor(override var nanos: Double = 0.0) : ImmutableDuration() {
     companion object {
-        val ZERO: ImmutableDuration = Duration()
+        val Zero: ImmutableDuration = Duration()
 
         /**
          * A duration that essentially represents forever. This could be useful for parameters

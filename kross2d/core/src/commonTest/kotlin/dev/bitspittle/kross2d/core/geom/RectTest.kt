@@ -48,7 +48,7 @@ class RectTest {
             assertThat(rect.y).isEqualTo(0f)
             assertThat(rect.w).isEqualTo(0f)
             assertThat(rect.h).isEqualTo(0f)
-            assertThat(rect).isEqualTo(Rect.EMPTY)
+            assertThat(rect).isEqualTo(Rect.Empty)
         }
     }
 
@@ -66,7 +66,7 @@ class RectTest {
         r.size += Vec2(100, 100)
         assertThat(r).isEqualTo(Rect(110, 120, 130, 140))
 
-        r.set(Rect.EMPTY)
+        r.set(Rect.Empty)
         assertThat(r).isEqualTo(Rect())
     }
 
@@ -100,7 +100,7 @@ class RectTest {
 
         assertThat(r1.intersection(r2)).isEqualTo(Rect(75, 75, 15, 25))
         assertThat(r2.intersection(r3)).isEqualTo(Rect(125, 125, 10, 50))
-        assertThat(r1.intersection(r3)).isEqualTo(Rect.EMPTY)
+        assertThat(r1.intersection(r3)).isEqualTo(Rect.Empty)
 
         assertThat(r1.intersects(r1))
         assertThat(r1.intersection(r1)).isEqualTo(r1)

@@ -1,12 +1,8 @@
 package dev.bitspittle.kross2d.core.geom
 
 import dev.bitspittle.kross2d.core.math.ImmutablePt2
-import dev.bitspittle.kross2d.core.math.ImmutableVec2
 import dev.bitspittle.kross2d.core.math.Pt2
-import dev.bitspittle.kross2d.core.math.Vec2
 import kotlin.math.PI
-import kotlin.math.max
-import kotlin.math.min
 
 abstract class ImmutableCircle : ImmutableShape {
     abstract val radius: Float
@@ -41,15 +37,15 @@ abstract class ImmutableCircle : ImmutableShape {
 }
 
 class Circle(center: ImmutablePt2, radius: Float) : ImmutableCircle() {
-    constructor(): this(Pt2.ZERO, 0f)
-    constructor(radius: Float): this(Pt2.ZERO, radius)
+    constructor(): this(Pt2.Zero, 0f)
+    constructor(radius: Float): this(Pt2.Zero, radius)
     constructor(x: Float, y: Float, radius: Float): this(Pt2(x, y), radius)
     constructor(x: Int, y: Int, radius: Int): this(Pt2(x, y), radius.toFloat())
     constructor(other: ImmutableCircle): this(other.center, other.radius)
 
     companion object {
-        val EMPTY: ImmutableCircle = object : ImmutableCircle() {
-            override val center: ImmutablePt2 = Pt2.ZERO
+        val Empty: ImmutableCircle = object : ImmutableCircle() {
+            override val center: ImmutablePt2 = Pt2.Zero
             override val radius: Float = 0f
         }
     }

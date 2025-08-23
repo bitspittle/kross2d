@@ -28,7 +28,7 @@ class OneShotPlayStrategy : PlayStrategy {
     override val elapsed = _elapsed
 
     override fun reset() {
-        _elapsed.setFrom(Duration.ZERO)
+        _elapsed.setFrom(Duration.Zero)
     }
 
     override fun elapse(duration: ImmutableDuration, animLength: ImmutableDuration) {
@@ -45,7 +45,7 @@ class LoopingPlayStrategy : PlayStrategy {
     override val elapsed = _elapsed
 
     override fun reset() {
-        _elapsed.setFrom(Duration.ZERO)
+        _elapsed.setFrom(Duration.Zero)
     }
 
     override fun elapse(duration: ImmutableDuration, animLength: ImmutableDuration) {
@@ -74,7 +74,7 @@ class BouncingPlayStrategy : PlayStrategy {
     override val elapsed = _elapsed
 
     override fun reset() {
-        _elapsed.setFrom(Duration.ZERO)
+        _elapsed.setFrom(Duration.Zero)
         elapseForward = true
     }
 
@@ -90,9 +90,9 @@ class BouncingPlayStrategy : PlayStrategy {
         }
         else {
             _elapsed -= duration
-            if (_elapsed < Duration.ZERO) {
+            if (_elapsed < Duration.Zero) {
                 val extra = -_elapsed
-                _elapsed.setFrom(Duration.ZERO)
+                _elapsed.setFrom(Duration.Zero)
                 elapseForward = true
                 elapse(extra, animLength)
             }
@@ -181,7 +181,7 @@ class Anim<T>(val keyframes: List<KeyFrame<T>>, private val playStrategy: PlaySt
      */
     fun reset() {
         playStrategy.reset()
-        elapse(Duration.ZERO) // Cause `value` to be updated
+        elapse(Duration.Zero) // Cause `value` to be updated
     }
 
     /**
@@ -205,5 +205,5 @@ class Anim<T>(val keyframes: List<KeyFrame<T>>, private val playStrategy: PlaySt
         }
     }
 
-    private fun frameStart(frame: Int): ImmutableDuration = startTimes.getOrElse(frame - 1) { Duration.ZERO }
+    private fun frameStart(frame: Int): ImmutableDuration = startTimes.getOrElse(frame - 1) { Duration.Zero }
 }

@@ -37,7 +37,7 @@ class Pt2(override var x: Float, override var y: Float) : ImmutablePt2() {
     constructor(vec: ImmutableVec2) : this(vec.x, vec.y)
 
     companion object {
-        val ZERO = object : ImmutablePt2() {
+        val Zero = object : ImmutablePt2() {
             override val x = 0f
             override val y = 0f
         }

@@ -43,7 +43,7 @@ class EcsTests {
             val count = entity.get<CountdownComponent>()
             count.value -= ctx.timer.lastFrame
 
-            if (count.value <= Duration.ZERO) {
+            if (count.value <= Duration.Zero) {
                 world.deleteEntity(entity)
                 assertThat(entity.deleted).isFalse() // Entity is deleted after processing loop is over
             }
@@ -64,7 +64,7 @@ class EcsTests {
             val count = entity.get<CountdownComponent>()
             count.value -= ctx.timer.lastFrame
 
-            while (count.value <= Duration.ZERO) {
+            while (count.value <= Duration.Zero) {
                 world.createEntity().apply {
                     add(PosComponent())
                     add(VelComponent(Vec2(1, 0)))

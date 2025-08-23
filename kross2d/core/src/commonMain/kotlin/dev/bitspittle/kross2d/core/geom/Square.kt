@@ -1,11 +1,7 @@
 package dev.bitspittle.kross2d.core.geom
 
 import dev.bitspittle.kross2d.core.math.ImmutablePt2
-import dev.bitspittle.kross2d.core.math.ImmutableVec2
 import dev.bitspittle.kross2d.core.math.Pt2
-import dev.bitspittle.kross2d.core.math.Vec2
-import kotlin.math.max
-import kotlin.math.min
 
 abstract class ImmutableSquare : ImmutableShape {
     abstract val pos: ImmutablePt2
@@ -44,15 +40,15 @@ abstract class ImmutableSquare : ImmutableShape {
 }
 
 class Square(pos: ImmutablePt2, side: Float) : ImmutableSquare() {
-    constructor(): this(Pt2.ZERO, 0f)
-    constructor(side: Float): this(Pt2.ZERO, side)
+    constructor(): this(Pt2.Zero, 0f)
+    constructor(side: Float): this(Pt2.Zero, side)
     constructor(x: Float, y: Float, side: Float): this(Pt2(x, y), side)
     constructor(x: Int, y: Int, side: Int): this(Pt2(x, y), side.toFloat())
     constructor(other: ImmutableSquare): this(other.pos, other.side)
 
     companion object {
-        val EMPTY: ImmutableSquare = object : ImmutableSquare() {
-            override val pos = Pt2.ZERO
+        val Empty: ImmutableSquare = object : ImmutableSquare() {
+            override val pos = Pt2.Zero
             override val side: Float = 0f
         }
     }

@@ -18,6 +18,6 @@ internal actual class ImageData(path: String) {
             if (_size == null && jsImage.width > 0) {
                 _size = Vec2(jsImage.width, jsImage.height)
             }
-            return _size ?: Vec2.ZERO
+            return _size ?: Vec2.Zero
         }
 }

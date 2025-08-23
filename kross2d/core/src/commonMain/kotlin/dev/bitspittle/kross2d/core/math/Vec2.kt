@@ -9,7 +9,7 @@ abstract class ImmutableVec2 {
     fun isZero() = x == 0f && y == 0f
     fun len2() = (x * x) + (y * y)
     fun len() = sqrt(len2())
-    fun normalized() = if (isZero()) Vec2.ZERO else this / len()
+    fun normalized() = if (isZero()) Vec2.Zero else this / len()
 
     operator fun unaryMinus() = Vec2(-this.x, -this.y)
     operator fun plus(other: ImmutableVec2) = Vec2(this.x + other.x, this.y + other.y)
@@ -41,7 +41,7 @@ class Vec2(override var x: Float, override var y: Float) : ImmutableVec2() {
     constructor(pt: ImmutablePt2) : this(pt.x, pt.y)
 
     companion object {
-        val ZERO = object : ImmutableVec2() {
+        val Zero = object : ImmutableVec2() {
             override val x = 0f
             override val y = 0f
         }

@@ -32,7 +32,7 @@ import kotlin.random.Random
  */
 class PongState : GameState {
     companion object {
-        val ARENA_SIZE: ImmutableVec2 = Vec2(100, 100)
+        val ArenaSize: ImmutableVec2 = Vec2(100, 100)
     }
 
     private val world = World()
@@ -49,12 +49,12 @@ class PongState : GameState {
             }
         }
         ctx.assetLoader.loadImage("image/pong.png").onLoaded += ScopedObserver(ctx.scopes.currState) {
-            val spritePaddle = it.subimage(Pt2.ZERO, Vec2(4, 16))
+            val spritePaddle = it.subimage(Pt2.Zero, Vec2(4, 16))
             val spriteBall = it.subimage(Pt2(4, 0), Vec2(4, 4))
 
             Paddle(Side.LEFT).let { paddleL ->
                 paddleL.shape.size.set(spritePaddle.size)
-                paddleL.shape.y = (ARENA_SIZE.y - paddleL.shape.h) / 2f
+                paddleL.shape.y = (ArenaSize.y - paddleL.shape.h) / 2f
 
                 world.createEntity().apply {
                     add(paddleL)
@@ -65,8 +65,8 @@ class PongState : GameState {
 
             Paddle(Side.RIGHT).let { paddleR ->
                 paddleR.shape.size.set(spritePaddle.size)
-                paddleR.shape.x = (ARENA_SIZE.x - paddleR.shape.w)
-                paddleR.shape.y = (ARENA_SIZE.y - paddleR.shape.h) / 2f
+                paddleR.shape.x = (ArenaSize.x - paddleR.shape.w)
+                paddleR.shape.y = (ArenaSize.y - paddleR.shape.h) / 2f
 
                 world.createEntity().apply {
                     add(paddleR)
@@ -76,7 +76,7 @@ class PongState : GameState {
             }
 
             Ball().let { ball ->
-                ball.shape.center.set(Rect(ARENA_SIZE).center)
+                ball.shape.center.set(Rect(ArenaSize).center)
                 ball.shape.radius = spriteBall.size.y / 2
                 val randomSignX = if (Random.nextBoolean()) 1 else -1
                 val randomSignY = if (Random.nextBoolean()) 1 else -1
@@ -90,13 +90,13 @@ class PongState : GameState {
             }
         }
 
-        world.addSystem(PaddleSystem(ARENA_SIZE))
+        world.addSystem(PaddleSystem(ArenaSize))
         world.addSystem(BallSystem())
         world.addSystem(InputSystem())
-        world.addSystem(BounceSystem(ARENA_SIZE, ctx.assetLoader.loadSound("audio/bounce.wav")))
-        world.addSystem(ScoreUpdateSystem(ARENA_SIZE, scoreBoard, ctx.assetLoader.loadSound("audio/score.wav")))
-        world.addSystem(ScoreDrawSystem(ARENA_SIZE))
-        world.addSystem(RenderSystem(ARENA_SIZE))
+        world.addSystem(BounceSystem(ArenaSize, ctx.assetLoader.loadSound("audio/bounce.wav")))
+        world.addSystem(ScoreUpdateSystem(ArenaSize, scoreBoard, ctx.assetLoader.loadSound("audio/score.wav")))
+        world.addSystem(ScoreDrawSystem(ArenaSize))
+        world.addSystem(RenderSystem(ArenaSize))
     }
 
     override fun update(ctx: UpdateContext) {

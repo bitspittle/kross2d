@@ -40,19 +40,19 @@ class SpriteState : GameState {
 
     private class Player(private val playerTiles: Tiles) {
         companion object {
-            val FRAME_DURATION = Duration.ofMillis(300)
+            val frameDuration = Duration.ofMillis(300)
             // See player.png for tiles referenced here (only first row is used so x-coords only)
-            val FACING_TO_ANIM = mapOf(
-                Dir.N to Anim(FRAME_DURATION, 2, 3),
-                Dir.S to Anim(FRAME_DURATION, 0, 1),
-                Dir.E to Anim(FRAME_DURATION, 4, 5),
-                Dir.W to Anim(FRAME_DURATION, 6, 7)
+            val facingToAnim = mapOf(
+                Dir.N to Anim(frameDuration, 2, 3),
+                Dir.S to Anim(frameDuration, 0, 1),
+                Dir.E to Anim(frameDuration, 4, 5),
+                Dir.W to Anim(frameDuration, 6, 7)
             )
         }
         private val drawSize = playerTiles.tileSize * 2f // Tweaked until it looked good
         private val pos = Pt2()
         private val vel = Vec2()
-        private var currAnim = FACING_TO_ANIM.getValue(Dir.S)
+        private var currAnim = facingToAnim.getValue(Dir.S)
 
         fun init(ctx: EnterContext) {
             pos.set(drawSize.centerIn(Rect(ctx.screen.size)))
@@ -62,7 +62,7 @@ class SpriteState : GameState {
             currAnim.elapse(ctx.timer.lastFrame)
 
             // Allow up/down and left/right to cancel each other out
-            vel.set(Pt2.ZERO)
+            vel.set(Pt2.Zero)
             if (ctx.keyboard.isDown(Key.UP)) vel.y -= 1f
             if (ctx.keyboard.isDown(Key.DOWN)) vel.y += 1f
             if (ctx.keyboard.isDown(Key.LEFT)) vel.x -= 1f
@@ -78,7 +78,7 @@ class SpriteState : GameState {
                 vel.y > 0 -> Dir.S
                 else -> null
             }?.let { facing ->
-                currAnim = FACING_TO_ANIM.getValue(facing)
+                currAnim = facingToAnim.getValue(facing)
             }
 
             (ctx.screen.size - drawSize).let { bounds ->

@@ -94,8 +94,8 @@ class DurationInstantTest {
         assertThat(max(d1, d9)).isEqualTo(d9)
         assertThat(min(d1, d9)).isEqualTo(d1)
 
-        assertThat(max(Duration.ZERO, Duration.MAX)).isEqualTo(Duration.MAX)
-        assertThat(min(Duration.ZERO, Duration.MAX)).isEqualTo(Duration.ZERO)
+        assertThat(max(Duration.Zero, Duration.MAX)).isEqualTo(Duration.MAX)
+        assertThat(min(Duration.Zero, Duration.MAX)).isEqualTo(Duration.Zero)
 
         run {
             val d = d5.copy()
@@ -142,11 +142,11 @@ class DurationInstantTest {
 
         assertThat(d1).isLessThan(d5)
         assertThat(d9).isGreaterThan(d5)
-        assertThat(d1).isGreaterThan(Duration.ZERO)
+        assertThat(d1).isGreaterThan(Duration.Zero)
         assertThat(d9).isLessThan(Duration.MAX)
-        assertThat(Duration.ZERO).isGreaterThan(Duration.MIN)
+        assertThat(Duration.Zero).isGreaterThan(Duration.MIN)
 
-        assertThat(Duration.zero()).isEqualTo(Duration.ZERO)
+        assertThat(Duration.zero()).isEqualTo(Duration.Zero)
     }
 
     @Test

@@ -23,15 +23,14 @@ import dev.bitspittle.kross2d.engine.input.Key
  * - [Font] rendering / multiple sizes
  */
 class SoundsState : GameState {
-    companion object {
-        val STR_PAUSED = "PAUSED"
-        val STR_MESSAGE =
+    object Strings {
+        val PAUSED = "PAUSED"
+        val HELP =
             """
                 press 0-9 to play sounds
                 press SPACE to toggle pause
                 press ESC to quit
             """.trimIndent()
-
     }
 
     private lateinit var sounds: List<Asset<Sound>>
@@ -87,7 +86,7 @@ class SoundsState : GameState {
 
         if (globallyPaused) {
             fontLarge?.let { font ->
-                ctx.screen.drawText(font, STR_PAUSED,
+                ctx.screen.drawText(font, Strings.PAUSED,
                     TextParams(pt = Rect(ctx.screen.size).center, anchor = Anchor.CENTER))
             }
         }
@@ -95,7 +94,7 @@ class SoundsState : GameState {
             font?.let { font ->
                 ctx.screen.drawText(
                     font,
-                    STR_MESSAGE,
+                    Strings.HELP,
                     TextParams(pt = Pt2(10, 10), spacing = font.size * 0.5f)
                 )
             }
