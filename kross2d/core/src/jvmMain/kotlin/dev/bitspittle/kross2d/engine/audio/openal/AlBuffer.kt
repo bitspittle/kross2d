@@ -4,7 +4,7 @@ import dev.bitspittle.kross2d.core.memory.Disposable
 import com.jogamp.openal.ALFactory
 import java.nio.ByteBuffer
 
-class AlBuffer: Disposable() {
+internal class AlBuffer: Disposable() {
     val id: Int
     private val idPtr: IntArray
 

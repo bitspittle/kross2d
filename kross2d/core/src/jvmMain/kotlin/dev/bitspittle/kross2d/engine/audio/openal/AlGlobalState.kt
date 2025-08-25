@@ -9,7 +9,7 @@ import com.jogamp.openal.util.ALut
 /**
  * OpenAL global state / singletons, e.g. the listener's position, global init/exit calls, etc.
  */
-class AlGlobalState private constructor(): Disposable() {
+internal class AlGlobalState private constructor(): Disposable() {
     companion object {
         internal val Instance =
             Rc { AlGlobalState() }

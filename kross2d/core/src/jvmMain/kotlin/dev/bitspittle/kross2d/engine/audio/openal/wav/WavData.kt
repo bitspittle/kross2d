@@ -7,7 +7,7 @@ import com.jogamp.openal.util.ALut
 import java.io.InputStream
 import java.nio.ByteBuffer
 
-class WavData(stream: InputStream): Disposable() {
+internal class WavData(stream: InputStream): Disposable() {
     val alBuffer: AlBuffer
 
     init {

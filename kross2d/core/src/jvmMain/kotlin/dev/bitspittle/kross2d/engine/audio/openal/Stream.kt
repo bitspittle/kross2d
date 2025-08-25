@@ -7,7 +7,7 @@ import com.jogamp.openal.AL
 import com.jogamp.openal.ALFactory
 import java.nio.ByteBuffer
 
-typealias DataProvider = () -> Stream.Packet?
+internal typealias DataProvider = () -> Stream.Packet?
 
 /**
  * A stream is a class that owns an [AlSource] and a queue of [AlBuffer]s.
@@ -36,7 +36,7 @@ typealias DataProvider = () -> Stream.Packet?
  *
  * If you want to restart the song, call [stop] then [start] again.
  */
-class Stream(private val format: Int, private val freq: Int, private val dataProvider: DataProvider): Disposable() {
+internal class Stream(private val format: Int, private val freq: Int, private val dataProvider: DataProvider): Disposable() {
     class Packet(val data: ByteBuffer, val size: Int)
 
     private val alSource = AlSource()

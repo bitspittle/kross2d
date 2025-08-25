@@ -19,7 +19,7 @@ import java.nio.ByteBuffer
  *
  * @author Krishna K Gadepalli
  */
-class OggStreamer(url: URL): Disposable() {
+internal class OggStreamer(url: URL): Disposable() {
     companion object {
         // The size of a chunk from the stream that we want to read for each update.
         private const val BUFFER_SIZE = 4096 * 16

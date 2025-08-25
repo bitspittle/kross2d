@@ -4,7 +4,7 @@ import dev.bitspittle.kross2d.core.memory.Disposable
 import com.jogamp.openal.AL
 import com.jogamp.openal.ALFactory
 
-class AlSource: Disposable() {
+internal class AlSource: Disposable() {
     var id: Int
         private set
 

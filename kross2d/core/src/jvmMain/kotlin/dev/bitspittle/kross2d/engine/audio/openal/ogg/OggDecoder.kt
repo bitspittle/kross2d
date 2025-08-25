@@ -23,7 +23,7 @@ import java.net.URL
  *
  * See also: [JOAL tutorials, lesson 8](https://jogamp.org/joal-demos/www/devmaster/lesson8.html)
  */
-class OggDecoder(url: URL): Disposable() {
+internal class OggDecoder(url: URL): Disposable() {
     companion object {
         // Resolves endian issues, apparently. TODO: Test on Win, Linux
         fun swapBytes(b: ByteArray, off: Int, len: Int) {
