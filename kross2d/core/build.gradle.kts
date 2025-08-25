@@ -1,5 +1,6 @@
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
+    id("kmp-convention")
+    id("dokka-convention")
 }
 
 group = "dev.bitspittle.kross2d"
@@ -22,4 +23,8 @@ kotlin {
             implementation(libs.bundles.jvm.audio)
         }
     }
+}
+
+dokka {
+    moduleName.set("Kross2D")
 }

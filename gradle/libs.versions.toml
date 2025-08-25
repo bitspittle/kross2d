@@ -2,6 +2,7 @@
 kross2d-core = "0.3.0-SNAPSHOT"
 kross2d-ecs = "0.0.1-SNAPSHOT"
 #------------------------------
+dokka = "2.0.0"
 jogg = "1.0.0"
 kotlin = "2.2.10"
 kotlinx-coroutines = "1.10.2"
@@ -9,7 +10,9 @@ openal = "2.3.2"
 truthish = "1.0.3"
 
 [libraries]
+dokka-gradle-plugin = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }
 jogg = { module = "de.jarnbjo:j-ogg-all", version.ref = "jogg" }
+kotlin-multiplatform-plugin = { module = "org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin", version.ref = "kotlin" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 jogamp-gluegen = { module = "org.jogamp.gluegen:gluegen-rt-main", version.ref = "openal" }

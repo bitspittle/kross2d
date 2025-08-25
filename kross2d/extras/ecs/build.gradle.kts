@@ -1,5 +1,6 @@
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
+    id("kmp-convention")
+    id("dokka-convention")
 }
 
 group = "dev.bitspittle.kross2d"
@@ -10,11 +11,15 @@ kotlin {
     js { browser() }
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":kross2d:kross2d"))
+            implementation(project(":kross2d:core"))
         }
         commonTest.dependencies {
             implementation(libs.truthish)
             implementation(kotlin("test"))
         }
     }
+}
+
+dokka {
+    moduleName.set("Kross2D: ECS")
 }
