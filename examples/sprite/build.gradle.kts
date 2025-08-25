@@ -13,7 +13,7 @@ kotlin {
     js { browser { binaries.executable() } }
     sourceSets {
         commonMain.dependencies {
-            api("dev.bitspittle.kross2d:kross2d")
+            implementation("dev.bitspittle.kross2d:kross2d")
         }
     }
 }
