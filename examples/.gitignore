@@ -1,5 +1,4 @@
-# Normally it's arguable you shouldn't gitignore this, but for examples, it's
-# totally fine because we don't worry as much about security / reproducibility
-kotlin-js-store/
+# Kotlin
 
+kotlin-js-store
 .kotlin
