@@ -4,8 +4,7 @@ import dev.bitspittle.kross2d.core.memory.ImmutableDisposable
 import dev.bitspittle.kross2d.core.memory.disposable
 
 /**
- * The part of an event responsible for registering listeners but not firing. This can safely be
- * exposed publicly.
+ * The part of an event responsible for registering listeners but not firing. This can safely be exposed publicly.
  *
  * Here, `onKeyPressed` would be exposed as an [ObservableEvent]:
  *
@@ -17,18 +16,21 @@ import dev.bitspittle.kross2d.core.memory.disposable
  * keyboard.onKeyPressed += { (key) -> ... }
  * ```
  *
- * Finally, an [onAdded] callback can be registered for this event, which gives owners of the event
- * a chance to respond to a new listener getting added, e.g. maybe its an 'onLoaded' listener being
- * added to an object that already loaded earlier, so the observer should fire immediately.
+ * Then, a class that implemented that Keyboard interface would internally create an [Event] which allows the caller to
+ * trigger it.
+ *
+ * @param onAdded A callback registered by the event owner which will be triggered everytime a new event handler is
+ * added, allowing the event owner to trigger it immediately (e.g. if the event listener is added *after* the initial
+ * event happened).
  *
  * See also: [Event]
  */
-abstract class ObservableEvent<P>(private val onAdded: () -> Unit) {
+abstract class ObservableEvent<P>(private val onAdded: ((P) -> Unit) -> Unit) {
     protected val observers: MutableList<(P) -> Unit> = mutableListOf()
 
     operator fun plusAssign(observer: (P) -> Unit) {
         observers.add(observer)
-        onAdded()
+        onAdded(observer)
     }
 
     operator fun plusAssign(scopedObserver: ScopedObserver<P>) {
@@ -60,7 +62,7 @@ abstract class ObservableEvent<P>(private val onAdded: () -> Unit) {
  *
  * See also: [ObservableEvent]
  */
-class Event<P>(onAdded: () -> Unit = {}) : ObservableEvent<P>(onAdded) {
+class Event<P>(onAdded: ((P) -> Unit) -> Unit = {}) : ObservableEvent<P>(onAdded) {
     operator fun invoke(params: P) {
         observers.forEach { observer -> observer(params) }
     }
