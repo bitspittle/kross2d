@@ -1,13 +1,14 @@
 package dev.bitspittle.kross2d.extras.anim
 
 import dev.bitspittle.kross2d.core.time.Duration
-import dev.bitspittle.kross2d.core.time.ImmutableDuration
+import dev.bitspittle.kross2d.core.time.MutableDuration
+import dev.bitspittle.kross2d.engine.graphics.Image
 
 /**
  * A keyframe represents a snapshotted value (and, if specified, a lerping function to handle
  * smooth transitions between the current keyframe and the next one)
  */
-data class KeyFrame<T>(val value: T, val duration: ImmutableDuration, val lerp: Lerp<T> = Lerps::noLerp)
+data class KeyFrame<T>(val value: T, val duration: Duration, val lerp: Lerp<T> = Lerps::noLerp)
 
 /**
  * A strategy that controls how an animation plays, usually related to what the animation should do
@@ -15,25 +16,24 @@ data class KeyFrame<T>(val value: T, val duration: ImmutableDuration, val lerp: 
  * provided out of the box (which should cover almost all cases).
  */
 interface PlayStrategy {
-    val elapsed: ImmutableDuration
+    val elapsed: Duration
     fun reset()
-    fun elapse(duration: ImmutableDuration, animLength: ImmutableDuration)
+    fun elapse(duration: Duration, animLength: Duration)
 }
 
 /**
  * A [PlayStrategy] which plays an animation once and then stops.
  */
 class OneShotPlayStrategy : PlayStrategy {
-    private val _elapsed = Duration.zero()
-    override val elapsed = _elapsed
+    override val elapsed = MutableDuration.zero()
 
     override fun reset() {
-        _elapsed.setFrom(Duration.Zero)
+        elapsed.setFrom(Duration.Zero)
     }
 
-    override fun elapse(duration: ImmutableDuration, animLength: ImmutableDuration) {
-        _elapsed += duration
-        _elapsed.clampToMax(animLength)
+    override fun elapse(duration: Duration, animLength: Duration) {
+        elapsed += duration
+        elapsed.clampToMax(animLength)
     }
 }
 
@@ -41,17 +41,16 @@ class OneShotPlayStrategy : PlayStrategy {
  * A [PlayStrategy] which repeats an animation from the beginning once it reaches the end.
  */
 class LoopingPlayStrategy : PlayStrategy {
-    private val _elapsed = Duration.zero()
-    override val elapsed = _elapsed
+    override val elapsed = MutableDuration.zero()
 
     override fun reset() {
-        _elapsed.setFrom(Duration.Zero)
+        elapsed.setFrom(Duration.Zero)
     }
 
-    override fun elapse(duration: ImmutableDuration, animLength: ImmutableDuration) {
-        _elapsed += duration
-        while (_elapsed >= animLength) {
-            _elapsed -= animLength
+    override fun elapse(duration: Duration, animLength: Duration) {
+        elapsed += duration
+        while (elapsed >= animLength) {
+            elapsed -= animLength
         }
     }
 }
@@ -70,7 +69,7 @@ class LoopingPlayStrategy : PlayStrategy {
 class BouncingPlayStrategy : PlayStrategy {
     private var elapseForward = true
 
-    private val _elapsed = Duration.zero()
+    private val _elapsed = MutableDuration.zero()
     override val elapsed = _elapsed
 
     override fun reset() {
@@ -78,7 +77,7 @@ class BouncingPlayStrategy : PlayStrategy {
         elapseForward = true
     }
 
-    override fun elapse(duration: ImmutableDuration, animLength: ImmutableDuration) {
+    override fun elapse(duration: Duration, animLength: Duration) {
         if (elapseForward) {
             _elapsed += duration
             if (_elapsed >= animLength) {
@@ -133,7 +132,7 @@ class Anim<T>(val keyframes: List<KeyFrame<T>>, private val playStrategy: PlaySt
     ) : this(listOf(*keyframes), playStrategy)
 
     constructor(
-        frameDuration: ImmutableDuration,
+        frameDuration: Duration,
         vararg values: T,
         playStrategy: PlayStrategy = LoopingPlayStrategy(),
         defaultLerp: Lerp<T> = Lerps::noLerp
@@ -145,7 +144,7 @@ class Anim<T>(val keyframes: List<KeyFrame<T>>, private val playStrategy: PlaySt
     /**
      * The total duration of this animation (i.e. the sum of all of its keyframes)
      */
-    val duration: ImmutableDuration
+    val duration: Duration
 
     /**
      * The time each frame starts at, starting with the second frame. (We skip the first frame as
@@ -165,9 +164,9 @@ class Anim<T>(val keyframes: List<KeyFrame<T>>, private val playStrategy: PlaySt
 
         // Index 'n' is the start duration for frame 'n + 1'
         // We can skip index 0 because it's always zero
-        startTimes = List(keyframes.size - 1) { Duration.zero() }
+        startTimes = List(keyframes.size - 1) { MutableDuration.zero() }
 
-        val accum = Duration.zero()
+        val accum = MutableDuration.zero()
         keyframes.take(keyframes.size - 1).forEachIndexed { i, keyframe ->
             accum += keyframe.duration
             startTimes[i].setFrom(accum)
@@ -188,7 +187,7 @@ class Anim<T>(val keyframes: List<KeyFrame<T>>, private val playStrategy: PlaySt
      * Move this animation some amount of time forward. After calling this function, the
      * [value] property may change.
      */
-    fun elapse(duration: ImmutableDuration) {
+    fun elapse(duration: Duration) {
         playStrategy.elapse(duration, this.duration)
 
         currFrame = startTimes.indexOfFirst { it > playStrategy.elapsed }
@@ -205,5 +204,5 @@ class Anim<T>(val keyframes: List<KeyFrame<T>>, private val playStrategy: PlaySt
         }
     }
 
-    private fun frameStart(frame: Int): ImmutableDuration = startTimes.getOrElse(frame - 1) { Duration.Zero }
+    private fun frameStart(frame: Int): Duration = startTimes.getOrElse(frame - 1) { Duration.Zero }
 }

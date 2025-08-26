@@ -1,6 +1,7 @@
 import dev.bitspittle.kross2d.core.geom.Rect
 import dev.bitspittle.kross2d.core.graphics.Colors
-import dev.bitspittle.kross2d.core.memory.disposable
+import dev.bitspittle.kross2d.core.memory.Disposer
+import dev.bitspittle.kross2d.core.memory.register
 import dev.bitspittle.kross2d.core.memory.setParent
 import dev.bitspittle.kross2d.engine.GameState
 import dev.bitspittle.kross2d.engine.app.ApplicationFacade
@@ -30,7 +31,7 @@ import dev.bitspittle.kross2d.engine.input.Key
  */
 class InitialState : GameState {
     private lateinit var font: Asset<Font>
-    private val fontDisposedListener = disposable {
+    private val fontDisposedListener = Disposer.register {
         println("Font was disposed")
     }
 
@@ -42,7 +43,7 @@ class InitialState : GameState {
         // no-ops.
         fontDisposedListener.setParent(font)
 
-        disposable(ctx.scopes.currState) {
+        Disposer.register(ctx.scopes.currState) {
             println("InitialState is no longer active")
         }
     }
@@ -57,7 +58,7 @@ class InitialState : GameState {
     }
 
     override fun draw(ctx: DrawContext) {
-        ctx.screen.clear(Colors.BLACK)
+        ctx.screen.clear(Colors.Black)
         font.data?.let { font ->
             ctx.screen.drawText(
                 font, """

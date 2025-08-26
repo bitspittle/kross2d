@@ -1,21 +1,22 @@
 package dev.bitspittle.kross2d.engine.app
 
 import dev.bitspittle.kross2d.core.event.Event
-import dev.bitspittle.kross2d.core.event.ObservableEvent
-import dev.bitspittle.kross2d.core.graphics.ImmutableColor
-import dev.bitspittle.kross2d.core.math.ImmutablePt2
-import dev.bitspittle.kross2d.core.math.ImmutableVec2
+import dev.bitspittle.kross2d.core.event.EventEmitter
+import dev.bitspittle.kross2d.core.graphics.Color
+import dev.bitspittle.kross2d.core.math.MutablePt2
 import dev.bitspittle.kross2d.core.math.Pt2
+import dev.bitspittle.kross2d.core.math.Vec2
 import dev.bitspittle.kross2d.engine.graphics.DrawSurface
 import dev.bitspittle.kross2d.engine.graphics.DrawSurface.ImageParams
-import dev.bitspittle.kross2d.engine.graphics.Screen.Transform
-import dev.bitspittle.kross2d.engine.graphics.Screen.Transform.*
 import dev.bitspittle.kross2d.engine.graphics.Font
 import dev.bitspittle.kross2d.engine.graphics.Image
+import dev.bitspittle.kross2d.engine.graphics.MutableScreen
 import dev.bitspittle.kross2d.engine.graphics.Screen
+import dev.bitspittle.kross2d.engine.graphics.Screen.Transform
+import dev.bitspittle.kross2d.engine.graphics.Screen.Transform.*
 import dev.bitspittle.kross2d.engine.graphics.Screen.Transform.Composite
-import dev.bitspittle.kross2d.engine.input.Key
 import dev.bitspittle.kross2d.engine.input.Button
+import dev.bitspittle.kross2d.engine.input.Key
 import java.awt.*
 import java.awt.event.*
 import java.awt.geom.AffineTransform
@@ -26,13 +27,13 @@ import javax.swing.WindowConstants
 import kotlin.math.roundToInt
 import java.awt.Color as AwtColor
 
-fun ImmutableColor.toAwtColor() = AwtColor(r, g, b, a)
+fun Color.toAwtColor() = AwtColor(r, g, b, a)
 
-fun ImmutableVec2.toDimension() = Dimension(x.roundToInt(), y.roundToInt())
+fun Vec2.toDimension() = Dimension(x.roundToInt(), y.roundToInt())
 
 internal actual class ApplicationBackend actual constructor(params: AppParams) {
     private val frame: JFrame
-    actual val screen: Screen
+    actual val screen: MutableScreen
 
     init {
         System.setProperty("sun.java2d.opengl", "true") // For hardware accelerated rendering
@@ -118,7 +119,7 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
             }
         })
 
-        val mousePos = Pt2()
+        val mousePos = MutablePt2()
         fun updateMousePosAndFireEvent(e: MouseEvent) {
             mousePos.set(e.x, e.y)
             _mouseMoved(mousePos)
@@ -159,20 +160,20 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
         frame.isVisible = true
     }
 
-    private val _keyPressed = Event<Key>()
-    actual val keyPressed: ObservableEvent<Key> = _keyPressed
+    private val _keyPressed = EventEmitter<Key>()
+    actual val keyPressed: Event<Key> = _keyPressed
 
-    private val _keyReleased = Event<Key>()
-    actual val keyReleased: ObservableEvent<Key> = _keyReleased
+    private val _keyReleased = EventEmitter<Key>()
+    actual val keyReleased: Event<Key> = _keyReleased
 
-    private val _mouseMoved = Event<ImmutablePt2>()
-    actual val mouseMoved: ObservableEvent<ImmutablePt2> = _mouseMoved
+    private val _mouseMoved = EventEmitter<Pt2>()
+    actual val mouseMoved: Event<Pt2> = _mouseMoved
 
-    private val _buttonPressed = Event<Button>()
-    actual val buttonPressed: ObservableEvent<Button> = _buttonPressed
+    private val _buttonPressed = EventEmitter<Button>()
+    actual val buttonPressed: Event<Button> = _buttonPressed
 
-    private val _buttonReleased = Event<Button>()
-    actual val buttonReleased: ObservableEvent<Button> = _buttonReleased
+    private val _buttonReleased = EventEmitter<Button>()
+    actual val buttonReleased: Event<Button> = _buttonReleased
 
     actual fun runForever(frameStep: () -> Unit) {
         while (frame.isVisible) {
@@ -190,7 +191,7 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
         frame.dispose()
     }
 
-    private class AwtScreen(override val size: ImmutableVec2) : JPanel(), Screen {
+    private class AwtScreen(override val size: Vec2) : JPanel(), MutableScreen {
         /**
          * Buffer of draw commands. We receive requests to draw to the screen outside of a time we
          * can actually draw them, so we save them up until the next paint happens.
@@ -209,7 +210,7 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
             }
         }
 
-        override fun clear(color: ImmutableColor) {
+        override fun clear(color: Color) {
             enqueueCommand { g ->
                 g.background = color.toAwtColor()
                 g.clearRect(0, 0, width, height)
@@ -238,7 +239,7 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
             }
         }
 
-        override fun drawLine(pt1: ImmutablePt2, pt2: ImmutablePt2, color: ImmutableColor) {
+        override fun drawLine(pt1: Pt2, pt2: Pt2, color: Color) {
             enqueueCommand { g ->
                 g.color = color.toAwtColor()
                 g.drawLine(pt1.x.roundToInt(), pt1.y.roundToInt(), pt2.x.roundToInt(), pt2.y.roundToInt())
@@ -301,6 +302,6 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
 
 actual class AppParams(
     val title: String,
-    val size: ImmutableVec2,
+    val size: Vec2,
     actual val assetsRoot: String = "assets"
 )

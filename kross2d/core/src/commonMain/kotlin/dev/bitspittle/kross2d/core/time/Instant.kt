@@ -12,11 +12,11 @@ package dev.bitspittle.kross2d.core.time
  *
  * TODO: Convert to an inline class once that feature stabilizes
  */
-class Instant(private var nanos: Long): Comparable<Instant> {
+class Instant(private val nanos: Long): Comparable<Instant> {
     companion object {
         fun now() = Instant(nowNs())
     }
-    operator fun minus(rhs: Instant) = Duration((nanos - rhs.nanos).toDouble())
+    operator fun minus(rhs: Instant) = Duration.ofNanos(nanos - rhs.nanos)
     override fun compareTo(other: Instant) = nanos.compareTo(other.nanos)
 
     override fun toString() = "Instant { ${nanos}ns }"

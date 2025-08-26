@@ -1,6 +1,5 @@
 package systems
 
-import dev.bitspittle.kross2d.core.math.ImmutableVec2
 import dev.bitspittle.kross2d.engine.assets.Asset
 import dev.bitspittle.kross2d.engine.audio.Sound
 import dev.bitspittle.kross2d.engine.context.UpdateContext
@@ -9,11 +8,11 @@ import dev.bitspittle.kross2d.extras.ecs.Family
 import dev.bitspittle.kross2d.extras.ecs.UpdateSystem
 import dev.bitspittle.kross2d.extras.ecs.World
 import components.Ball
-import components.Body
 import components.Paddle
+import dev.bitspittle.kross2d.core.math.Vec2
 import objects.Side
 
-class BounceSystem(private val arenaSize: ImmutableVec2,
+class BounceSystem(private val arenaSize: Vec2,
                    private val soundBounce: Asset<Sound>)
     : UpdateSystem(Family.all(Ball::class)) {
 
@@ -22,7 +21,7 @@ class BounceSystem(private val arenaSize: ImmutableVec2,
         VERT
     }
 
-    override fun update(world: World.Facade, ctx: UpdateContext, entity: Entity) {
+    override fun update(world: World.MutableFacade, ctx: UpdateContext, entity: Entity) {
         val ball = entity.get<Ball>()
         val ballRect = ball.shape.toBoundingRect()
         if ((ballRect.y <= 0f && ball.vel.y < 0f) || (ballRect.y2 >= arenaSize.y && ball.vel.y > 0f)) {

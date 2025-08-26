@@ -13,7 +13,7 @@ private const val PADDLE_SPEED = 75f
 
 class InputSystem : UpdateSystem(Family.all(Paddle::class)) {
 
-    override fun update(world: World.Facade, ctx: UpdateContext, entity: Entity) {
+    override fun update(world: World.MutableFacade, ctx: UpdateContext, entity: Entity) {
         val paddle = entity.get<Paddle>()
         when (paddle.side) {
             Side.LEFT -> {

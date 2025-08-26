@@ -1,13 +1,15 @@
 package dev.bitspittle.kross2d.core.event
 
+import dev.bitspittle.kross2d.core.concurrency.synchronized
 import dev.bitspittle.kross2d.core.memory.Disposable
 import dev.bitspittle.kross2d.core.memory.Disposer
 import dev.bitspittle.kross2d.core.memory.register
 
+
 /**
  * The part of an event responsible for registering listeners but not firing. This can safely be exposed publicly.
  *
- * Here, `onKeyPressed` would be exposed as an [ObservableEvent]:
+ * Here, `onKeyPressed` would be exposed as an [Event]:
  *
  * ```
  * interface Keyboard {
@@ -17,20 +19,24 @@ import dev.bitspittle.kross2d.core.memory.register
  * keyboard.onKeyPressed += { (key) -> ... }
  * ```
  *
- * Then, a class that implemented that Keyboard interface would internally create an [Event] which allows the caller to
- * trigger it.
+ * Then, a class that implemented that Keyboard interface would internally create an [EventEmitter] which allows the
+ * caller to trigger it.
  *
  * @param onAdded A callback registered by the event owner which will be triggered everytime a new event handler is
  * added, allowing the event owner to trigger it immediately (e.g. if the event listener is added *after* the initial
  * event happened).
  *
- * See also: [Event]
+ * See also: [EventEmitter]
  */
-abstract class ObservableEvent<P>(private val onAdded: ((P) -> Unit) -> Unit) {
+abstract class Event<P>(private val onAdded: ((P) -> Unit) -> Unit) {
+    private val lock = Any()
+
     protected val observers: MutableList<(P) -> Unit> = mutableListOf()
 
     operator fun plusAssign(observer: (P) -> Unit) {
-        observers.add(observer)
+        synchronized(lock) {
+            observers.add(observer)
+        }
         onAdded(observer)
     }
 
@@ -40,7 +46,9 @@ abstract class ObservableEvent<P>(private val onAdded: ((P) -> Unit) -> Unit) {
     }
 
     operator fun minusAssign(observer: (P) -> Unit) {
-        observers.remove(observer)
+        synchronized(lock) {
+            observers.remove(observer)
+        }
     }
 }
 
@@ -61,9 +69,9 @@ abstract class ObservableEvent<P>(private val onAdded: ((P) -> Unit) -> Unit) {
  *
  * ```
  *
- * See also: [ObservableEvent]
+ * See also: [Event]
  */
-class Event<P>(onAdded: ((P) -> Unit) -> Unit = {}) : ObservableEvent<P>(onAdded) {
+class EventEmitter<P>(onAdded: ((P) -> Unit) -> Unit = {}) : Event<P>(onAdded) {
     operator fun invoke(params: P) {
         observers.forEach { observer -> observer(params) }
     }

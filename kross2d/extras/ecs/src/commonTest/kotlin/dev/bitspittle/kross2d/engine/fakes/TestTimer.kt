@@ -4,5 +4,5 @@ import dev.bitspittle.kross2d.core.time.Duration
 import dev.bitspittle.kross2d.engine.time.Timer
 
 class TestTimer : Timer {
-    override var lastFrame: Duration = Duration.zero()
+    override var lastFrame: Duration = Duration.Zero
 }

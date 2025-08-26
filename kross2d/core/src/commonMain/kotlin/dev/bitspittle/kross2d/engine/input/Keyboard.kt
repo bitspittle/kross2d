@@ -64,7 +64,7 @@ interface Keyboard {
     fun isUp(key: Key): Boolean
 }
 
-internal class DefaultKeyboard : Keyboard {
+internal class MutableKeyboard : Keyboard {
     private val keysPrev = mutableSetOf<Key>()
     private val keysCurr = mutableSetOf<Key>()
 

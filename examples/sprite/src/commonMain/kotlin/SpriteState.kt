@@ -1,6 +1,8 @@
 import dev.bitspittle.kross2d.core.geom.Rect
 import dev.bitspittle.kross2d.core.geom.centerIn
 import dev.bitspittle.kross2d.core.graphics.Color
+import dev.bitspittle.kross2d.core.math.MutablePt2
+import dev.bitspittle.kross2d.core.math.MutableVec2
 import dev.bitspittle.kross2d.core.math.Pt2
 import dev.bitspittle.kross2d.core.math.Vec2
 import dev.bitspittle.kross2d.core.math.clamp
@@ -50,8 +52,8 @@ class SpriteState : GameState {
             )
         }
         private val drawSize = playerTiles.tileSize * 2f // Tweaked until it looked good
-        private val pos = Pt2()
-        private val vel = Vec2()
+        private val pos = MutablePt2()
+        private val vel = MutableVec2()
         private var currAnim = facingToAnim.getValue(Dir.S)
 
         fun init(ctx: EnterContext) {

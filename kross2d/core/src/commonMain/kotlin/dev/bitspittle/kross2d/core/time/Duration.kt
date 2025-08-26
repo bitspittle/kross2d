@@ -1,99 +1,100 @@
 package dev.bitspittle.kross2d.core.time
 
+import dev.bitspittle.kross2d.core.time.MutableDuration.Companion.ofMicros
+import dev.bitspittle.kross2d.core.time.MutableDuration.Companion.ofMillis
+import dev.bitspittle.kross2d.core.time.MutableDuration.Companion.ofMinutes
+import dev.bitspittle.kross2d.core.time.MutableDuration.Companion.ofNanos
+import dev.bitspittle.kross2d.core.time.MutableDuration.Companion.ofSeconds
 import kotlin.math.max
 import kotlin.math.min
 
-/**
- * Read-only properties of a [Duration]
- */
-abstract class ImmutableDuration : Comparable<ImmutableDuration> {
-    abstract val nanos: Double
-    open val micros: Double
-        get() = nanos / 1000.0
-    open val millis: Double
-        get() = micros / 1000.0
-    open val secs: Double
-        get() = millis / 1000.0
-    open val mins: Double
-        get() = secs / 60.0
-    fun isZero(): Boolean = nanos == 0.0
+internal interface DurationFactory<D: Duration> {
+    fun ofNanos(nanos: Double): D
+    fun ofMicros(micros: Double): D
+    fun ofMillis(millis: Double): D
+    fun ofSeconds(secs: Double): D
+    fun ofMinutes(mins: Double): D
 
-    fun copy() = Duration().apply { setFrom(this@ImmutableDuration) }
-
-    operator fun plus(rhs: ImmutableDuration) = Duration(nanos + rhs.nanos)
-    operator fun minus(rhs: ImmutableDuration) = Duration(nanos - rhs.nanos)
-    operator fun times(value: Double) = Duration(nanos * value)
-    operator fun div(value: Double) = Duration(nanos / value)
-    operator fun unaryMinus() = Duration(-nanos)
-
-    override fun compareTo(other: ImmutableDuration) = nanos.compareTo(other.nanos)
-
-    override fun equals(other: Any?): Boolean {
-        return if (other is ImmutableDuration) nanos == other.nanos else false
-    }
-
-    override fun hashCode(): Int {
-        return nanos.hashCode()
-    }
-
-    override fun toString() = "Duration { ${nanos}ns }"
+    fun ofNanos(nanos: Long): D = ofNanos(nanos.toDouble())
+    fun ofMicros(micros: Long): D = ofMicros(micros.toDouble())
+    fun ofMillis(millis: Long): D = ofMillis(millis.toDouble())
+    fun ofSeconds(secs: Long): D = ofSeconds(secs.toDouble())
+    fun ofMinutes(mins: Long): D = ofMinutes(mins.toDouble())
 }
-
-fun max(a: ImmutableDuration, b: ImmutableDuration) = if (a.nanos > b.nanos) a else b
-fun min(a: ImmutableDuration, b: ImmutableDuration) = if (a.nanos < b.nanos) a else b
 
 /**
  * A class which represents a time duration.
  */
-class Duration
-/**
- * Don't construct directly. Use [ofSeconds], [ofMinutes], [ofMillis], [ofMicros], [ofNanos],
- * [zero], or [copy] instead.
- */
-internal constructor(override var nanos: Double = 0.0) : ImmutableDuration() {
-    companion object {
-        val Zero: ImmutableDuration = Duration()
+interface Duration : Comparable<Duration> {
+    companion object : DurationFactory<Duration> {
+        val Zero: Duration = MutableDuration()
 
         /**
          * A duration that essentially represents forever. This could be useful for parameters
          * that expect infinite timeouts, for example.
          */
-        val MAX = object : ImmutableDuration() {
-            override val nanos = Double.POSITIVE_INFINITY
-            override val micros = Double.POSITIVE_INFINITY
-            override val millis = Double.POSITIVE_INFINITY
-            override val secs = Double.POSITIVE_INFINITY
-            override val mins = Double.POSITIVE_INFINITY
-        }
+        val Max: Duration = MutableDuration(Double.POSITIVE_INFINITY)
 
         /**
          * A duration that represents -MAX. This could be useful for when you are trying to
          * find the minimum duration value in a list, and want an initial value to compare
          * against.
          */
-        val MIN = object : ImmutableDuration() {
-            override val nanos = Double.NEGATIVE_INFINITY
-            override val micros = Double.NEGATIVE_INFINITY
-            override val millis = Double.NEGATIVE_INFINITY
-            override val secs = Double.NEGATIVE_INFINITY
-            override val mins = Double.NEGATIVE_INFINITY
-        }
+        val Min: Duration = MutableDuration(Double.NEGATIVE_INFINITY)
 
-        fun zero(): Duration {
-            return Duration()
-        }
+        override fun ofNanos(nanos: Double): Duration = MutableDuration.ofNanos(nanos)
+        override fun ofMicros(micros: Double): Duration = MutableDuration.ofMicros(micros)
+        override fun ofMillis(millis: Double): Duration = MutableDuration.ofMillis(millis)
+        override fun ofSeconds(secs: Double): Duration = MutableDuration.ofSeconds(secs)
+        override fun ofMinutes(mins: Double): Duration = MutableDuration.ofMinutes(mins)
+    }
 
-        fun ofNanos(nanos: Double) = Duration(nanos)
-        fun ofMicros(micros: Double) = Duration().apply { this.micros = micros }
-        fun ofMillis(millis: Double) = Duration().apply { this.millis = millis }
-        fun ofSeconds(secs: Double) = Duration().apply { this.secs = secs }
-        fun ofMinutes(mins: Double) = Duration().apply { this.mins = mins }
 
-        fun ofNanos(nanos: Long) = ofNanos(nanos.toDouble())
-        fun ofMicros(micros: Long) = ofMicros(micros.toDouble())
-        fun ofMillis(millis: Long) = ofMillis(millis.toDouble())
-        fun ofSeconds(secs: Long) = ofSeconds(secs.toDouble())
-        fun ofMinutes(mins: Long) = ofMinutes(mins.toDouble())
+    val nanos: Double
+    val micros: Double
+        get() = nanos / 1000.0
+    val millis: Double
+        get() = micros / 1000.0
+    val secs: Double
+        get() = millis / 1000.0
+    val mins: Double
+        get() = secs / 60.0
+    fun isZero(): Boolean = nanos == 0.0
+
+    fun toMutableDuration() = MutableDuration(nanos)
+
+    operator fun plus(rhs: Duration) = Duration(nanos + rhs.nanos)
+    operator fun minus(rhs: Duration) = Duration(nanos - rhs.nanos)
+    operator fun times(value: Double) = Duration(nanos * value)
+    operator fun div(value: Double) = Duration(nanos / value)
+    operator fun unaryMinus() = Duration(-nanos)
+
+    override fun compareTo(other: Duration) = nanos.compareTo(other.nanos)
+}
+
+fun max(a: Duration, b: Duration) = if (a.nanos > b.nanos) a else b
+fun min(a: Duration, b: Duration) = if (a.nanos < b.nanos) a else b
+
+/**
+ * Don't construct directly. Use [ofSeconds], [ofMinutes], [ofMillis], [ofMicros], [ofNanos],
+ * or [Duration.Zero] instead.
+ */
+private fun Duration(nanos: Double): Duration = MutableDuration(nanos)
+
+class MutableDuration
+/**
+ * Don't construct directly. Use [ofSeconds], [ofMinutes], [ofMillis], [ofMicros], [ofNanos],
+ * or [zero] instead.
+ */
+internal constructor(override var nanos: Double = 0.0) : Duration {
+    companion object : DurationFactory<MutableDuration> {
+        fun zero() = MutableDuration()
+
+        override fun ofNanos(nanos: Double) = MutableDuration(nanos)
+        override fun ofMicros(micros: Double) = MutableDuration().apply { this.micros = micros }
+        override fun ofMillis(millis: Double) = MutableDuration().apply { this.millis = millis }
+        override fun ofSeconds(secs: Double) = MutableDuration().apply { this.secs = secs }
+        override fun ofMinutes(mins: Double) = MutableDuration().apply { this.mins = mins }
     }
 
     override var micros: Double
@@ -120,23 +121,25 @@ internal constructor(override var nanos: Double = 0.0) : ImmutableDuration() {
             secs = value * 60.0
         }
 
-    fun setFrom(rhs: ImmutableDuration) {
+    fun toDuration() = Duration(nanos)
+
+    fun setFrom(rhs: Duration) {
         nanos = rhs.nanos
     }
 
-    fun clampToMax(possibleMax: ImmutableDuration) {
+    fun clampToMax(possibleMax: Duration) {
         nanos = min(nanos, possibleMax.nanos)
     }
 
-    fun clampToMin(possibleMin: ImmutableDuration) {
+    fun clampToMin(possibleMin: Duration) {
         nanos = max(nanos, possibleMin.nanos)
     }
 
-    operator fun plusAssign(rhs: ImmutableDuration) {
+    operator fun plusAssign(rhs: Duration) {
         nanos += rhs.nanos
     }
 
-    operator fun minusAssign(rhs: ImmutableDuration) {
+    operator fun minusAssign(rhs: Duration) {
         nanos -= rhs.nanos
     }
 
@@ -148,7 +151,24 @@ internal constructor(override var nanos: Double = 0.0) : ImmutableDuration() {
         nanos /= value
     }
 
-    override fun toString(): String {
-        return "${secs}s"
+    override fun equals(other: Any?): Boolean {
+        return if (other is Duration) nanos == other.nanos else false
+    }
+
+    override fun hashCode(): Int {
+        return nanos.hashCode()
+    }
+
+    override fun toString() = buildString {
+        append("Duration { ")
+        when {
+            mins > 1 -> append("${mins}m")
+            secs > 1 -> append("${secs}s")
+            millis > 1 -> append("${millis}ms")
+            micros > 1 -> append("${micros}μs")
+            nanos > 1 -> append("${nanos}ns")
+            else -> append("0")
+        }
+        append(" }")
     }
 }

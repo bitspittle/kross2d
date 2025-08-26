@@ -1,6 +1,7 @@
 import dev.bitspittle.kross2d.core.geom.Rect
 import dev.bitspittle.kross2d.core.graphics.Colors
-import dev.bitspittle.kross2d.core.memory.disposable
+import dev.bitspittle.kross2d.core.memory.Disposer
+import dev.bitspittle.kross2d.core.memory.register
 import dev.bitspittle.kross2d.engine.GameState
 import dev.bitspittle.kross2d.engine.assets.Asset
 import dev.bitspittle.kross2d.engine.context.DrawContext
@@ -13,7 +14,7 @@ import dev.bitspittle.kross2d.engine.input.Key
 
 class MiddleState(private val font: Asset<Font>) : GameState {
     override fun enter(ctx: EnterContext) {
-        disposable(ctx.scopes.currState) {
+        Disposer.register(ctx.scopes.currState) {
             println("MiddleState is no longer active")
         }
     }
@@ -28,7 +29,7 @@ class MiddleState(private val font: Asset<Font>) : GameState {
     }
 
     override fun draw(ctx: DrawContext) {
-        ctx.screen.clear(Colors.BLACK)
+        ctx.screen.clear(Colors.Black)
         font.data?.let { font ->
             ctx.screen.drawText(
                 font, """

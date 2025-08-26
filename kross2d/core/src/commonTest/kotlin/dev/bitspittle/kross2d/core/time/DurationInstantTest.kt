@@ -16,7 +16,7 @@ class DurationInstantTest {
     @Test
     fun canConstructDuration() {
         run {
-            val d = Duration.zero()
+            val d = Duration.Zero
             assertThat(d.millis).isEqualTo(0.0)
             assertThat(d.secs).isEqualTo(0.0)
             assertThat(d.mins).isEqualTo(0.0)
@@ -74,8 +74,8 @@ class DurationInstantTest {
         }
 
         run {
-            val dSrc = Duration.ofNanos(NS_IN_ONE_DAY)
-            val d = dSrc.copy()
+            val dSrc = MutableDuration.ofNanos(NS_IN_ONE_DAY)
+            val d = dSrc.toDuration()
             assertThat(d.nanos).isEqualTo(NS_IN_ONE_DAY)
             assertThat(d.micros).isEqualTo(US_IN_ONE_DAY)
             assertThat(d.millis).isEqualTo(MS_IN_ONE_DAY)
@@ -87,25 +87,27 @@ class DurationInstantTest {
 
     @Test
     fun minAndMaxWork() {
-        val d1: ImmutableDuration = Duration.ofSeconds(1)
-        val d5: ImmutableDuration = Duration.ofSeconds(5)
-        val d9: ImmutableDuration = Duration.ofSeconds(9)
+        val d1 = Duration.ofSeconds(1)
+        val d5 = Duration.ofSeconds(5)
+        val d9 = Duration.ofSeconds(9)
 
         assertThat(max(d1, d9)).isEqualTo(d9)
         assertThat(min(d1, d9)).isEqualTo(d1)
 
-        assertThat(max(Duration.Zero, Duration.MAX)).isEqualTo(Duration.MAX)
-        assertThat(min(Duration.Zero, Duration.MAX)).isEqualTo(Duration.Zero)
+        assertThat(max(Duration.Zero, Duration.Max)).isEqualTo(Duration.Max)
+        assertThat(max(Duration.Zero, Duration.Min)).isEqualTo(Duration.Zero)
+        assertThat(min(Duration.Zero, Duration.Min)).isEqualTo(Duration.Min)
+        assertThat(min(Duration.Zero, Duration.Max)).isEqualTo(Duration.Zero)
 
         run {
-            val d = d5.copy()
+            val d = d5.toMutableDuration()
             d.clampToMin(d1)
             assertThat(d).isEqualTo(d5)
             d.clampToMax(d1)
             assertThat(d).isEqualTo(d1)
         }
         run {
-            val d = d5.copy()
+            val d = d5.toMutableDuration()
             d.clampToMax(d9)
             assertThat(d).isEqualTo(d5)
             d.clampToMin(d9)
@@ -115,20 +117,20 @@ class DurationInstantTest {
 
     @Test
     fun addAndSubtractDurations() {
-        val d1: ImmutableDuration = Duration.ofSeconds(1)
-        val d5: ImmutableDuration = Duration.ofSeconds(5)
-        val d9: ImmutableDuration = Duration.ofSeconds(9)
+        val d1 = Duration.ofSeconds(1)
+        val d5 = Duration.ofSeconds(5)
+        val d9 = Duration.ofSeconds(9)
 
         assertThat(d1 + d9).isEqualTo(Duration.ofSeconds(10))
         assertThat(d9 - d5).isEqualTo(Duration.ofSeconds(4))
 
         run {
-            val d = d1.copy()
+            val d = d1.toMutableDuration()
             d += d9
             assertThat(d.secs).isEqualTo(10.0)
         }
         run {
-            val d = d5.copy()
+            val d = d5.toMutableDuration()
             d -= d1
             assertThat(d.secs).isEqualTo(4.0)
         }
@@ -136,23 +138,23 @@ class DurationInstantTest {
 
     @Test
     fun durationsCanBeCompared() {
-        val d1: ImmutableDuration = Duration.ofSeconds(1)
-        val d5: ImmutableDuration = Duration.ofSeconds(5)
-        val d9: ImmutableDuration = Duration.ofSeconds(9)
+        val d1 = Duration.ofSeconds(1)
+        val d5 = Duration.ofSeconds(5)
+        val d9 = Duration.ofSeconds(9)
 
         assertThat(d1).isLessThan(d5)
         assertThat(d9).isGreaterThan(d5)
         assertThat(d1).isGreaterThan(Duration.Zero)
-        assertThat(d9).isLessThan(Duration.MAX)
-        assertThat(Duration.Zero).isGreaterThan(Duration.MIN)
+        assertThat(d9).isLessThan(Duration.Max)
+        assertThat(Duration.Zero).isGreaterThan(Duration.Min)
 
-        assertThat(Duration.zero()).isEqualTo(Duration.Zero)
+        assertThat(MutableDuration.zero()).isEqualTo(Duration.Zero)
     }
 
     @Test
     fun durationsCanBeNegative() {
-        val d1: ImmutableDuration = Duration.ofSeconds(1)
-        val d5: ImmutableDuration = Duration.ofSeconds(5)
+        val d1 = Duration.ofSeconds(1)
+        val d5 = Duration.ofSeconds(5)
 
         assertThat(d1 - d5).isEqualTo(Duration.ofSeconds(-4))
     }

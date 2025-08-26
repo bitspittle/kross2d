@@ -9,12 +9,12 @@ abstract class UpdateSystem(val family: Family) {
     /**
      * Called once each frame, before calling the first [update]
      */
-    open fun beforeUpdates(world: World.Facade, ctx: UpdateContext) {}
+    open fun beforeUpdates(world: World.MutableFacade, ctx: UpdateContext) {}
 
-    abstract fun update(world: World.Facade, ctx: UpdateContext, entity: Entity)
+    abstract fun update(world: World.MutableFacade, ctx: UpdateContext, entity: Entity)
 
     /**
      * Called once each frame, after calling the final [update]
      */
-    open fun afterUpdates(world: World.Facade, ctx: UpdateContext) {}
+    open fun afterUpdates(world: World.MutableFacade, ctx: UpdateContext) {}
 }

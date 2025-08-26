@@ -7,12 +7,6 @@ class Pt2Vec2Test {
     @Test
     fun canConstructP2AndV2() {
         run {
-            // Pt2 default constructor
-            val pt = Pt2()
-            assertThat(pt).isEqualTo(Pt2.Zero)
-        }
-
-        run {
             // Pt2 float constructor
             val pt = Pt2(10.0f, 20.0f)
             assertThat(pt.x).isEqualTo(10.0f)
@@ -27,25 +21,11 @@ class Pt2Vec2Test {
         }
 
         run {
-            // Pt2 copy constructor
-            val ptSrc = Pt2(10, 20)
-            val pt = Pt2(ptSrc)
-            assertThat(pt.x).isEqualTo(10.0f)
-            assertThat(pt.y).isEqualTo(20.0f)
-        }
-
-        run {
             // Pt2 from Vec constructor
             val vec = Vec2(10, 20)
             val pt = Pt2(vec)
             assertThat(pt.x).isEqualTo(10.0f)
             assertThat(pt.y).isEqualTo(20.0f)
-        }
-
-        run {
-            // Vec2 default constructor
-            val vec = Vec2()
-            assertThat(vec).isEqualTo(Vec2.Zero)
         }
 
         run {
@@ -63,15 +43,7 @@ class Pt2Vec2Test {
         }
 
         run {
-            // Vec2 copy constructor
-            val vecSrc = Vec2(10, 20)
-            val vec = Vec2(vecSrc)
-            assertThat(vec.x).isEqualTo(10.0f)
-            assertThat(vec.y).isEqualTo(20.0f)
-        }
-
-        run {
-            // Vec2 from Vec constructor
+            // Vec2 from Pt2 constructor
             val pt = Pt2(10, 20)
             val vec = Vec2(pt)
             assertThat(vec.x).isEqualTo(10.0f)
@@ -80,9 +52,26 @@ class Pt2Vec2Test {
     }
 
     @Test
+    fun canDeconstructPt2AndVec2() {
+        run {
+            // Pt2 deconstruct
+            val (x, y) = Pt2(10, 20)
+            assertThat(x).isEqualTo(10.0f)
+            assertThat(y).isEqualTo(20.0f)
+        }
+
+        run {
+            // Vec2 deconstruct
+            val (x, y) = Vec2(10, 20)
+            assertThat(x).isEqualTo(10.0f)
+            assertThat(y).isEqualTo(20.0f)
+        }
+    }
+
+    @Test
     fun isZeroWorks() {
         run {
-            val pt = Pt2()
+            val pt = MutablePt2()
             assertThat(pt.isZero()).isTrue()
             pt.x += 1
             assertThat(pt.isZero()).isFalse()
@@ -95,7 +84,7 @@ class Pt2Vec2Test {
         }
 
         run {
-            val vec = Vec2()
+            val vec = MutableVec2()
             assertThat(vec.isZero()).isTrue()
             vec.x += 1
             assertThat(vec.isZero()).isFalse()
@@ -110,7 +99,7 @@ class Pt2Vec2Test {
 
     @Test
     fun p2PlusV2EqualsP2() {
-        val pt = Pt2(100, 200)
+        val pt = MutablePt2(100, 200)
         val vec = Vec2(300, 400)
 
         assertThat(pt + vec).isEqualTo(Pt2(400, 600))
@@ -120,7 +109,7 @@ class Pt2Vec2Test {
 
     @Test
     fun p2MinusV2EqualsP2() {
-        val pt = Pt2(1000, 2000)
+        val pt = MutablePt2(1000, 2000)
         val vec = Vec2(600, 1400)
 
         assertThat(pt - vec).isEqualTo(Pt2(400, 600))
@@ -138,7 +127,7 @@ class Pt2Vec2Test {
 
     @Test
     fun p2TimesV2EqualsP2() {
-        val pt = Pt2(100, 200)
+        val pt = MutablePt2(100, 200)
         val vec = Vec2(10, 10)
 
         assertThat(pt * vec).isEqualTo(Pt2(1000, 2000))
@@ -148,7 +137,7 @@ class Pt2Vec2Test {
 
     @Test
     fun p2DividedByV2EqualsP2() {
-        val pt = Pt2(10000, 20000)
+        val pt = MutablePt2(10000, 20000)
         val vec = Vec2(10, 10)
 
         assertThat(pt / vec).isEqualTo(Pt2(1000, 2000))
@@ -159,14 +148,14 @@ class Pt2Vec2Test {
     @Test
     fun p2CanBeScaledByAScalar() {
         run {
-            val pt = Pt2(20, 30)
+            val pt = MutablePt2(20, 30)
             assertThat(pt * 2f).isEqualTo(Pt2(40, 60))
             pt *= 2f
             assertThat(pt).isEqualTo(Pt2(40, 60))
         }
 
         run {
-            val pt = Pt2(20, 30)
+            val pt = MutablePt2(20, 30)
             assertThat(pt / 10f).isEqualTo(Pt2(2, 3))
             pt /= 10f
             assertThat(pt).isEqualTo(Pt2(2, 3))
@@ -181,7 +170,7 @@ class Pt2Vec2Test {
 
     @Test
     fun v2PlusV2EqualsV2() {
-        val vecA = Vec2(100, 200)
+        val vecA = MutableVec2(100, 200)
         val vecB = Vec2(300, 400)
 
         assertThat(vecA + vecB).isEqualTo(Vec2(400, 600))
@@ -191,7 +180,7 @@ class Pt2Vec2Test {
 
     @Test
     fun v2MinusV2EqualsV2() {
-        val vecA = Vec2(1000, 2000)
+        val vecA = MutableVec2(1000, 2000)
         val vecB = Vec2(600, 1400)
 
         assertThat(vecA - vecB).isEqualTo(Vec2(400, 600))
@@ -201,7 +190,7 @@ class Pt2Vec2Test {
 
     @Test
     fun v2TimesV2EqualsV2() {
-        val vecA = Vec2(100, 200)
+        val vecA = MutableVec2(100, 200)
         val vecB = Vec2(10, 10)
 
         assertThat(vecA * vecB).isEqualTo(Vec2(1000, 2000))
@@ -211,7 +200,7 @@ class Pt2Vec2Test {
 
     @Test
     fun v2DividedByV2EqualsV2() {
-        val vecA = Vec2(10000, 20000)
+        val vecA = MutableVec2(10000, 20000)
         val vecB = Vec2(10, 10)
 
         assertThat(vecA / vecB).isEqualTo(Vec2(1000, 2000))
@@ -222,14 +211,14 @@ class Pt2Vec2Test {
     @Test
     fun v2CanBeScaledByAScalar() {
         run {
-            val vec = Vec2(20, 30)
+            val vec = MutableVec2(20, 30)
             assertThat(vec * 2f).isEqualTo(Vec2(40, 60))
             vec *= 2f
             assertThat(vec).isEqualTo(Vec2(40, 60))
         }
 
         run {
-            val vec = Vec2(20, 30)
+            val vec = MutableVec2(20, 30)
             assertThat(vec / 10f).isEqualTo(Vec2(2, 3))
             vec /= 10f
             assertThat(vec).isEqualTo(Vec2(2, 3))
@@ -245,7 +234,7 @@ class Pt2Vec2Test {
     @Test
     fun v2LenAndNormalized() {
         run {
-            val vec = Vec2(6, 8)
+            val vec = MutableVec2(6, 8)
             assertThat(vec.len2()).isEqualTo(100f)
             assertThat(vec.len()).isEqualTo(10f)
             assertThat(vec.normalized()).isEqualTo(Vec2(0.6f, 0.8f))
@@ -258,7 +247,7 @@ class Pt2Vec2Test {
 
         run {
             // Special case: 0-length vecs remain 0 when normalized
-            val vec = Vec2()
+            val vec = MutableVec2()
             assertThat(vec.normalized()).isEqualTo(Vec2.Zero)
             vec.normalize()
             assertThat(vec).isEqualTo(Vec2.Zero)

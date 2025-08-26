@@ -1,10 +1,8 @@
 package dev.bitspittle.kross2d.engine.app
 
-import dev.bitspittle.kross2d.core.event.ObservableEvent
-import dev.bitspittle.kross2d.core.math.ImmutablePt2
+import dev.bitspittle.kross2d.core.event.Event
+import dev.bitspittle.kross2d.core.math.Pt2
 import dev.bitspittle.kross2d.core.memory.Disposer
-import dev.bitspittle.kross2d.core.memory.disposableOf
-import dev.bitspittle.kross2d.core.memory.register
 import dev.bitspittle.kross2d.core.memory.registerEmpty
 import dev.bitspittle.kross2d.core.time.Duration
 import dev.bitspittle.kross2d.core.time.Instant
@@ -13,13 +11,13 @@ import dev.bitspittle.kross2d.engine.assets.AssetLoader
 import dev.bitspittle.kross2d.engine.context.DrawContext
 import dev.bitspittle.kross2d.engine.context.EnterContext
 import dev.bitspittle.kross2d.engine.context.UpdateContext
-import dev.bitspittle.kross2d.engine.graphics.ImmutableScreen
+import dev.bitspittle.kross2d.engine.graphics.MutableScreen
 import dev.bitspittle.kross2d.engine.graphics.Screen
 import dev.bitspittle.kross2d.engine.input.*
-import dev.bitspittle.kross2d.engine.input.DefaultKeyboard
-import dev.bitspittle.kross2d.engine.input.DefaultMouse
+import dev.bitspittle.kross2d.engine.input.MutableKeyboard
+import dev.bitspittle.kross2d.engine.input.MutableMouse
 import dev.bitspittle.kross2d.engine.memory.Scopes
-import dev.bitspittle.kross2d.engine.time.DefaultTimer
+import dev.bitspittle.kross2d.engine.time.MutableTimer
 import dev.bitspittle.kross2d.engine.time.Timer
 
 /**
@@ -88,11 +86,11 @@ internal class Application internal constructor(params: AppParams, initialState:
     private val stateStack = mutableListOf<GameState>()
 
     init {
-        val keyboard = DefaultKeyboard()
+        val keyboard = MutableKeyboard()
         backend.keyPressed += { key -> keyboard.handleKey(key, true) }
         backend.keyReleased += { key -> keyboard.handleKey(key, false) }
 
-        val mouse = DefaultMouse()
+        val mouse = MutableMouse()
         backend.mouseMoved += { pos -> mouse.pos.set(pos) }
         backend.buttonPressed += { button -> mouse.handleButton(button, true) }
         backend.buttonReleased += { button -> mouse.handleButton(button, false) }
@@ -120,12 +118,12 @@ internal class Application internal constructor(params: AppParams, initialState:
 
             override fun quit() = backend.quit()
         }
-        val timer = DefaultTimer()
+        val timer = MutableTimer()
 
         val assetLoader = AssetLoader(params.assetsRoot, scopes)
         val initContext = object : EnterContext {
             override val assetLoader: AssetLoader = assetLoader
-            override val screen: ImmutableScreen = backend.screen
+            override val screen: Screen = backend.screen
             override val timer: Timer = timer
             override val scopes: Scopes = scopes
         }
@@ -133,7 +131,7 @@ internal class Application internal constructor(params: AppParams, initialState:
         val updateContext = object : UpdateContext {
             override val app: ApplicationFacade = app
             override val assetLoader: AssetLoader = assetLoader
-            override val screen: ImmutableScreen = backend.screen
+            override val screen: Screen = backend.screen
             override val keyboard: Keyboard = keyboard
             override val mouse: Mouse = mouse
             override val timer: Timer = timer
@@ -141,7 +139,7 @@ internal class Application internal constructor(params: AppParams, initialState:
         }
 
         val drawContext = object : DrawContext {
-            override val screen: Screen = backend.screen
+            override val screen: MutableScreen = backend.screen
             override val timer: Timer = timer
         }
 
@@ -197,14 +195,14 @@ internal class Application internal constructor(params: AppParams, initialState:
 }
 
 internal expect class ApplicationBackend(params: AppParams) {
-    val screen: Screen
+    val screen: MutableScreen
 
-    val keyPressed: ObservableEvent<Key>
-    val keyReleased: ObservableEvent<Key>
+    val keyPressed: Event<Key>
+    val keyReleased: Event<Key>
 
-    val mouseMoved: ObservableEvent<ImmutablePt2>
-    val buttonPressed: ObservableEvent<Button>
-    val buttonReleased: ObservableEvent<Button>
+    val mouseMoved: Event<Pt2>
+    val buttonPressed: Event<Button>
+    val buttonReleased: Event<Button>
 
     /**
      * The backend is handed a function which, when called, steps the game loop one frame forward.

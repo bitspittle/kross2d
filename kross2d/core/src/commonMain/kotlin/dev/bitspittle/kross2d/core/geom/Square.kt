@@ -1,59 +1,43 @@
 package dev.bitspittle.kross2d.core.geom
 
-import dev.bitspittle.kross2d.core.math.ImmutablePt2
 import dev.bitspittle.kross2d.core.math.Pt2
 
-abstract class ImmutableSquare : ImmutableShape {
-    abstract val pos: ImmutablePt2
-    abstract val side: Float
+interface Square : Shape {
+    companion object {
+        val Empty: Square = MutableSquare()
+    }
 
-    open val x: Float
-        get() = pos.x
-    open val y: Float
-        get() = pos.y
-    open val x2: Float
-        get() = x + side
-    open val y2: Float
-        get() = y + side
+    val pos: Pt2
+    val side: Float
 
+    val x: Float get() = pos.x
+    val y: Float get() = pos.y
+    val x2: Float get() = x + side
+    val y2: Float get() = y + side
 
-    override val center: ImmutablePt2
+    override val center: Pt2
         get() = toBoundingRect().center
 
     override val area: Float
         get() = side * side
 
+    fun toMutableSquare() = MutableSquare(x, y, side)
+
     override fun toBoundingRect() = Rect(x, y, side, side)
-
-    override fun equals(other: Any?): Boolean {
-        if (other is ImmutableSquare) {
-            return pos == other.pos && side == other.side
-        }
-        return false
-    }
-
-    override fun hashCode(): Int {
-        return pos.hashCode() + 31 * side.hashCode()
-    }
-
-    override fun toString() = "Square { ($x, $y), ($side, $side) }"
 }
 
-class Square(pos: ImmutablePt2, side: Float) : ImmutableSquare() {
+fun Square(pos: Pt2, side: Float): Square = MutableSquare(pos, side)
+fun Square(side: Float) = Square(Pt2.Zero, side)
+fun Square(x: Float, y: Float, side: Float) = Square(Pt2(x, y), side)
+fun Square(x: Int, y: Int, side: Int) = Square(Pt2(x, y), side.toFloat())
+
+class MutableSquare(pos: Pt2, side: Float) : Square {
     constructor(): this(Pt2.Zero, 0f)
     constructor(side: Float): this(Pt2.Zero, side)
     constructor(x: Float, y: Float, side: Float): this(Pt2(x, y), side)
     constructor(x: Int, y: Int, side: Int): this(Pt2(x, y), side.toFloat())
-    constructor(other: ImmutableSquare): this(other.pos, other.side)
 
-    companion object {
-        val Empty: ImmutableSquare = object : ImmutableSquare() {
-            override val pos = Pt2.Zero
-            override val side: Float = 0f
-        }
-    }
-
-    override val pos: Pt2 = Pt2(pos)
+    override val pos = pos.toMutablePt2()
     override var side: Float = side
 
     override var x: Float
@@ -72,8 +56,23 @@ class Square(pos: ImmutablePt2, side: Float) : ImmutableSquare() {
         get() = super.y2
         set(value) { side = value - y }
 
-    fun set(other: ImmutableSquare) {
+    fun toSquare() = Square(pos, side)
+
+    fun set(other: Square) {
         pos.set(other.pos)
         side = other.side
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (other is Square) {
+            return pos == other.pos && side == other.side
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return arrayOf(pos, side).contentHashCode()
+    }
+
+    override fun toString() = "Square { ($x, $y), ($side, $side) }"
 }

@@ -1,6 +1,6 @@
 package dev.bitspittle.kross2d.engine.input
 
-import dev.bitspittle.kross2d.core.math.ImmutablePt2
+import dev.bitspittle.kross2d.core.math.MutablePt2
 import dev.bitspittle.kross2d.core.math.Pt2
 
 enum class Button {
@@ -13,15 +13,15 @@ enum class Button {
  * An interface the location and button states of the mouse
  */
 interface Mouse {
-    val pos: ImmutablePt2
+    val pos: Pt2
     fun isJustPressed(button: Button): Boolean
     fun isDown(button: Button): Boolean
     fun isJustReleased(button: Button): Boolean
     fun isUp(button: Button): Boolean
 }
 
-internal class DefaultMouse : Mouse {
-    override val pos = Pt2()
+internal class MutableMouse : Mouse {
+    override val pos = MutablePt2()
     private val buttonsPrev = BooleanArray(Button.values().size) { false }
     private val buttonsCurr = BooleanArray(Button.values().size) { false }
 

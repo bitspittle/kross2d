@@ -1,7 +1,7 @@
 package dev.bitspittle.kross2d.engine.assets
 
 import dev.bitspittle.kross2d.core.event.Event
-import dev.bitspittle.kross2d.core.event.ObservableEvent
+import dev.bitspittle.kross2d.core.event.EventEmitter
 import dev.bitspittle.kross2d.core.memory.Disposable
 import dev.bitspittle.kross2d.core.memory.Disposer
 import dev.bitspittle.kross2d.core.memory.use
@@ -33,8 +33,8 @@ class Asset<D: Disposable>(parent: Disposable, val path: String) : Disposable() 
             _onLoaded.clear()
         }
 
-    private val _onLoaded = Event<D> { data?.let { fireOnLoaded(it) } }
-    val onLoaded: ObservableEvent<D> = _onLoaded
+    private val _onLoaded = EventEmitter<D> { data?.let { fireOnLoaded(it) } }
+    val onLoaded: Event<D> = _onLoaded
 
     /**
      * The value of this handle. Will only be non-null if the current [state] is [State.LOADED]

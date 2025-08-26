@@ -1,29 +1,20 @@
 package dev.bitspittle.kross2d.engine.graphics
 
+import dev.bitspittle.kross2d.core.graphics.Color
 import dev.bitspittle.kross2d.core.graphics.Colors
-import dev.bitspittle.kross2d.core.graphics.ImmutableColor
-import dev.bitspittle.kross2d.core.math.ImmutablePt2
-import dev.bitspittle.kross2d.core.math.ImmutableVec2
 import dev.bitspittle.kross2d.core.math.Pt2
 import dev.bitspittle.kross2d.core.math.Vec2
 
 /**
- * Read-only properties of a [DrawSurface]
- */
-interface ImmutableDrawSurface {
-    val size: ImmutableVec2
-}
-
-/**
  * A surface area for rendering, which may be on or off-screen.
  */
-interface DrawSurface : ImmutableDrawSurface {
-    class ImageParams(val dest: ImmutablePt2 = Pt2.Zero, val destSize: ImmutableVec2? = null)
+interface DrawSurface {
+    class ImageParams(val dest: Pt2 = Pt2.Zero, val destSize: Vec2? = null)
     class TextParams(
         /**
          * The point which the text is drawn from. See also [anchor].
          */
-        val pt: ImmutablePt2 = Pt2.Zero,
+        val pt: Pt2 = Pt2.Zero,
 
         /**
          * The anchor point which influences the behavior of [pt].
@@ -32,7 +23,7 @@ interface DrawSurface : ImmutableDrawSurface {
          * while [Anchor.RIGHT] will right-justify the text with [pt] at the right side.
          */
         val anchor: Anchor = Anchor.TOP_LEFT,
-        val color: ImmutableColor = Colors.WHITE,
+        val color: Color = Colors.White,
 
         /**
          * The space between lines in case the rendered text has newlines in it.
@@ -51,7 +42,7 @@ interface DrawSurface : ImmutableDrawSurface {
          * [produceWidth] and [produceHeight] methods are passed in as lambdas and not an actual
          * values to avoid doing expensive calculations unnecessarily.
          */
-        internal fun toTopLeft(produceWidth: () -> Float, produceHeight: () -> Float): ImmutablePt2 {
+        internal fun toTopLeft(produceWidth: () -> Float, produceHeight: () -> Float): Pt2 {
             return when (anchor) {
                 Anchor.TOP_LEFT -> pt
                 Anchor.TOP -> pt - Vec2(produceWidth() / 2f, 0f)
@@ -66,9 +57,13 @@ interface DrawSurface : ImmutableDrawSurface {
         }
     }
 
-    fun clear(color: ImmutableColor)
+    val size: Vec2
+}
 
-    fun drawLine(pt1: ImmutablePt2, pt2: ImmutablePt2, color: ImmutableColor)
+interface MutableDrawSurface : DrawSurface {
+    fun clear(color: Color)
+
+    fun drawLine(pt1: Pt2, pt2: Pt2, color: Color)
 
     /**
      * Draw the target image onto this surface.
@@ -77,7 +72,7 @@ interface DrawSurface : ImmutableDrawSurface {
      * image before it is rendered. If you wish to only drawImage a section of the target image,
      * create a subsection of it using the subimage [Image] constructor.
      */
-    fun drawImage(image: Image, params: ImageParams = ImageParams())
+    fun drawImage(image: Image, params: DrawSurface.ImageParams = DrawSurface.ImageParams())
 
     /**
      * Determine the width needed to render the target text. Newlines are ignored.
@@ -90,5 +85,5 @@ interface DrawSurface : ImmutableDrawSurface {
      * For convenience, newlines are supported. Use [TextParams.spacing] to configure the space
      * between lines.
      */
-    fun drawText(font: Font, text: String, params: TextParams = TextParams())
+    fun drawText(font: Font, text: String, params: DrawSurface.TextParams = DrawSurface.TextParams())
 }

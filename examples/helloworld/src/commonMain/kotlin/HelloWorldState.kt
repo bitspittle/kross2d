@@ -1,12 +1,13 @@
-import dev.bitspittle.kross2d.core.graphics.Color
+import dev.bitspittle.kross2d.core.graphics.Colors
 import dev.bitspittle.kross2d.core.time.Duration
-import dev.bitspittle.kross2d.core.time.ImmutableDuration
+import dev.bitspittle.kross2d.core.time.MutableDuration
 import dev.bitspittle.kross2d.engine.GameState
 import dev.bitspittle.kross2d.engine.context.DrawContext
 import dev.bitspittle.kross2d.engine.context.UpdateContext
 import dev.bitspittle.kross2d.engine.input.Key
 import dev.bitspittle.kross2d.engine.input.Keyboard
 import dev.bitspittle.kross2d.engine.time.Timer
+import kotlin.math.roundToInt
 import kotlin.math.sin
 
 /**
@@ -25,12 +26,12 @@ import kotlin.math.sin
  * - Updating the screen via [DrawContext.screen]
  */
 class HelloWorldState : GameState {
-    private val clearColor = Color(0, 0, 0)
-    private val elapsed = Duration.zero()
+    private val clearColor = Colors.Black.toMutableColor()
+    private val elapsed = MutableDuration.zero()
 
-    private fun cycleValue(max: Int, t: ImmutableDuration): Int {
+    private fun cycleValue(max: Int, t: Duration): Int {
         // Convert time to 0 -> 1 -> 0 cycle, then multiply for 0 -> max -> 0
-        return (((sin(t.secs) + 1.0) / 2.0) * max).toInt()
+        return (((sin(t.secs) + 1.0) / 2.0) * max).roundToInt()
     }
 
     override fun update(ctx: UpdateContext) {
@@ -42,6 +43,10 @@ class HelloWorldState : GameState {
 
         // Update color, cycling its r, g, b parts at different rates so you don't just get a
         // boring "black -> grey -> white and back" effect
+        val r = cycleValue(255, elapsed)
+        val g = cycleValue(255, elapsed * 2.0)
+        val b = cycleValue(255, elapsed * 3.0)
+
         clearColor.r = cycleValue(255, elapsed)
         clearColor.g = cycleValue(255, elapsed * 2.0)
         clearColor.b = cycleValue(255, elapsed * 3.0)

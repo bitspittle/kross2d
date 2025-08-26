@@ -1,7 +1,6 @@
 import dev.bitspittle.kross2d.core.event.ScopedObserver
 import dev.bitspittle.kross2d.core.geom.Rect
 import dev.bitspittle.kross2d.core.graphics.Colors
-import dev.bitspittle.kross2d.core.math.ImmutableVec2
 import dev.bitspittle.kross2d.core.math.Pt2
 import dev.bitspittle.kross2d.core.math.Vec2
 import dev.bitspittle.kross2d.engine.GameState
@@ -32,7 +31,7 @@ import kotlin.random.Random
  */
 class PongState : GameState {
     companion object {
-        val ArenaSize: ImmutableVec2 = Vec2(100, 100)
+        val ArenaSize = Vec2(100, 100)
     }
 
     private val world = World()
@@ -104,7 +103,7 @@ class PongState : GameState {
     }
 
     override fun draw(ctx: DrawContext) {
-        ctx.screen.clear(Colors.BLACK)
+        ctx.screen.clear(Colors.Black)
         world.draw(ctx)
     }
 }

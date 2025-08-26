@@ -8,17 +8,17 @@ class EntityAlreadyDeletedException : IllegalArgumentException("Entity already d
 class ProcessingWorldException : IllegalStateException("The current action is not supported when processing the world")
 
 class World {
-    interface ImmutableFacade {
+    interface Facade {
         fun query(family: Family): Sequence<Entity>
         fun query(componentClass: KClass<out Component>): Sequence<Entity>
     }
 
-    interface Facade : ImmutableFacade {
+    interface MutableFacade : Facade {
         fun createEntity(): Entity
         fun deleteEntity(entity: Entity)
     }
 
-    private val facade = object : Facade {
+    private val facade = object : MutableFacade {
         override fun createEntity() = this@World.createEntity()
         override fun deleteEntity(entity: Entity) = this@World.deleteEntity(entity)
         override fun query(family: Family) = this@World.query(family)

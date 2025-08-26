@@ -3,8 +3,7 @@ package dev.bitspittle.kross2d.engine.fakes
 import dev.bitspittle.kross2d.engine.app.ApplicationFacade
 import dev.bitspittle.kross2d.engine.assets.AssetLoader
 import dev.bitspittle.kross2d.engine.context.UpdateContext
-import dev.bitspittle.kross2d.engine.fakes.TestTimer
-import dev.bitspittle.kross2d.engine.graphics.ImmutableScreen
+import dev.bitspittle.kross2d.engine.graphics.Screen
 import dev.bitspittle.kross2d.engine.input.Keyboard
 import dev.bitspittle.kross2d.engine.input.Mouse
 import dev.bitspittle.kross2d.engine.memory.Scopes
@@ -17,7 +16,7 @@ class TestUpdateContext(testTimer: TestTimer = TestTimer()) : UpdateContext {
         get() = TODO("not implemented")
     override val assetLoader: AssetLoader
         get() = TODO("not implemented")
-    override val screen: ImmutableScreen
+    override val screen: Screen
         get() = TODO("not implemented")
     override val keyboard: Keyboard
         get() = TODO("not implemented")

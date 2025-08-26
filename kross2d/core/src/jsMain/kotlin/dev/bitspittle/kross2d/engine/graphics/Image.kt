@@ -1,6 +1,5 @@
 package dev.bitspittle.kross2d.engine.graphics
 
-import dev.bitspittle.kross2d.core.math.ImmutableVec2
 import dev.bitspittle.kross2d.core.math.Vec2
 import org.w3c.dom.Image as JsImage
 
@@ -8,16 +7,13 @@ import org.w3c.dom.Image as JsImage
  * A surface area for rendering, which may be on or off-screen.
  */
 internal actual class ImageData(path: String) {
-    val jsImage: JsImage = JsImage().apply { src = path }
-
-    private var _size: ImmutableVec2? = null
-    actual val size: ImmutableVec2
-        get() {
-            // JavaScript images load asynchronously, so cache their value only after they've
-            // finished loading.
-            if (_size == null && jsImage.width > 0) {
-                _size = Vec2(jsImage.width, jsImage.height)
-            }
-            return _size ?: Vec2.Zero
+    private var _size: Vec2 = Vec2.Zero
+    val jsImage: JsImage = JsImage().apply {
+        onload = {
+            _size = Vec2(jsImage.naturalWidth, jsImage.naturalHeight)
         }
+        src = path
+    }
+
+    actual val size: Vec2 get() = _size
 }

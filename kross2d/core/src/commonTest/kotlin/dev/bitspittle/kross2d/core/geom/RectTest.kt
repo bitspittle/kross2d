@@ -36,14 +36,7 @@ class RectTest {
             assertThat(rect.h).isEqualTo(80f)
         }
 
-        Rect(Rect(10, 20, 90, 80)).let { rect ->
-            assertThat(rect.x).isEqualTo(10f)
-            assertThat(rect.y).isEqualTo(20f)
-            assertThat(rect.w).isEqualTo(90f)
-            assertThat(rect.h).isEqualTo(80f)
-        }
-
-        Rect().let { rect ->
+        Rect.Empty.let { rect ->
             assertThat(rect.x).isEqualTo(0f)
             assertThat(rect.y).isEqualTo(0f)
             assertThat(rect.w).isEqualTo(0f)
@@ -54,7 +47,7 @@ class RectTest {
 
     @Test
     fun canUpdateRectangles() {
-        val r = Rect()
+        val r = MutableRect()
 
         r.x = 10f
         r.y = 20f
@@ -67,12 +60,12 @@ class RectTest {
         assertThat(r).isEqualTo(Rect(110, 120, 130, 140))
 
         r.set(Rect.Empty)
-        assertThat(r).isEqualTo(Rect())
+        assertThat(r).isEqualTo(Rect.Empty)
     }
 
     @Test
     fun areaProducesExpectedValue() {
-        val r = Rect(Vec2(10, 20))
+        val r = MutableRect(Vec2(10, 20))
         assertThat(r.area).isEqualTo(200f)
         r.pos += Vec2(100, 100)
         assertThat(r.area).isEqualTo(200f)

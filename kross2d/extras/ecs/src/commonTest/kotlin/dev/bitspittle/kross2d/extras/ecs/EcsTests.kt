@@ -1,11 +1,9 @@
 package dev.bitspittle.kross2d.extras.ecs
 
 import dev.bitspittle.kross2d.core.graphics.Colors
-import dev.bitspittle.kross2d.core.graphics.ImmutableColor
+import dev.bitspittle.kross2d.core.graphics.Color
 import dev.bitspittle.kross2d.core.math.Pt2
-import dev.bitspittle.kross2d.core.math.Vec2
 import dev.bitspittle.kross2d.core.time.Duration
-import dev.bitspittle.kross2d.core.time.ImmutableDuration
 import dev.bitspittle.kross2d.engine.context.DrawContext
 import dev.bitspittle.kross2d.engine.context.UpdateContext
 import dev.bitspittle.kross2d.engine.fakes.TestDrawContext
@@ -14,22 +12,24 @@ import dev.bitspittle.kross2d.engine.fakes.TestTimer
 import dev.bitspittle.kross2d.engine.fakes.TestUpdateContext
 import com.varabyte.truthish.assertThat
 import com.varabyte.truthish.assertThrows
+import dev.bitspittle.kross2d.core.math.MutablePt2
+import dev.bitspittle.kross2d.core.math.MutableVec2
+import dev.bitspittle.kross2d.core.time.MutableDuration
 import kotlin.test.Test
 
 class EcsTests {
-
-    class PosComponent(val value: Pt2 = Pt2()) : Component
-    class VelComponent(val value: Vec2 = Vec2()) : Component
-    class CountdownComponent(val value: Duration = Duration.zero()) : Component {
-        val initialValue: ImmutableDuration = value.copy()
+    class PosComponent(val value: MutablePt2 = MutablePt2()) : Component
+    class VelComponent(val value: MutableVec2 = MutableVec2()) : Component
+    class CountdownComponent(val value: MutableDuration = MutableDuration.zero()) : Component {
+        val initialValue = value.toDuration()
     }
-    class RenderComponent(val color: ImmutableColor = Colors.CYAN) : Component
+    class RenderComponent(val color: Color = Colors.Cyan) : Component
     class VirusComponent(var infectedCount: Int = 1) : Component // Component that the InfectionSystem will add to all entities
     class HealingComponent : Component // Will remove the VirusComponent if present
 
     class MovementSystem : UpdateSystem(Family.all(PosComponent::class, VelComponent::class)) {
 
-        override fun update(world: World.Facade, ctx: UpdateContext, entity: Entity) {
+        override fun update(world: World.MutableFacade, ctx: UpdateContext, entity: Entity) {
             val pos = entity.get<PosComponent>()
             val vel = entity.get<VelComponent>()
 
@@ -39,7 +39,7 @@ class EcsTests {
 
     class CountdownSystem : UpdateSystem(Family.all(CountdownComponent::class)) {
 
-        override fun update(world: World.Facade, ctx: UpdateContext, entity: Entity) {
+        override fun update(world: World.MutableFacade, ctx: UpdateContext, entity: Entity) {
             val count = entity.get<CountdownComponent>()
             count.value -= ctx.timer.lastFrame
 
@@ -52,7 +52,7 @@ class EcsTests {
 
     class RenderSystem : DrawSystem(Family.all(RenderComponent::class)) {
 
-        override fun draw(world: World.ImmutableFacade, ctx: DrawContext, entity: Entity) {
+        override fun draw(world: World.Facade, ctx: DrawContext, entity: Entity) {
             val renderable = entity.get<RenderComponent>()
             ctx.screen.clear(renderable.color)
         }
@@ -60,14 +60,14 @@ class EcsTests {
 
     class EmitterSystem : UpdateSystem(Family.all(CountdownComponent::class)) {
 
-        override fun update(world: World.Facade, ctx: UpdateContext, entity: Entity) {
+        override fun update(world: World.MutableFacade, ctx: UpdateContext, entity: Entity) {
             val count = entity.get<CountdownComponent>()
             count.value -= ctx.timer.lastFrame
 
             while (count.value <= Duration.Zero) {
                 world.createEntity().apply {
                     add(PosComponent())
-                    add(VelComponent(Vec2(1, 0)))
+                    add(VelComponent(MutableVec2(1, 0)))
                 }
                 count.value += count.initialValue
             }
@@ -78,18 +78,18 @@ class EcsTests {
         var count = 0
             private set
 
-        override fun beforeUpdates(world: World.Facade, ctx: UpdateContext) {
+        override fun beforeUpdates(world: World.MutableFacade, ctx: UpdateContext) {
             count = 0
         }
 
-        override fun update(world: World.Facade, ctx: UpdateContext, entity: Entity) {
+        override fun update(world: World.MutableFacade, ctx: UpdateContext, entity: Entity) {
             ++count
         }
     }
 
     class InfectionSystem : UpdateSystem(Family.all()) {
 
-        override fun update(world: World.Facade, ctx: UpdateContext, entity: Entity) {
+        override fun update(world: World.MutableFacade, ctx: UpdateContext, entity: Entity) {
             val virus = entity.find<VirusComponent>()
             if (virus == null) {
                 entity.add(VirusComponent())
@@ -275,19 +275,19 @@ class EcsTests {
         world.addSystem(MovementSystem())
         world.addSystem(CountdownSystem())
         val e1 = world.createEntity().apply {
-            add(PosComponent(Pt2(1, 2)))
-            add(VelComponent(Vec2(3, 4)))
+            add(PosComponent(MutablePt2(1, 2)))
+            add(VelComponent(MutableVec2(3, 4)))
         }
         val e2 = world.createEntity().apply {
-            add(PosComponent(Pt2(-10, -20)))
+            add(PosComponent(MutablePt2(-10, -20)))
         }
         val e3 = world.createEntity().apply {
             add(PosComponent())
-            add(VelComponent(Vec2(1000, 500)))
-            add(CountdownComponent(Duration.ofSeconds(2.1)))
+            add(VelComponent(MutableVec2(1000, 500)))
+            add(CountdownComponent(MutableDuration.ofSeconds(2.1)))
         }
         val e4 = world.createEntity().apply {
-            add(CountdownComponent(Duration.ofSeconds(1.1)))
+            add(CountdownComponent(MutableDuration.ofSeconds(1.1)))
         }
 
         val testTimer = TestTimer()
@@ -321,13 +321,13 @@ class EcsTests {
     fun canProcessDrawSystems() {
         val world = World()
         world.addSystem(RenderSystem())
-        world.createEntity().apply { add(RenderComponent(Colors.MAGENTA)) }
+        world.createEntity().apply { add(RenderComponent(Colors.Magenta)) }
         val testScreen = TestScreen()
         val ctx = TestDrawContext(testScreen)
 
-        assertThat(testScreen.clearColor).isNotEqualTo(Colors.MAGENTA)
+        assertThat(testScreen.clearColor).isNotEqualTo(Colors.Magenta)
         world.draw(ctx)
-        assertThat(testScreen.clearColor).isEqualTo(Colors.MAGENTA)
+        assertThat(testScreen.clearColor).isEqualTo(Colors.Magenta)
     }
 
     @Test
@@ -338,9 +338,9 @@ class EcsTests {
         val world = World()
         val countdownSystem = CountdownSystem()
         world.addSystem(countdownSystem)
-        val e3 = world.createEntity().apply { add(CountdownComponent(Duration.ofSeconds(3))) }
-        val e2 = world.createEntity().apply { add(CountdownComponent(Duration.ofSeconds(2))) }
-        val e1 = world.createEntity().apply { add(CountdownComponent(Duration.ofSeconds(1))) }
+        val e3 = world.createEntity().apply { add(CountdownComponent(MutableDuration.ofSeconds(3))) }
+        val e2 = world.createEntity().apply { add(CountdownComponent(MutableDuration.ofSeconds(2))) }
+        val e1 = world.createEntity().apply { add(CountdownComponent(MutableDuration.ofSeconds(1))) }
 
         testTimer.lastFrame = Duration.ofSeconds(1.5)
         world.update(ctx)
@@ -368,7 +368,7 @@ class EcsTests {
         world.addSystem(projectileCounter)
 
         // This emitter will be found by the EmitterSystem to generate new entities every 3 seconds
-        world.createEntity().apply { add(CountdownComponent(Duration.ofSeconds(3))) }
+        world.createEntity().apply { add(CountdownComponent(MutableDuration.ofSeconds(3))) }
 
         assertThat(projectileCounter.count).isEqualTo(0)
 

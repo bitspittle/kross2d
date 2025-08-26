@@ -82,7 +82,7 @@ class SoundsState : GameState {
     }
 
     override fun draw(ctx: DrawContext) {
-        ctx.screen.clear(Colors.BLACK)
+        ctx.screen.clear(Colors.Black)
 
         if (globallyPaused) {
             fontLarge?.let { font ->

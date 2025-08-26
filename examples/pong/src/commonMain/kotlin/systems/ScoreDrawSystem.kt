@@ -1,31 +1,32 @@
 package systems
 
-import dev.bitspittle.kross2d.core.math.ImmutableVec2
+import components.Printable
+import components.Score
 import dev.bitspittle.kross2d.core.math.Pt2
+import dev.bitspittle.kross2d.core.math.Vec2
 import dev.bitspittle.kross2d.engine.context.DrawContext
 import dev.bitspittle.kross2d.engine.graphics.DrawSurface
-import dev.bitspittle.kross2d.engine.graphics.DrawSurface.TextParams.*
+import dev.bitspittle.kross2d.engine.graphics.DrawSurface.TextParams.Anchor
 import dev.bitspittle.kross2d.extras.ecs.DrawSystem
 import dev.bitspittle.kross2d.extras.ecs.Entity
 import dev.bitspittle.kross2d.extras.ecs.Family
 import dev.bitspittle.kross2d.extras.ecs.World
-import components.*
 import objects.Side
 
-class ScoreDrawSystem(private val worldSize: ImmutableVec2) :
+class ScoreDrawSystem(private val worldSize: Vec2) :
     DrawSystem(Family.all(Printable::class, Score::class)) {
 
-    private lateinit var scale: ImmutableVec2
+    private lateinit var scale: Vec2
 
     private val xLeft = worldSize.x * 4f / 10f
     private val xRight = worldSize.x * 6f / 10f
     private val y = worldSize.y / 8f
 
-    override fun beforeDraws(world: World.ImmutableFacade, ctx: DrawContext) {
+    override fun beforeDraws(world: World.Facade, ctx: DrawContext) {
         scale = ctx.screen.size / worldSize
     }
 
-    override fun draw(world: World.ImmutableFacade, ctx: DrawContext, entity: Entity) {
+    override fun draw(world: World.Facade, ctx: DrawContext, entity: Entity) {
         val printable = entity.get<Printable>()
         val score = entity.get<Score>()
 

@@ -1,26 +1,27 @@
 package dev.bitspittle.kross2d.engine.fakes
 
+import dev.bitspittle.kross2d.core.graphics.Color
 import dev.bitspittle.kross2d.core.graphics.Colors
-import dev.bitspittle.kross2d.core.graphics.ImmutableColor
-import dev.bitspittle.kross2d.core.math.ImmutablePt2
-import dev.bitspittle.kross2d.core.math.ImmutableVec2
+import dev.bitspittle.kross2d.core.math.Pt2
+import dev.bitspittle.kross2d.core.math.Vec2
 import dev.bitspittle.kross2d.engine.graphics.DrawSurface
 import dev.bitspittle.kross2d.engine.graphics.Font
 import dev.bitspittle.kross2d.engine.graphics.Image
+import dev.bitspittle.kross2d.engine.graphics.MutableScreen
 import dev.bitspittle.kross2d.engine.graphics.Screen
 
-class TestScreen : Screen {
-    override val size: ImmutableVec2
+class TestScreen : MutableScreen {
+    override val size: Vec2
         get() = TODO("not implemented")
 
-    var clearColor: ImmutableColor = Colors.BLACK
+    var clearColor = Colors.Black
         private set
 
-    override fun clear(color: ImmutableColor) {
+    override fun clear(color: Color) {
         clearColor = color
     }
 
-    override fun drawLine(pt1: ImmutablePt2, pt2: ImmutablePt2, color: ImmutableColor) {
+    override fun drawLine(pt1: Pt2, pt2: Pt2, color: Color) {
         TODO("Not yet implemented")
     }
 

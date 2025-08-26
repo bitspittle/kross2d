@@ -9,12 +9,12 @@ abstract class DrawSystem(val family: Family) {
     /**
      * Called once each frame, before calling the first [draw]
      */
-    open fun beforeDraws(world: World.ImmutableFacade, ctx: DrawContext) {}
+    open fun beforeDraws(world: World.Facade, ctx: DrawContext) {}
 
-    abstract fun draw(world: World.ImmutableFacade, ctx: DrawContext, entity: Entity)
+    abstract fun draw(world: World.Facade, ctx: DrawContext, entity: Entity)
 
     /**
      * Called once each frame, after calling the final [draw]
      */
-    open fun afterDraws(world: World.ImmutableFacade, ctx: DrawContext) {}
+    open fun afterDraws(world: World.Facade, ctx: DrawContext) {}
 }

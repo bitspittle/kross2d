@@ -1,9 +1,9 @@
 package dev.bitspittle.kross2d.core.geom
 
-import dev.bitspittle.kross2d.core.math.ImmutablePt2
+import dev.bitspittle.kross2d.core.math.Pt2
 
-interface ImmutableShape {
+interface Shape {
     val area: Float
-    val center: ImmutablePt2
-    fun toBoundingRect(): ImmutableRect
+    val center: Pt2
+    fun toBoundingRect(): Rect
 }

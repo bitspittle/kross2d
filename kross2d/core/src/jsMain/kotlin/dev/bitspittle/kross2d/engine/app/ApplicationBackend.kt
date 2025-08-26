@@ -1,17 +1,17 @@
 package dev.bitspittle.kross2d.engine.app
 
 import dev.bitspittle.kross2d.core.event.Event
-import dev.bitspittle.kross2d.core.event.ObservableEvent
+import dev.bitspittle.kross2d.core.event.EventEmitter
+import dev.bitspittle.kross2d.core.graphics.Color
 import dev.bitspittle.kross2d.core.graphics.Colors
-import dev.bitspittle.kross2d.core.graphics.ImmutableColor
-import dev.bitspittle.kross2d.core.math.ImmutablePt2
-import dev.bitspittle.kross2d.core.math.ImmutableVec2
+import dev.bitspittle.kross2d.core.math.MutablePt2
 import dev.bitspittle.kross2d.core.math.Pt2
 import dev.bitspittle.kross2d.core.math.Vec2
 import dev.bitspittle.kross2d.engine.graphics.DrawSurface
 import dev.bitspittle.kross2d.engine.graphics.DrawSurface.ImageParams
 import dev.bitspittle.kross2d.engine.graphics.Font
 import dev.bitspittle.kross2d.engine.graphics.Image
+import dev.bitspittle.kross2d.engine.graphics.MutableScreen
 import dev.bitspittle.kross2d.engine.graphics.Screen
 import dev.bitspittle.kross2d.engine.graphics.Screen.Transform
 import dev.bitspittle.kross2d.engine.graphics.Screen.Transform.*
@@ -24,7 +24,7 @@ import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.MouseEvent
 import kotlin.math.roundToInt
 
-fun ImmutableColor.toHtmlColor() = "rgb($r, $g, $b)"
+fun Color.toHtmlColor() = "rgb($r, $g, $b)"
 fun Font.toHtmlFont() = "${fontData.size.roundToInt()}px ${fontData.name}"
 
 actual class AppParams(
@@ -100,7 +100,7 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
         window.onkeydown = { handleKeyEvent(it, isDown = true) }
         window.onkeyup = { handleKeyEvent(it, isDown = false) }
 
-        val mousePos = Pt2()
+        val mousePos = MutablePt2()
         fun handleMouseMoveEvent(mouseEvent: MouseEvent) {
             val x = mouseEvent.clientX - ctx.canvas.offsetLeft
             val y = mouseEvent.clientY - ctx.canvas.offsetTop
@@ -123,10 +123,10 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
         ctx.canvas.onmouseup = { handleMouseButtonEvent(it, isDown = false) }
     }
 
-    actual val screen: Screen = object : Screen {
-        override val size: ImmutableVec2 = params.canvasElement.let { Vec2(it.width, it.height) }
+    actual val screen: MutableScreen = object : MutableScreen {
+        override val size: Vec2 = params.canvasElement.let { Vec2(it.width, it.height) }
 
-        override fun clear(color: ImmutableColor) {
+        override fun clear(color: Color) {
             ctx.fillStyle = color.toHtmlColor()
             ctx.fillRect(0.0, 0.0, size.x.toDouble(), size.y.toDouble())
         }
@@ -148,7 +148,7 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
             }
         }
 
-        override fun drawLine(pt1: ImmutablePt2, pt2: ImmutablePt2, color: ImmutableColor) {
+        override fun drawLine(pt1: Pt2, pt2: Pt2, color: Color) {
             ctx.beginPath()
             ctx.strokeStyle = color.toHtmlColor()
             ctx.moveTo(pt1.x.toDouble(), pt1.y.toDouble())
@@ -191,20 +191,20 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
         }
     }
 
-    private val _keyPressed = Event<Key>()
-    actual val keyPressed: ObservableEvent<Key> = _keyPressed
+    private val _keyPressed = EventEmitter<Key>()
+    actual val keyPressed: Event<Key> = _keyPressed
 
-    private val _keyReleased = Event<Key>()
-    actual val keyReleased: ObservableEvent<Key> = _keyReleased
+    private val _keyReleased = EventEmitter<Key>()
+    actual val keyReleased: Event<Key> = _keyReleased
 
-    private val _mouseMoved = Event<ImmutablePt2>()
-    actual val mouseMoved: ObservableEvent<ImmutablePt2> = _mouseMoved
+    private val _mouseMoved = EventEmitter<Pt2>()
+    actual val mouseMoved: Event<Pt2> = _mouseMoved
 
-    private val _buttonPressed = Event<Button>()
-    actual val buttonPressed: ObservableEvent<Button> = _buttonPressed
+    private val _buttonPressed = EventEmitter<Button>()
+    actual val buttonPressed: Event<Button> = _buttonPressed
 
-    private val _buttonReleased = Event<Button>()
-    actual val buttonReleased: ObservableEvent<Button> = _buttonReleased
+    private val _buttonReleased = EventEmitter<Button>()
+    actual val buttonReleased: Event<Button> = _buttonReleased
 
     private var frameStepHandle: Int = 0
     private lateinit var quitBlock: () -> Unit
@@ -222,7 +222,7 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
         // Enqueue final instructions, instead of running them immediately, to ensure they get run
         // after any final frames that might still be in the pipeline
         window.setTimeout({
-            screen.clear(Colors.BLACK)
+            screen.clear(Colors.Black)
             quitBlock()
         }, 0)
     }

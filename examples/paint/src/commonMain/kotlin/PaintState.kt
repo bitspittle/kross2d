@@ -1,5 +1,4 @@
 import dev.bitspittle.kross2d.core.graphics.Colors
-import dev.bitspittle.kross2d.core.math.ImmutablePt2
 import dev.bitspittle.kross2d.core.math.Pt2
 import dev.bitspittle.kross2d.engine.GameState
 import dev.bitspittle.kross2d.engine.context.DrawContext
@@ -9,7 +8,7 @@ import dev.bitspittle.kross2d.engine.input.Button
 import dev.bitspittle.kross2d.engine.input.Key
 import dev.bitspittle.kross2d.engine.input.Mouse
 
-private val CLEAR_COLOR = Colors.GREY192
+private val CLEAR_COLOR = Colors.Grey192
 
 /**
  * Images: A simple "game" which renders lines drawn by holding the mouse down.
@@ -21,8 +20,8 @@ private val CLEAR_COLOR = Colors.GREY192
  * - Rendering lines using [DrawSurface.drawLine]
  */
 class PaintState : GameState {
-    private val paths = mutableListOf<MutableList<ImmutablePt2>>()
-    private var currPath: MutableList<ImmutablePt2>? = null
+    private val paths = mutableListOf<MutableList<Pt2>>()
+    private var currPath: MutableList<Pt2>? = null
 
     override fun update(ctx: UpdateContext) {
         if (ctx.keyboard.isJustPressed(Key.ESC)) {
@@ -40,7 +39,7 @@ class PaintState : GameState {
 
             val redundantPoint = currPath!!.lastOrNull()?.equals(ctx.mouse.pos) ?: false
             if (!redundantPoint) {
-                currPath!!.add(Pt2(ctx.mouse.pos))
+                currPath!!.add(ctx.mouse.pos)
             }
         }
         else {
@@ -55,7 +54,7 @@ class PaintState : GameState {
             .filter { line -> line.size >= 2 }
             .forEach { points ->
                 for (i in 1 until points.size) {
-                    ctx.screen.drawLine(points[i - 1], points[i], Colors.BLACK)
+                    ctx.screen.drawLine(points[i - 1], points[i], Colors.Black)
                 }
             }
     }
