@@ -20,7 +20,7 @@ kotlin {
         }
 
         jvmMain.dependencies {
-            implementation(libs.bundles.jvm.audio)
+            implementation(libs.bundles.audio.jvm)
         }
     }
 }

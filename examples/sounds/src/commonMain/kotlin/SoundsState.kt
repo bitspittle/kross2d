@@ -3,6 +3,7 @@ import dev.bitspittle.kross2d.core.graphics.Colors
 import dev.bitspittle.kross2d.core.math.Pt2
 import dev.bitspittle.kross2d.engine.GameState
 import dev.bitspittle.kross2d.engine.assets.Asset
+import dev.bitspittle.kross2d.engine.audio.Audio
 import dev.bitspittle.kross2d.engine.audio.Music
 import dev.bitspittle.kross2d.engine.audio.Sound
 import dev.bitspittle.kross2d.engine.context.DrawContext
@@ -50,7 +51,8 @@ class SoundsState : GameState {
             "movie_projector.wav",
             "ricochet.wav",
             "slide_whistle.wav",
-            "thunk.wav")
+            "thunk.wav",
+        )
             .map { filename -> ctx.assetLoader.loadSound(filename) }
         ctx.assetLoader.loadFont("square.ttf").loaded += { font = it; fontLarge = it.derive(24f) }
         music = ctx.assetLoader.loadMusic("battle.ogg")
@@ -62,13 +64,14 @@ class SoundsState : GameState {
             ctx.app.quit()
         }
 
+        if (ctx.keyboard.isJustPressed(Key.LEFT)) Music.DefaultVolumeGroup.volume -= 0.05f
+        else if (ctx.keyboard.isJustPressed(Key.RIGHT)) Music.DefaultVolumeGroup.volume += 0.05f
+        if (ctx.keyboard.isJustPressed(Key.DOWN)) Sound.DefaultVolumeGroup.volume -= 0.05f
+        else if (ctx.keyboard.isJustPressed(Key.UP)) Sound.DefaultVolumeGroup.volume += 0.05f
+
         if (ctx.keyboard.isJustPressed(Key.SPACE)) {
             globallyPaused = !globallyPaused
-            sounds
-                .mapNotNull { it.data }
-                .forEach { if (globallyPaused) it.pause() else it.resume() }
-
-            music.data?.let { if (globallyPaused) it.pause() else it.resume() }
+            if (globallyPaused) Audio.DefaultPauseGroup.pauseAll() else Audio.DefaultPauseGroup.resumeAll()
         }
 
         if (!globallyPaused) {

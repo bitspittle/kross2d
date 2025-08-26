@@ -1,5 +1,6 @@
 package dev.bitspittle.kross2d.engine.assets
 
+import dev.bitspittle.kross2d.engine.audio.AudioBuffer
 import dev.bitspittle.kross2d.engine.audio.Music
 import dev.bitspittle.kross2d.engine.audio.Sound
 import dev.bitspittle.kross2d.engine.graphics.Font
@@ -27,14 +28,14 @@ actual class AssetLoaderBackend actual constructor(private val root: String) {
     }
 
     actual fun loadSoundInto(asset: Asset<Sound>) {
-        val sound = Sound("$root/${asset.path}")
-        sound.jsAudio.onloadeddata = { asset.setData(sound) }
-        sound.jsAudio.onerror = { _, _, _, _, _ -> asset.notifyFailure() }
+        val buffer = AudioBuffer.InMemory("$root/${asset.path}")
+        buffer.jsAudio.onloadeddata = { asset.setData(Sound(buffer)) }
+        buffer.jsAudio.onerror = { _, _, _, _, _ -> asset.notifyFailure() }
     }
 
     actual fun loadMusicInto(asset: Asset<Music>) {
-        val music = Music("$root/${asset.path}")
-        music.jsAudio.onloadeddata = { asset.setData(music) }
-        music.jsAudio.onerror = { _, _, _, _, _ -> asset.notifyFailure() }
+        val buffer = AudioBuffer.Streaming("$root/${asset.path}")
+        buffer.jsAudio.onloadeddata = { asset.setData(Music(buffer)) }
+        buffer.jsAudio.onerror = { _, _, _, _, _ -> asset.notifyFailure() }
     }
 }

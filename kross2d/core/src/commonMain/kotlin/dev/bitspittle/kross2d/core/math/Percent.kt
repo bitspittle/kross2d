@@ -60,6 +60,8 @@ class MutablePercent(value: Float, private val transform: (Float) -> Float = { i
         fun clamped(value: Float) = coerceIn(value, 0f, 1f)
     }
 
+    fun set(other: Percent) { this.value = other.value }
+
     operator fun plusAssign(other: MutablePercent) { this.value += other.value }
     operator fun plusAssign(other: Float) { this.value += other }
     operator fun minusAssign(other: MutablePercent) { this.value -= other.value }

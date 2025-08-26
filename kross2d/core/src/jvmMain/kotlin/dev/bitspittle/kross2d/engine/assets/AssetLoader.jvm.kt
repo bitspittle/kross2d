@@ -1,5 +1,6 @@
 package dev.bitspittle.kross2d.engine.assets
 
+import dev.bitspittle.kross2d.engine.audio.AudioBuffer
 import dev.bitspittle.kross2d.engine.audio.Music
 import dev.bitspittle.kross2d.engine.audio.Sound
 import dev.bitspittle.kross2d.engine.graphics.Font
@@ -33,13 +34,21 @@ actual class AssetLoaderBackend actual constructor(root: String) {
 
     actual fun loadSoundInto(asset: Asset<Sound>) {
         scope.launch(Dispatchers.IO) {
-            asset.setData(resourceLoader.stream(asset.path)?.let { Sound.tryCreate(it) })
+            resourceLoader.stream(asset.path)?.let { inputStream ->
+                AudioBuffer.InMemory.tryCreate(inputStream)?.let { audioBuffer ->
+                    asset.setData(Sound(audioBuffer))
+                }
+            }
         }
     }
 
     actual fun loadMusicInto(asset: Asset<Music>) {
         scope.launch(Dispatchers.IO) {
-            asset.setData(resourceLoader.url(asset.path)?.let { Music.tryCreate(it) })
+            resourceLoader.stream(asset.path)?.let { inputStream ->
+                AudioBuffer.Streaming.tryCreate(inputStream)?.let { audioBuffer ->
+                    asset.setData(Music(audioBuffer))
+                }
+            }
         }
     }
 }
