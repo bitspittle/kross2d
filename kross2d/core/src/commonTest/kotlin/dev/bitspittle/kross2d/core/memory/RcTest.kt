@@ -2,7 +2,6 @@ package dev.bitspittle.kross2d.core.memory
 
 import com.varabyte.truthish.assertThat
 import com.varabyte.truthish.assertThrows
-import com.varabyte.truthish.assertWithMessage
 import kotlin.test.AfterTest
 import kotlin.test.Test
 
@@ -15,7 +14,7 @@ class RcTest {
 
     @Test
     fun testIncAndDec() {
-        val rc = Rc { disposable {} }
+        val rc = Rc { disposableOf { } }
 
         assertThat(rc.value).isNull()
 
@@ -50,7 +49,7 @@ class RcTest {
     @Test
     fun testRcRecoversFromCreationFailing() {
         var allowCreatingDisposable = false
-        val rc = Rc { if (allowCreatingDisposable) disposable {  } else error("boom") }
+        val rc = Rc { if (allowCreatingDisposable) disposableOf { } else error("boom") }
 
         assertThat(rc.value).isNull()
 
@@ -75,7 +74,7 @@ class RcTest {
 
         // withValue basic behavior for initial RC (cleans up afterwards)
         run {
-            val rc = Rc { disposable {} }
+            val rc = Rc { disposableOf { } }
 
             var withValueCalled = false
             rc.withValue { d ->
@@ -88,7 +87,7 @@ class RcTest {
 
         // withValue basic behavior for already incremented RC
         run {
-            val rc = Rc { disposable {} }
+            val rc = Rc { disposableOf { } }
 
             var withValueCalled = false
             rc.inc()
@@ -105,7 +104,7 @@ class RcTest {
 
         // withValue can return a value
         run {
-            val rc = Rc { disposable {} }
+            val rc = Rc { disposableOf { } }
 
             var withValueCalled = false
             val result = rc.withValue {
@@ -120,7 +119,7 @@ class RcTest {
 
         // withValue cleans up after exceptions
         run {
-            val rc = Rc { disposable {} }
+            val rc = Rc { disposableOf { } }
 
             var withValueCalled = false
             assertThrows<IllegalStateException> {

@@ -1,8 +1,9 @@
 package dev.bitspittle.kross2d.core.event
 
-import dev.bitspittle.kross2d.core.memory.Disposer
-import dev.bitspittle.kross2d.core.memory.disposable
 import com.varabyte.truthish.assertThat
+import dev.bitspittle.kross2d.core.memory.Disposer
+import dev.bitspittle.kross2d.core.memory.disposableOf
+import dev.bitspittle.kross2d.core.memory.register
 import kotlin.test.Test
 
 class EventTest {
@@ -112,7 +113,7 @@ class EventTest {
 
     @Test
     fun canScopeListeners() {
-        val scope = disposable {}
+        val scope = Disposer.register { }
 
         var sum = 0
         voidEvent += ScopedObserver(scope) { sum++ }

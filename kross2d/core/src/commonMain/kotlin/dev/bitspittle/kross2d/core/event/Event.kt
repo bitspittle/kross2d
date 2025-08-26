@@ -1,7 +1,8 @@
 package dev.bitspittle.kross2d.core.event
 
-import dev.bitspittle.kross2d.core.memory.ImmutableDisposable
-import dev.bitspittle.kross2d.core.memory.disposable
+import dev.bitspittle.kross2d.core.memory.Disposable
+import dev.bitspittle.kross2d.core.memory.Disposer
+import dev.bitspittle.kross2d.core.memory.register
 
 /**
  * The part of an event responsible for registering listeners but not firing. This can safely be exposed publicly.
@@ -34,7 +35,7 @@ abstract class ObservableEvent<P>(private val onAdded: ((P) -> Unit) -> Unit) {
     }
 
     operator fun plusAssign(scopedObserver: ScopedObserver<P>) {
-        disposable(scopedObserver.scope) { minusAssign(scopedObserver.observer) }
+        Disposer.register(scopedObserver.scope) { minusAssign(scopedObserver.observer) }
         plusAssign(scopedObserver.observer)
     }
 
@@ -89,4 +90,4 @@ class Event<P>(onAdded: ((P) -> Unit) -> Unit = {}) : ObservableEvent<P>(onAdded
  * to ensure that listeners won't stay attached after the current state exits, as well as to
  * prevent multiple listeners from being added if `enter` is called multiple times.
  */
-class ScopedObserver<P>(internal val scope: ImmutableDisposable, internal val observer: (P) -> Unit)
+class ScopedObserver<P>(internal val scope: Disposable, internal val observer: (P) -> Unit)

@@ -2,9 +2,10 @@ package dev.bitspittle.kross2d.engine.app
 
 import dev.bitspittle.kross2d.core.event.ObservableEvent
 import dev.bitspittle.kross2d.core.math.ImmutablePt2
-import dev.bitspittle.kross2d.core.memory.Disposable
 import dev.bitspittle.kross2d.core.memory.Disposer
-import dev.bitspittle.kross2d.core.memory.disposable
+import dev.bitspittle.kross2d.core.memory.disposableOf
+import dev.bitspittle.kross2d.core.memory.register
+import dev.bitspittle.kross2d.core.memory.registerEmpty
 import dev.bitspittle.kross2d.core.time.Duration
 import dev.bitspittle.kross2d.core.time.Instant
 import dev.bitspittle.kross2d.engine.GameState
@@ -97,8 +98,8 @@ internal class Application internal constructor(params: AppParams, initialState:
         backend.buttonReleased += { button -> mouse.handleButton(button, false) }
 
         val scopes = object : Scopes {
-            override val app: Disposable = disposable { }
-            override var currState: Disposable = disposable { }
+            override val app = Disposer.registerEmpty()
+            override var currState = Disposer.registerEmpty(app)
         }
 
         val app = object : ApplicationFacade {
@@ -168,7 +169,7 @@ internal class Application internal constructor(params: AppParams, initialState:
                     frameStart = Instant.now()
                     timer.lastFrame.setFrom(Duration.Zero)
                     Disposer.dispose(scopes.currState)
-                    scopes.currState = disposable {}
+                    scopes.currState = Disposer.registerEmpty()
                     currentState = stateToEnter
                     stateToEnter.enter(initContext)
                 }

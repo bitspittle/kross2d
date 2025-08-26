@@ -1,6 +1,5 @@
 package dev.bitspittle.kross2d.engine.memory
 
-import dev.bitspittle.kross2d.core.memory.ImmutableDisposable
 import dev.bitspittle.kross2d.core.memory.Disposable
 import dev.bitspittle.kross2d.engine.app.ApplicationFacade
 import dev.bitspittle.kross2d.engine.assets.Asset
@@ -17,7 +16,7 @@ interface Scopes {
     /**
      * A scope that is active until just before the app quits
      */
-    val app: ImmutableDisposable
+    val app: Disposable
 
     /**
      * A scope that is active while the current state is running (e.g. until it transitions into a
@@ -28,5 +27,5 @@ interface Scopes {
      * See also: [ApplicationFacade.pushState], [ApplicationFacade.popState],
      * [ApplicationFacade.changeState]
      */
-    val currState: ImmutableDisposable
+    val currState: Disposable
 }

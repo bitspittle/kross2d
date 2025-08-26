@@ -23,11 +23,19 @@ class Rc<D: Disposable>(private val create: () -> D) {
 
     private var counter = 0
 
-    fun inc() = synchronized(lock) {
-        if (counter == 0) {
-            value = create()
+    fun inc() {
+        val toRegister: D? = synchronized(lock) {
+            if (counter == 0) {
+                value = create()
+            }
+            ++counter
+
+            if (counter == 1) value else null
         }
-        ++counter
+
+        if (toRegister != null) {
+            Disposer.register(toRegister)
+        }
     }
 
     fun dec() {

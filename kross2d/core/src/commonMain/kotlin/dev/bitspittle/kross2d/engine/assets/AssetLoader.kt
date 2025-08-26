@@ -2,8 +2,7 @@ package dev.bitspittle.kross2d.engine.assets
 
 import dev.bitspittle.kross2d.core.memory.Disposable
 import dev.bitspittle.kross2d.core.memory.Disposer
-import dev.bitspittle.kross2d.core.memory.ImmutableDisposable
-import dev.bitspittle.kross2d.core.memory.disposable
+import dev.bitspittle.kross2d.core.memory.register
 import dev.bitspittle.kross2d.engine.GameState
 import dev.bitspittle.kross2d.engine.audio.Music
 import dev.bitspittle.kross2d.engine.audio.Sound
@@ -62,42 +61,42 @@ class AssetLoader(root: String, private val scopes: Scopes) {
     private val cachedSounds = mutableMapOf<String, Asset<Sound>>()
     private val cachedMusic = mutableMapOf<String, Asset<Music>>()
 
-    fun loadFont(relativePath: String, scope: ImmutableDisposable = scopes.currState): Asset<Font> {
+    fun loadFont(relativePath: String, scope: Disposable = scopes.currState): Asset<Font> {
         return cachedFonts.getOrPut(relativePath) {
             Asset<Font>(scope, relativePath).apply {
                 backend.loadFontInto(this)
                 cachedFonts[relativePath] = this
-                disposable(this) { cachedFonts.remove(relativePath) }
+                Disposer.register(this) { cachedFonts.remove(relativePath) }
             }
         }
     }
 
-    fun loadImage(relativePath: String, scope: ImmutableDisposable = scopes.currState): Asset<Image> {
+    fun loadImage(relativePath: String, scope: Disposable = scopes.currState): Asset<Image> {
         return cachedImages.getOrPut(relativePath) {
             Asset<Image>(scope, relativePath).apply {
                 backend.loadImageInto(this)
                 cachedImages[relativePath] = this
-                disposable(this) { cachedImages.remove(relativePath) }
+                Disposer.register(this) { cachedImages.remove(relativePath) }
             }
         }
     }
 
-    fun loadSound(relativePath: String, scope: ImmutableDisposable = scopes.currState): Asset<Sound> {
+    fun loadSound(relativePath: String, scope: Disposable = scopes.currState): Asset<Sound> {
         return cachedSounds.getOrPut(relativePath) {
             Asset<Sound>(scope, relativePath).apply {
                 backend.loadSoundInto(this)
                 cachedSounds[relativePath] = this
-                disposable(this) { cachedSounds.remove(relativePath) }
+                Disposer.register(this) { cachedSounds.remove(relativePath) }
             }
         }
     }
 
-    fun loadMusic(relativePath: String, scope: ImmutableDisposable = scopes.currState): Asset<Music> {
+    fun loadMusic(relativePath: String, scope: Disposable = scopes.currState): Asset<Music> {
         return cachedMusic.getOrPut(relativePath) {
             Asset<Music>(scope, relativePath).apply {
                 backend.loadMusicInto(this)
                 cachedMusic[relativePath] = this
-                disposable(this) { cachedMusic.remove(relativePath) }
+                Disposer.register(this) { cachedMusic.remove(relativePath) }
             }
         }
     }

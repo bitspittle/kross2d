@@ -1,10 +1,11 @@
 package dev.bitspittle.kross2d.engine.audio.openal
 
 import dev.bitspittle.kross2d.core.memory.Disposable
-import dev.bitspittle.kross2d.core.memory.disposable
 import dev.bitspittle.kross2d.core.memory.setParent
 import com.jogamp.openal.AL
 import com.jogamp.openal.ALFactory
+import dev.bitspittle.kross2d.core.memory.Disposer
+import dev.bitspittle.kross2d.core.memory.register
 import java.nio.ByteBuffer
 
 internal typealias DataProvider = () -> Stream.Packet?
@@ -51,7 +52,7 @@ internal class Stream(private val format: Int, private val freq: Int, private va
     init {
         // In order to allow buffers to properly dispose, we need to make sure the source they
         // are queued up against is stopped and dequeued (in that order)
-        disposable { stop() }.setParent(this)
+        Disposer.register(this) { stop() }
         alSource.setParent(this)
         alBuffers.forEach { it.setParent(this) }
     }

@@ -1,6 +1,5 @@
 package dev.bitspittle.kross2d.core.memory
 
-import dev.bitspittle.kross2d.core.memory.Disposer.IllegalDisposerOperation
 import com.varabyte.truthish.assertThat
 import com.varabyte.truthish.assertThrows
 import kotlin.test.AfterTest
@@ -10,7 +9,11 @@ import kotlin.test.fail
 // Disposer.register assigned to vars even if not needed, for readability
 @Suppress("UNUSED_VARIABLE")
 class DisposableTest {
-    class TestDisposable(parent: TestDisposable? = null, private val displayName: String? = null) : Disposable(parent) {
+    class TestDisposable(parent: TestDisposable? = null, private val displayName: String? = null) : Disposable() {
+        init {
+            Disposer.register(parent, this)
+        }
+
         constructor(displayName: String): this(null, displayName)
         override fun toString() = "TestDisposable { $displayName }"
     }
@@ -28,10 +31,10 @@ class DisposableTest {
 
         // Normally, `register` is internal so users can't call it themselves, but just in
         // case, we verify if we make a logic mistake in this library, we'd throw
-        assertThrows<IllegalDisposerOperation> {
+        assertThrows<DisposableException> {
             Disposer.register(d1)
         }
-        assertThrows<IllegalDisposerOperation> {
+        assertThrows<DisposableException> {
             Disposer.register(d1, d2)
         }
     }
@@ -57,7 +60,7 @@ class DisposableTest {
     fun cannotDisposeIfAlreadyDisposed() {
         val d = TestDisposable()
         Disposer.dispose(d)
-        assertThrows<AlreadyDisposedException> {
+        assertThrows<DisposableException> {
             Disposer.dispose(d)
         }
 
@@ -70,15 +73,15 @@ class DisposableTest {
         val parent = TestDisposable()
         val child = TestDisposable()
 
-        Disposer.reparent(grandparent, parent)
-        Disposer.reparent(parent, child)
+        Disposer.setParent(grandparent, parent)
+        Disposer.setParent(parent, child)
 
-        assertThrows<IllegalDisposerOperation> {
-            Disposer.reparent(child, grandparent)
+        assertThrows<DisposableException> {
+            Disposer.setParent(child, grandparent)
         }
 
-        assertThrows<IllegalDisposerOperation> {
-            Disposer.reparent(grandparent, grandparent)
+        assertThrows<DisposableException> {
+            Disposer.setParent(grandparent, grandparent)
         }
     }
 
@@ -89,8 +92,8 @@ class DisposableTest {
 
         Disposer.dispose(parent)
 
-        assertThrows<AlreadyDisposedException> {
-            Disposer.reparent(parent, child)
+        assertThrows<DisposableException> {
+            Disposer.setParent(parent, child)
         }
     }
 
@@ -101,8 +104,8 @@ class DisposableTest {
 
         Disposer.dispose(child)
 
-        assertThrows<AlreadyDisposedException> {
-            Disposer.reparent(parent, child)
+        assertThrows<DisposableException> {
+            Disposer.setParent(parent, child)
         }
     }
 
@@ -135,27 +138,31 @@ class DisposableTest {
     fun canRegisterAndDisposeViaUse() {
         // Basic usage
         run {
-            val d = TestDisposable()
+            var onDisposed = false
+            val d = disposableOf { onDisposed = true }
             d.use {}
             assertThat(d.disposed).isTrue()
+            assertThat(onDisposed).isTrue()
         }
 
         // use block still disposes even if an exception is thrown
         run {
-            val d = TestDisposable()
+            var onDisposed = false
+            val d = disposableOf { onDisposed = true }
             assertThrows<RuntimeException> {
                 d.use {
                     throw RuntimeException()
                 }
             }
             assertThat(d.disposed).isTrue()
+            assertThat(onDisposed).isTrue()
         }
     }
 
     @Test
     fun canCreateDisposableViaConvenienceConstructionMethod() {
         var onDisposed = false
-        val d = disposable { onDisposed = true }
+        val d = Disposer.register { onDisposed = true }
 
         assertThat(onDisposed).isFalse()
         Disposer.dispose(d)
@@ -211,7 +218,7 @@ class DisposableTest {
         val child2 = TestDisposable(parent)
         val child3 = TestDisposable(parent)
 
-        assertThrows<IllegalDisposerOperation> {
+        assertThrows<DisposableException> {
             Disposer.transferChildren(from = parent, to = child2)
         }
     }

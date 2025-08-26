@@ -4,7 +4,6 @@ import dev.bitspittle.kross2d.core.event.Event
 import dev.bitspittle.kross2d.core.event.ObservableEvent
 import dev.bitspittle.kross2d.core.memory.Disposable
 import dev.bitspittle.kross2d.core.memory.Disposer
-import dev.bitspittle.kross2d.core.memory.ImmutableDisposable
 import dev.bitspittle.kross2d.core.memory.use
 
 /**
@@ -14,7 +13,11 @@ import dev.bitspittle.kross2d.core.memory.use
  * want to check [state] to see if any asset failed to load, which could be particularly useful for
  * logging errors / aborting the game.
  */
-class Asset<D: Disposable>(parent: ImmutableDisposable, val path: String) : Disposable(parent) {
+class Asset<D: Disposable>(parent: Disposable, val path: String) : Disposable() {
+    init {
+        Disposer.register(parent, this)
+    }
+
     enum class State {
         LOADING,
         LOADED,
@@ -50,7 +53,7 @@ class Asset<D: Disposable>(parent: ImmutableDisposable, val path: String) : Disp
 
         assertLoading()
         if (data != null) {
-            Disposer.reparent(this, data)
+            Disposer.setParent(this, data)
             this.data = data
             state = State.LOADED
         }
