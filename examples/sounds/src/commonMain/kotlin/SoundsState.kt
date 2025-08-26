@@ -64,9 +64,10 @@ class SoundsState : GameState {
 
         if (ctx.keyboard.isJustPressed(Key.SPACE)) {
             globallyPaused = !globallyPaused
-            sounds
-                .mapNotNull { it.data }
-                .forEach { if (globallyPaused) it.pause() else it.resume() }
+            // TODO: Group sounds and allow pausing by sound group!
+//            sounds
+//                .mapNotNull { it.data }
+//                .forEach { if (globallyPaused) it.pause() else it.resume() }
 
             music.data?.let { if (globallyPaused) it.pause() else it.resume() }
         }

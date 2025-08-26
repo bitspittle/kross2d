@@ -3,24 +3,21 @@ kross2d-core = "0.3.0-SNAPSHOT"
 kross2d-ecs = "0.0.1-SNAPSHOT"
 #------------------------------
 dokka = "2.0.0"
-jogg = "1.0.0"
+javazoom-jlayer = "1.0.1"
 kotlin = "2.2.10"
 kotlinx-coroutines = "1.10.2"
-openal = "2.3.2"
+soundlibs-mp3 = "1.9.5.4"
+trilarian-vorbis = "1.2.1"
 truthish = "1.0.3"
 
 [libraries]
 dokka-gradle-plugin = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }
-jogg = { module = "de.jarnbjo:j-ogg-all", version.ref = "jogg" }
+javazoom-jlayer = { module = "javazoom:jlayer", version.ref = "javazoom-jlayer" }
 kotlin-multiplatform-plugin = { module = "org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin", version.ref = "kotlin" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
-jogamp-gluegen = { module = "org.jogamp.gluegen:gluegen-rt-main", version.ref = "openal" }
-jogamp-joal = { module = "org.jogamp.joal:joal-main", version.ref = "openal" }
+soundlibs-mp3 = { module = "com.googlecode.soundlibs:mp3spi", version.ref = "soundlibs-mp3" }
+trilarian-vorbis = { module = "com.github.trilarion:java-vorbis-support", version.ref = "trilarian-vorbis" }
 truthish = { module = "com.varabyte.truthish:truthish", version.ref = "truthish" }
 
-[plugins]
-kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-
 [bundles]
-jvm-audio = [ "jogamp-gluegen", "jogamp-joal", "jogg" ]
+audio-jvm = [ "javazoom-jlayer", "soundlibs-mp3", "trilarian-vorbis" ]

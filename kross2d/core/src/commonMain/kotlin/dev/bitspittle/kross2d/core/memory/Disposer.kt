@@ -164,6 +164,8 @@ object Disposer {
      * Children will be cleaned up before the parent is.
      */
     fun dispose(disposable: Disposable) = synchronized(lock) {
+        if (disposable.disposed) return@synchronized
+
         if (!isRegistered(disposable)) {
             throw DisposableException("Tried to dispose a value that was never registered")
         }
