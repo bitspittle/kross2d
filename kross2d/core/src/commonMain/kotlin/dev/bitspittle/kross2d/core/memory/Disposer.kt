@@ -1,8 +1,6 @@
 package dev.bitspittle.kross2d.core.memory
 
 import dev.bitspittle.kross2d.core.concurrency.synchronized
-import dev.bitspittle.kross2d.core.memory.Disposer.dispose
-import dev.bitspittle.kross2d.core.memory.Disposer.setParent
 
 /**
  * A global object useful for explicitly tracking and releasing [Disposable] objects, when waiting on the GC to lazily
@@ -16,7 +14,7 @@ import dev.bitspittle.kross2d.core.memory.Disposer.setParent
  * disposables were not explicitly freed (meaning you have a memory leak!)
  *
  * Disposables can (and should!) be parented hierarchically, via [Disposer.setParent] (or
- * the convenience function [Disposable.setParent]:
+ * the convenience function [Disposable.setParent]):
  *
  * ```
  * // App, Project, and Resource are Disposable classes in this example

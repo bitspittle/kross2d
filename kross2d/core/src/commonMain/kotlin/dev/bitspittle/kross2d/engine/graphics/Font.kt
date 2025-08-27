@@ -9,7 +9,7 @@ import dev.bitspittle.kross2d.core.memory.setParent
  * A font is locked at a particular size. If you need fonts at different sizes, construct new ones
  * using the constructor which takes a size value.
  *
- * See also: [DrawSurface.drawText]
+ * See also: [MutableDrawSurface.drawText]
  */
 class Font internal constructor(internal val fontData: FontData): Disposable() {
     companion object {

@@ -8,7 +8,7 @@ import dev.bitspittle.kross2d.core.memory.setParent
 /**
  * A 2D image (or sub-portion of that image).
  *
- * See also [DrawSurface.drawImage]
+ * See also [MutableDrawSurface.drawImage]
  */
 class Image internal constructor(
     internal val data: ImageData,

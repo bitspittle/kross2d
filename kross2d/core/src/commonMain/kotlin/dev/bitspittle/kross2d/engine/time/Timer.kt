@@ -23,6 +23,7 @@ internal class MutableTimer(override val lastFrame: MutableDuration = MutableDur
  * Shortcut for [Instant.now] for simplicity, allowing users of the *kross2d* API to find every
  * method they need from the context, and not having to remember one-off static methods here and there.
  */
+@Suppress("UnusedReceiverParameter")
 fun Timer.now() = Instant.now()
 
 /**

@@ -9,9 +9,9 @@ import dev.bitspittle.kross2d.engine.assets.AssetLoader
 import dev.bitspittle.kross2d.engine.context.DrawContext
 import dev.bitspittle.kross2d.engine.context.EnterContext
 import dev.bitspittle.kross2d.engine.context.UpdateContext
-import dev.bitspittle.kross2d.engine.graphics.DrawSurface
 import dev.bitspittle.kross2d.engine.graphics.DrawSurface.ImageParams
 import dev.bitspittle.kross2d.engine.graphics.Image
+import dev.bitspittle.kross2d.engine.graphics.MutableDrawSurface
 import dev.bitspittle.kross2d.engine.input.Key
 import dev.bitspittle.kross2d.extras.anim.Anim
 import dev.bitspittle.kross2d.extras.graphics.Tiles
@@ -25,7 +25,7 @@ private val CLEAR_COLOR = Color(0, 0, 0)
  *
  * Demonstrated:
  * - Loading [Image]s using [AssetLoader]
- * - Rendering images using [DrawSurface.drawImage]
+ * - Rendering images using [MutableDrawSurface.drawImage]
  * - Creating and using [Anim]s
  */
 class SpriteState : GameState {

@@ -73,7 +73,7 @@ class SoundsState : GameState {
 
         if (!globallyPaused) {
             (Key.NUM_0.ordinal..Key.NUM_9.ordinal).forEachIndexed { i, keyOrdinal ->
-                val key = Key.values()[keyOrdinal]
+                val key = Key.entries[keyOrdinal]
                 if (ctx.keyboard.isJustPressed(key)) {
                     sounds[i].data?.play()
                 }

@@ -3,7 +3,7 @@ import dev.bitspittle.kross2d.core.math.Pt2
 import dev.bitspittle.kross2d.engine.GameState
 import dev.bitspittle.kross2d.engine.context.DrawContext
 import dev.bitspittle.kross2d.engine.context.UpdateContext
-import dev.bitspittle.kross2d.engine.graphics.DrawSurface
+import dev.bitspittle.kross2d.engine.graphics.MutableDrawSurface
 import dev.bitspittle.kross2d.engine.input.Button
 import dev.bitspittle.kross2d.engine.input.Key
 import dev.bitspittle.kross2d.engine.input.Mouse
@@ -17,7 +17,7 @@ private val CLEAR_COLOR = Colors.Grey192
  *
  * Demonstrated:
  * - Using [Mouse]
- * - Rendering lines using [DrawSurface.drawLine]
+ * - Rendering lines using [MutableDrawSurface.drawLine]
  */
 class PaintState : GameState {
     private val paths = mutableListOf<MutableList<Pt2>>()

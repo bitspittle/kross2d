@@ -43,10 +43,6 @@ class HelloWorldState : GameState {
 
         // Update color, cycling its r, g, b parts at different rates so you don't just get a
         // boring "black -> grey -> white and back" effect
-        val r = cycleValue(255, elapsed)
-        val g = cycleValue(255, elapsed * 2.0)
-        val b = cycleValue(255, elapsed * 3.0)
-
         clearColor.r = cycleValue(255, elapsed)
         clearColor.g = cycleValue(255, elapsed * 2.0)
         clearColor.b = cycleValue(255, elapsed * 3.0)

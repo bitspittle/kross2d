@@ -22,8 +22,8 @@ interface Mouse {
 
 internal class MutableMouse : Mouse {
     override val pos = MutablePt2()
-    private val buttonsPrev = BooleanArray(Button.values().size) { false }
-    private val buttonsCurr = BooleanArray(Button.values().size) { false }
+    private val buttonsPrev = BooleanArray(Button.entries.size) { false }
+    private val buttonsCurr = BooleanArray(Button.entries.size) { false }
 
     fun handleButton(button: Button, isDown: Boolean) {
         buttonsCurr[button.ordinal] = isDown

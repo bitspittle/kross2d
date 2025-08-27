@@ -1,5 +1,7 @@
 package dev.bitspittle.kross2d.core.time
 
+import kotlin.jvm.JvmInline
+
 /**
  * An immutable class which represents a moment in time.
  *
@@ -9,8 +11,6 @@ package dev.bitspittle.kross2d.core.time
  * @param nanos A value on the timescale of nanos. The absolute value has no meaning; the only
  * requirement is that two `Instant`s created over some elapsed time can be subtracted to
  * return a duration of that elapsed time.
- *
- * TODO: Convert to an inline class once that feature stabilizes
  */
 class Instant(private val nanos: Long): Comparable<Instant> {
     companion object {
