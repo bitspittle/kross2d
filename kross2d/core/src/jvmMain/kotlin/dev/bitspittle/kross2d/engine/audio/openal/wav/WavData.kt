@@ -1,9 +1,9 @@
 package dev.bitspittle.kross2d.engine.audio.openal.wav
 
+import com.jogamp.openal.util.ALut
 import dev.bitspittle.kross2d.core.memory.Disposable
 import dev.bitspittle.kross2d.core.memory.setParent
 import dev.bitspittle.kross2d.engine.audio.openal.AlBuffer
-import com.jogamp.openal.util.ALut
 import java.io.InputStream
 import java.nio.ByteBuffer
 

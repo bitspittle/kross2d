@@ -1,7 +1,7 @@
 package dev.bitspittle.kross2d.engine.audio.openal
 
-import dev.bitspittle.kross2d.core.memory.Disposable
 import com.jogamp.openal.ALFactory
+import dev.bitspittle.kross2d.core.memory.Disposable
 import java.nio.ByteBuffer
 
 internal class AlBuffer: Disposable() {

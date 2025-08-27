@@ -1,12 +1,12 @@
 package systems
 
+import components.Paddle
 import dev.bitspittle.kross2d.engine.context.UpdateContext
 import dev.bitspittle.kross2d.engine.input.Key
 import dev.bitspittle.kross2d.extras.ecs.Entity
 import dev.bitspittle.kross2d.extras.ecs.Family
 import dev.bitspittle.kross2d.extras.ecs.UpdateSystem
 import dev.bitspittle.kross2d.extras.ecs.World
-import components.Paddle
 import objects.Side
 
 private const val PADDLE_SPEED = 75f

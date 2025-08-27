@@ -1,4 +1,4 @@
-import java.awt.Desktop
+import java.awt.*
 
 // Script based on
 // https://kotlinlang.org/docs/tutorials/javascript/getting-started-gradle/getting-started-with-gradle.html

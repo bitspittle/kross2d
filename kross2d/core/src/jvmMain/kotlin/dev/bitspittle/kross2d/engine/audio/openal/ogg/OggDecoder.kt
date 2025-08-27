@@ -1,17 +1,16 @@
 package dev.bitspittle.kross2d.engine.audio.openal.ogg
 
-import dev.bitspittle.kross2d.core.memory.Disposer
-import dev.bitspittle.kross2d.core.memory.Disposable
 import de.jarnbjo.ogg.CachedUrlStream
 import de.jarnbjo.ogg.EndOfOggStreamException
 import de.jarnbjo.ogg.LogicalOggStream
 import de.jarnbjo.vorbis.IdentificationHeader
 import de.jarnbjo.vorbis.VorbisStream
-
-import javax.sound.sampled.AudioFormat
-import javax.sound.sampled.AudioInputStream
+import dev.bitspittle.kross2d.core.memory.Disposable
+import dev.bitspittle.kross2d.core.memory.Disposer
 import java.io.InputStream
 import java.net.URL
+import javax.sound.sampled.AudioFormat
+import javax.sound.sampled.AudioInputStream
 
 /**
  * Class responsible for loading a target [Ogg](https://en.wikipedia.org/wiki/Ogg)

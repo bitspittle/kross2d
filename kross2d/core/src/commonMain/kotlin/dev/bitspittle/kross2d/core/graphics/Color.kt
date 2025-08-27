@@ -1,8 +1,6 @@
 package dev.bitspittle.kross2d.core.graphics
 
 import dev.bitspittle.kross2d.core.math.clamp
-import dev.bitspittle.kross2d.core.time.Duration
-import kotlin.math.min
 import kotlin.math.roundToInt
 
 private const val A_MASK: Int = 0xFF000000.toInt() // toInt required to avoid being treated as Long

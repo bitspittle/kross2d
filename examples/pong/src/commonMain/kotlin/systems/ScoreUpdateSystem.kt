@@ -1,5 +1,7 @@
 package systems
 
+import components.Ball
+import dev.bitspittle.kross2d.core.math.Vec2
 import dev.bitspittle.kross2d.engine.assets.Asset
 import dev.bitspittle.kross2d.engine.audio.Sound
 import dev.bitspittle.kross2d.engine.context.UpdateContext
@@ -7,8 +9,6 @@ import dev.bitspittle.kross2d.extras.ecs.Entity
 import dev.bitspittle.kross2d.extras.ecs.Family
 import dev.bitspittle.kross2d.extras.ecs.UpdateSystem
 import dev.bitspittle.kross2d.extras.ecs.World
-import components.Ball
-import dev.bitspittle.kross2d.core.math.Vec2
 import objects.ScoreBoard
 
 class ScoreUpdateSystem(private val arenaSize: Vec2,

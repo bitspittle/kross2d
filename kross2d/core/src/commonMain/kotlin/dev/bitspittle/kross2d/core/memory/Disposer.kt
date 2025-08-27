@@ -1,6 +1,8 @@
 package dev.bitspittle.kross2d.core.memory
 
 import dev.bitspittle.kross2d.core.concurrency.synchronized
+import dev.bitspittle.kross2d.core.memory.Disposer.dispose
+import dev.bitspittle.kross2d.core.memory.Disposer.setParent
 
 /**
  * A global object useful for explicitly tracking and releasing [Disposable] objects, when waiting on the GC to lazily

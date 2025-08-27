@@ -1,10 +1,10 @@
 package dev.bitspittle.kross2d.engine.audio.openal
 
-import dev.bitspittle.kross2d.core.memory.Disposable
-import dev.bitspittle.kross2d.core.memory.Rc
 import com.jogamp.openal.AL
 import com.jogamp.openal.ALFactory
 import com.jogamp.openal.util.ALut
+import dev.bitspittle.kross2d.core.memory.Disposable
+import dev.bitspittle.kross2d.core.memory.Rc
 
 /**
  * OpenAL global state / singletons, e.g. the listener's position, global init/exit calls, etc.

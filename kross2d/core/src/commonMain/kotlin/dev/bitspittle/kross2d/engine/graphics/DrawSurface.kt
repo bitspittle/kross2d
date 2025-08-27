@@ -4,6 +4,8 @@ import dev.bitspittle.kross2d.core.graphics.Color
 import dev.bitspittle.kross2d.core.graphics.Colors
 import dev.bitspittle.kross2d.core.math.Pt2
 import dev.bitspittle.kross2d.core.math.Vec2
+import dev.bitspittle.kross2d.engine.graphics.DrawSurface.ImageParams
+import dev.bitspittle.kross2d.engine.graphics.DrawSurface.TextParams
 
 /**
  * A surface area for rendering, which may be on or off-screen.

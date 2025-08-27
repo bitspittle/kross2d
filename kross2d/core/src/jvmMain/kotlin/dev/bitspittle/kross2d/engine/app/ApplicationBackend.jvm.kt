@@ -11,13 +11,14 @@ import dev.bitspittle.kross2d.engine.graphics.DrawSurface.ImageParams
 import dev.bitspittle.kross2d.engine.graphics.Font
 import dev.bitspittle.kross2d.engine.graphics.Image
 import dev.bitspittle.kross2d.engine.graphics.MutableScreen
-import dev.bitspittle.kross2d.engine.graphics.Screen
 import dev.bitspittle.kross2d.engine.graphics.Screen.Transform
 import dev.bitspittle.kross2d.engine.graphics.Screen.Transform.*
-import dev.bitspittle.kross2d.engine.graphics.Screen.Transform.Composite
 import dev.bitspittle.kross2d.engine.input.Button
 import dev.bitspittle.kross2d.engine.input.Key
-import java.awt.*
+import java.awt.Dimension
+import java.awt.Graphics
+import java.awt.Graphics2D
+import java.awt.RenderingHints
 import java.awt.event.*
 import java.awt.geom.AffineTransform
 import javax.swing.JFrame

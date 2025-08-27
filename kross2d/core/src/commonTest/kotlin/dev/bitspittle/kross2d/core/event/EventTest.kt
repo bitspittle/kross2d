@@ -1,7 +1,7 @@
 package dev.bitspittle.kross2d.core.event
 
-import dev.bitspittle.kross2d.core.memory.Disposer
 import com.varabyte.truthish.assertThat
+import dev.bitspittle.kross2d.core.memory.Disposer
 import dev.bitspittle.kross2d.core.memory.disposableOf
 import kotlin.test.Test
 

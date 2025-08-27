@@ -1,7 +1,7 @@
 package dev.bitspittle.kross2d.extras.anim
 
-import dev.bitspittle.kross2d.core.time.Duration
 import com.varabyte.truthish.assertThat
+import dev.bitspittle.kross2d.core.time.Duration
 import kotlin.test.Test
 
 

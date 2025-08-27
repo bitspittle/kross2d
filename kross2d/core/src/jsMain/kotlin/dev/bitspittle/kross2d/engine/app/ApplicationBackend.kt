@@ -12,7 +12,6 @@ import dev.bitspittle.kross2d.engine.graphics.DrawSurface.ImageParams
 import dev.bitspittle.kross2d.engine.graphics.Font
 import dev.bitspittle.kross2d.engine.graphics.Image
 import dev.bitspittle.kross2d.engine.graphics.MutableScreen
-import dev.bitspittle.kross2d.engine.graphics.Screen
 import dev.bitspittle.kross2d.engine.graphics.Screen.Transform
 import dev.bitspittle.kross2d.engine.graphics.Screen.Transform.*
 import dev.bitspittle.kross2d.engine.input.Button

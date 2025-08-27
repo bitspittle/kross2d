@@ -1,8 +1,8 @@
 package dev.bitspittle.kross2d.core.geom
 
+import com.varabyte.truthish.assertThat
 import dev.bitspittle.kross2d.core.math.Pt2
 import dev.bitspittle.kross2d.core.math.Vec2
-import com.varabyte.truthish.assertThat
 import kotlin.test.Test
 
 class RectTest {

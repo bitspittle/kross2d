@@ -6,7 +6,10 @@ import dev.bitspittle.kross2d.engine.graphics.Font
 import dev.bitspittle.kross2d.engine.graphics.FontData
 import dev.bitspittle.kross2d.engine.graphics.Image
 import dev.bitspittle.kross2d.engine.graphics.ImageData
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 actual class AssetLoaderBackend actual constructor(root: String) {
     private val resourceLoader = ResourceLoader(root)

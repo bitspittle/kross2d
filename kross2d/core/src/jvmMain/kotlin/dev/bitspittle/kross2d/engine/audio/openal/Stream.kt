@@ -1,11 +1,11 @@
 package dev.bitspittle.kross2d.engine.audio.openal
 
-import dev.bitspittle.kross2d.core.memory.Disposable
-import dev.bitspittle.kross2d.core.memory.setParent
 import com.jogamp.openal.AL
 import com.jogamp.openal.ALFactory
+import dev.bitspittle.kross2d.core.memory.Disposable
 import dev.bitspittle.kross2d.core.memory.Disposer
 import dev.bitspittle.kross2d.core.memory.register
+import dev.bitspittle.kross2d.core.memory.setParent
 import java.nio.ByteBuffer
 
 internal typealias DataProvider = () -> Stream.Packet?

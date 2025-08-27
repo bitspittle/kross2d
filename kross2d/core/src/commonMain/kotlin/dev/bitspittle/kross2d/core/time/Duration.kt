@@ -5,6 +5,7 @@ import dev.bitspittle.kross2d.core.time.MutableDuration.Companion.ofMillis
 import dev.bitspittle.kross2d.core.time.MutableDuration.Companion.ofMinutes
 import dev.bitspittle.kross2d.core.time.MutableDuration.Companion.ofNanos
 import dev.bitspittle.kross2d.core.time.MutableDuration.Companion.ofSeconds
+import dev.bitspittle.kross2d.core.time.MutableDuration.Companion.zero
 import kotlin.math.max
 import kotlin.math.min
 

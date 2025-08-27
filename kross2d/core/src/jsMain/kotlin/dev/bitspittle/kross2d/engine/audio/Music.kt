@@ -1,7 +1,6 @@
 package dev.bitspittle.kross2d.engine.audio
 
 import dev.bitspittle.kross2d.core.memory.Disposable
-import dev.bitspittle.kross2d.core.memory.Disposer
 import dev.bitspittle.kross2d.core.memory.setParent
 import dev.bitspittle.kross2d.engine.dom.clearSource
 import org.w3c.dom.Audio

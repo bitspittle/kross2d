@@ -1,20 +1,20 @@
 package dev.bitspittle.kross2d.extras.ecs
 
-import dev.bitspittle.kross2d.core.graphics.Colors
+import com.varabyte.truthish.assertThat
+import com.varabyte.truthish.assertThrows
 import dev.bitspittle.kross2d.core.graphics.Color
+import dev.bitspittle.kross2d.core.graphics.Colors
+import dev.bitspittle.kross2d.core.math.MutablePt2
+import dev.bitspittle.kross2d.core.math.MutableVec2
 import dev.bitspittle.kross2d.core.math.Pt2
 import dev.bitspittle.kross2d.core.time.Duration
+import dev.bitspittle.kross2d.core.time.MutableDuration
 import dev.bitspittle.kross2d.engine.context.DrawContext
 import dev.bitspittle.kross2d.engine.context.UpdateContext
 import dev.bitspittle.kross2d.engine.fakes.TestDrawContext
 import dev.bitspittle.kross2d.engine.fakes.TestScreen
 import dev.bitspittle.kross2d.engine.fakes.TestTimer
 import dev.bitspittle.kross2d.engine.fakes.TestUpdateContext
-import com.varabyte.truthish.assertThat
-import com.varabyte.truthish.assertThrows
-import dev.bitspittle.kross2d.core.math.MutablePt2
-import dev.bitspittle.kross2d.core.math.MutableVec2
-import dev.bitspittle.kross2d.core.time.MutableDuration
 import kotlin.test.Test
 
 class EcsTests {

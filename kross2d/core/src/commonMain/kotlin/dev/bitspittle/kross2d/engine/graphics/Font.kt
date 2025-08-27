@@ -1,6 +1,7 @@
 package dev.bitspittle.kross2d.engine.graphics
 
-import dev.bitspittle.kross2d.core.memory.*
+import dev.bitspittle.kross2d.core.memory.Disposable
+import dev.bitspittle.kross2d.core.memory.setParent
 
 /**
  * A true-type font which can be used to render text.

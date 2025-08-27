@@ -4,11 +4,7 @@ import dev.bitspittle.kross2d.core.graphics.Color
 import dev.bitspittle.kross2d.core.graphics.Colors
 import dev.bitspittle.kross2d.core.math.Pt2
 import dev.bitspittle.kross2d.core.math.Vec2
-import dev.bitspittle.kross2d.engine.graphics.DrawSurface
-import dev.bitspittle.kross2d.engine.graphics.Font
-import dev.bitspittle.kross2d.engine.graphics.Image
-import dev.bitspittle.kross2d.engine.graphics.MutableScreen
-import dev.bitspittle.kross2d.engine.graphics.Screen
+import dev.bitspittle.kross2d.engine.graphics.*
 
 class TestScreen : MutableScreen {
     override val size: Vec2

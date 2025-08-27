@@ -14,8 +14,6 @@ import dev.bitspittle.kross2d.engine.context.UpdateContext
 import dev.bitspittle.kross2d.engine.graphics.MutableScreen
 import dev.bitspittle.kross2d.engine.graphics.Screen
 import dev.bitspittle.kross2d.engine.input.*
-import dev.bitspittle.kross2d.engine.input.MutableKeyboard
-import dev.bitspittle.kross2d.engine.input.MutableMouse
 import dev.bitspittle.kross2d.engine.memory.Scopes
 import dev.bitspittle.kross2d.engine.time.MutableTimer
 import dev.bitspittle.kross2d.engine.time.Timer

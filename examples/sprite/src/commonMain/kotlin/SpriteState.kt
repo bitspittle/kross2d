@@ -1,11 +1,7 @@
 import dev.bitspittle.kross2d.core.geom.Rect
 import dev.bitspittle.kross2d.core.geom.centerIn
 import dev.bitspittle.kross2d.core.graphics.Color
-import dev.bitspittle.kross2d.core.math.MutablePt2
-import dev.bitspittle.kross2d.core.math.MutableVec2
-import dev.bitspittle.kross2d.core.math.Pt2
-import dev.bitspittle.kross2d.core.math.Vec2
-import dev.bitspittle.kross2d.core.math.clamp
+import dev.bitspittle.kross2d.core.math.*
 import dev.bitspittle.kross2d.core.time.Duration
 import dev.bitspittle.kross2d.engine.GameState
 import dev.bitspittle.kross2d.engine.assets.Asset

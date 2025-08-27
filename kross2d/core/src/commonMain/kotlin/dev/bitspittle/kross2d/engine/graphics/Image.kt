@@ -2,7 +2,8 @@ package dev.bitspittle.kross2d.engine.graphics
 
 import dev.bitspittle.kross2d.core.math.Pt2
 import dev.bitspittle.kross2d.core.math.Vec2
-import dev.bitspittle.kross2d.core.memory.*
+import dev.bitspittle.kross2d.core.memory.Disposable
+import dev.bitspittle.kross2d.core.memory.setParent
 
 /**
  * A 2D image (or sub-portion of that image).

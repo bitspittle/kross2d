@@ -1,8 +1,8 @@
 import dev.bitspittle.kross2d.engine.app.AppParams
 import dev.bitspittle.kross2d.engine.app.launch
-import org.w3c.dom.HTMLCanvasElement
 import kotlinx.browser.document
 import org.w3c.dom.HTMLButtonElement
+import org.w3c.dom.HTMLCanvasElement
 
 fun main() {
     // Delay playing any demo with sounds, because on web, it is an error to play sounds before the

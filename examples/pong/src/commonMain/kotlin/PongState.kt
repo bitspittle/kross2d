@@ -1,3 +1,4 @@
+import components.*
 import dev.bitspittle.kross2d.core.event.ScopedObserver
 import dev.bitspittle.kross2d.core.geom.Rect
 import dev.bitspittle.kross2d.core.graphics.Colors
@@ -10,7 +11,6 @@ import dev.bitspittle.kross2d.engine.context.UpdateContext
 import dev.bitspittle.kross2d.engine.graphics.Font
 import dev.bitspittle.kross2d.engine.graphics.Image
 import dev.bitspittle.kross2d.extras.ecs.World
-import components.*
 import objects.ScoreBoard
 import objects.Side
 import systems.*

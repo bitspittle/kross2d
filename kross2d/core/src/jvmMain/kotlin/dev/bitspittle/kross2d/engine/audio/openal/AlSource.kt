@@ -1,8 +1,8 @@
 package dev.bitspittle.kross2d.engine.audio.openal
 
-import dev.bitspittle.kross2d.core.memory.Disposable
 import com.jogamp.openal.AL
 import com.jogamp.openal.ALFactory
+import dev.bitspittle.kross2d.core.memory.Disposable
 
 internal class AlSource: Disposable() {
     var id: Int

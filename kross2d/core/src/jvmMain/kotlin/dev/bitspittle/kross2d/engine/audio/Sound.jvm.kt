@@ -1,13 +1,15 @@
 package dev.bitspittle.kross2d.engine.audio
 
-import dev.bitspittle.kross2d.core.memory.*
-import dev.bitspittle.kross2d.engine.audio.openal.AlException
-import dev.bitspittle.kross2d.engine.audio.openal.AlGlobalState
-import dev.bitspittle.kross2d.engine.audio.openal.AlBuffer
-import dev.bitspittle.kross2d.engine.audio.openal.AlSource
-import dev.bitspittle.kross2d.engine.audio.openal.wav.WavData
 import com.jogamp.openal.AL
 import com.jogamp.openal.ALFactory
+import dev.bitspittle.kross2d.core.memory.Disposable
+import dev.bitspittle.kross2d.core.memory.Disposer
+import dev.bitspittle.kross2d.core.memory.setParent
+import dev.bitspittle.kross2d.engine.audio.openal.AlBuffer
+import dev.bitspittle.kross2d.engine.audio.openal.AlException
+import dev.bitspittle.kross2d.engine.audio.openal.AlGlobalState
+import dev.bitspittle.kross2d.engine.audio.openal.AlSource
+import dev.bitspittle.kross2d.engine.audio.openal.wav.WavData
 import java.io.InputStream
 
 actual class SoundHandle internal constructor(buffer: AlBuffer): Disposable() {

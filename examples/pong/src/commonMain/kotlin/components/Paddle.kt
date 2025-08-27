@@ -1,9 +1,7 @@
 package components
 
 import dev.bitspittle.kross2d.core.geom.MutableRect
-import dev.bitspittle.kross2d.core.geom.Rect
 import dev.bitspittle.kross2d.core.math.MutableVec2
-import dev.bitspittle.kross2d.core.math.Vec2
 import dev.bitspittle.kross2d.extras.ecs.Component
 import objects.Side
 
