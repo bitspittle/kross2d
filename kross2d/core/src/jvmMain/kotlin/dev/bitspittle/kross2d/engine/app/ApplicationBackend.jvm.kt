@@ -277,7 +277,7 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
                     val awtFont = font.fontData.awtFont
                     val lines = text.split('\n')
                     val startPt = params.toTopLeft(
-                        produceWidth = { lines.map { line -> measureText(font, line) }.max() ?: 0f },
+                        produceWidth = { lines.maxOfOrNull { line -> measureText(font, line) } ?: 0f },
                         produceHeight = { lines.size * font.size + (lines.size - 1) * params.spacing })
 
                     g.font = awtFont
