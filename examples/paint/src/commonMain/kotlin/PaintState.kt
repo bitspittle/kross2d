@@ -8,7 +8,7 @@ import dev.bitspittle.kross2d.engine.input.Button
 import dev.bitspittle.kross2d.engine.input.Key
 import dev.bitspittle.kross2d.engine.input.Mouse
 
-private val CLEAR_COLOR = Colors.Grey192
+private val CLEAR_COLOR = Colors.LightGray
 
 /**
  * Images: A simple "game" which renders lines drawn by holding the mouse down.
