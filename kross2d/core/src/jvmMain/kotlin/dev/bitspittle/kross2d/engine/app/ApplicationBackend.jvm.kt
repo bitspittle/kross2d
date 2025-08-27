@@ -120,10 +120,8 @@ internal actual class ApplicationBackend actual constructor(params: AppParams) {
             }
         })
 
-        val mousePos = MutablePt2()
         fun updateMousePosAndFireEvent(e: MouseEvent) {
-            mousePos.set(e.x, e.y)
-            _mouseMoved(mousePos)
+            _mouseMoved(Pt2(e.x, e.y))
         }
         frame.addMouseMotionListener(object : MouseAdapter() {
             override fun mouseMoved(e: MouseEvent) {
