@@ -39,7 +39,7 @@ class PaintState : GameState {
 
             val redundantPoint = currPath!!.lastOrNull()?.equals(ctx.mouse.pos) ?: false
             if (!redundantPoint) {
-                currPath!!.add(ctx.mouse.pos)
+                currPath!!.add(ctx.mouse.pos.toPt2())
             }
         }
         else {

@@ -62,6 +62,7 @@ interface Duration : Comparable<Duration> {
         get() = secs / 60.0
     fun isZero(): Boolean = nanos == 0.0
 
+    fun toDuration() = Duration(nanos)
     fun toMutableDuration() = MutableDuration(nanos)
 
     operator fun plus(rhs: Duration) = Duration(nanos + rhs.nanos)
@@ -121,8 +122,6 @@ internal constructor(override var nanos: Double = 0.0) : Duration {
         set(value) {
             secs = value * 60.0
         }
-
-    fun toDuration() = Duration(nanos)
 
     fun setFrom(rhs: Duration) {
         nanos = rhs.nanos

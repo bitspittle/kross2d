@@ -36,6 +36,7 @@ interface Color {
     val b: Int get() = argb.and(B_MASK).ushr(B_POS)
     val a: Int get() = argb.and(A_MASK).ushr(A_POS)
 
+    fun toColor() = Color(argb)
     fun toMutableColor() = MutableColor(argb)
 }
 
@@ -53,8 +54,6 @@ class MutableColor(override var argb: Int) : Color {
     companion object : ColorFactory<MutableColor> {
         override fun fromRgb(rgb: Int) = MutableColor(0xFF.shl(A_POS).and(rgb))
     }
-
-    fun toColor() = Color(argb)
 
     override var r: Int
         get() = super.r

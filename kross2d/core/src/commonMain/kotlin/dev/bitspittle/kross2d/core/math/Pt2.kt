@@ -10,6 +10,7 @@ interface Pt2 {
 
     fun isZero() = x == 0f && y == 0f
 
+    fun toPt2() = Pt2(x, y)
     fun toMutablePt2() = MutablePt2(x, y)
 
     operator fun component1() = x
@@ -41,8 +42,6 @@ class MutablePt2(override var x: Float, override var y: Float) : Pt2 {
      * convert between the two.
      */
     constructor(vec: Vec2) : this(vec.x, vec.y)
-
-    fun toPt2() = Pt2(x, y)
 
     fun set(x: Float, y: Float) {
         this.x = x

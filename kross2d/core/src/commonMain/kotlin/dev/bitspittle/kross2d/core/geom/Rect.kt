@@ -26,6 +26,7 @@ interface Rect : Shape {
     override val area: Float
         get() = size.x * size.y
 
+    fun toRect() = Rect(pos, size)
     fun toMutableRect() = MutableRect(pos, size)
 
     override fun toBoundingRect() = this
@@ -99,8 +100,6 @@ class MutableRect(pos: Pt2, size: Vec2) : Rect {
     override var y2: Float
         get() = super.y2
         set(value) { size.y = value - y }
-
-    fun toRect() = Rect(pos, size)
 
     fun set(other: Rect) {
         pos.set(other.pos)

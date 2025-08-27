@@ -13,12 +13,12 @@ interface Vec2 {
     val x: Float
     val y: Float
 
-
     fun isZero() = x == 0f && y == 0f
     fun len2() = (x * x) + (y * y)
     fun len() = sqrt(len2())
     fun normalized() = if (isZero()) Zero else this / len()
 
+    fun toVec2() = Vec2(x, y)
     fun toMutableVec2() = MutableVec2(x, y)
 
     operator fun component1() = x
@@ -49,8 +49,6 @@ class MutableVec2(override var x: Float, override var y: Float) : Vec2 {
      * convert between the two.
      */
     constructor(pt: Pt2) : this(pt.x, pt.y)
-
-    fun toVec2() = Vec2(x, y)
 
     fun set(other: Pt2) {
         x = other.x

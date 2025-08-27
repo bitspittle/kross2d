@@ -21,6 +21,7 @@ interface Square : Shape {
     override val area: Float
         get() = side * side
 
+    fun toSquare() = Square(pos, side)
     fun toMutableSquare() = MutableSquare(x, y, side)
 
     override fun toBoundingRect() = Rect(x, y, side, side)
@@ -55,8 +56,6 @@ class MutableSquare(pos: Pt2, side: Float) : Square {
     override var y2: Float
         get() = super.y2
         set(value) { side = value - y }
-
-    fun toSquare() = Square(pos, side)
 
     fun set(other: Square) {
         pos.set(other.pos)

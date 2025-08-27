@@ -19,6 +19,7 @@ interface Circle : Shape {
     override val area: Float
         get() = (PI * radius * radius).toFloat()
 
+    fun toCircle() = Circle(center, radius)
     fun toMutableCircle() = MutableCircle(center, radius)
 
     override fun toBoundingRect() = Rect(center.x - radius, center.y - radius, 2 * radius, 2 * radius)
@@ -50,8 +51,6 @@ class MutableCircle(center: Pt2, radius: Float) : Circle {
     override var y: Float
         get() = super.y
         set(value) { center.y = value }
-
-    fun toCircle() = Circle(center, radius)
 
     fun set(other: Circle) {
         center.set(other.center)
