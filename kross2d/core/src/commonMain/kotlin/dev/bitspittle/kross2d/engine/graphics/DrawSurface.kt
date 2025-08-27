@@ -74,7 +74,7 @@ interface MutableDrawSurface : DrawSurface {
      * image before it is rendered. If you wish to only drawImage a section of the target image,
      * create a subsection of it using the subimage [Image] constructor.
      */
-    fun drawImage(image: Image, params: DrawSurface.ImageParams = DrawSurface.ImageParams())
+    fun drawImage(image: Image, params: ImageParams = ImageParams())
 
     /**
      * Determine the width needed to render the target text. Newlines are ignored.
@@ -87,5 +87,5 @@ interface MutableDrawSurface : DrawSurface {
      * For convenience, newlines are supported. Use [TextParams.spacing] to configure the space
      * between lines.
      */
-    fun drawText(font: Font, text: String, params: DrawSurface.TextParams = DrawSurface.TextParams())
+    fun drawText(font: Font, text: String, params: TextParams = TextParams())
 }
