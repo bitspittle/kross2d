@@ -60,16 +60,27 @@ class DisposableTest {
         val d1 = TestDisposable()
         val d2 = TestDisposable()
 
+        var disposeEventCount = 0
+        d1.disposed += { disposeEventCount++ }
+        d2.disposed += { disposeEventCount++ }
+
         assertThat(d1.isDisposed).isFalse()
         assertThat(d2.isDisposed).isFalse()
+        assertThat(disposeEventCount).isEqualTo(0)
 
         Disposer.dispose(d2)
         assertThat(d1.isDisposed).isFalse()
         assertThat(d2.isDisposed).isTrue()
+        assertThat(disposeEventCount).isEqualTo(1)
 
         Disposer.dispose(d1)
         assertThat(d1.isDisposed).isTrue()
         assertThat(d2.isDisposed).isTrue()
+        assertThat(disposeEventCount).isEqualTo(2)
+
+        // The disposed event fires immediately if already disposed
+        d1.disposed += { disposeEventCount++ }
+        assertThat(disposeEventCount).isEqualTo(3)
     }
 
     @Test

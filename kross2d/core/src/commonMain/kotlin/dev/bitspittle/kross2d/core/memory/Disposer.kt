@@ -1,6 +1,8 @@
 package dev.bitspittle.kross2d.core.memory
 
 import dev.bitspittle.kross2d.core.concurrency.synchronized
+import dev.bitspittle.kross2d.core.event.Event
+import dev.bitspittle.kross2d.core.event.EventEmitter
 
 /**
  * A global object useful for explicitly tracking and releasing [Disposable] objects, when waiting on the GC to lazily
@@ -96,6 +98,21 @@ object Disposer {
     // Exposed for testing
     internal fun isRegistered(disposable: Disposable): Boolean = synchronized(lock) {
         return roots.contains(disposable) || parentOf.contains(disposable)
+    }
+
+    private val disposedMap = mutableMapOf<Disposable, EventEmitter<Disposable>>()
+    // Users should use `Disposable.disposed` instead.
+    internal fun disposed(disposable: Disposable): Event<Disposable> = synchronized(lock) {
+        if (disposable.isDisposed) {
+            return EventEmitter(onAdded = { handler ->
+                handler(disposable)
+            })
+        }
+
+        if (!isRegistered(disposable)) {
+            throw DisposableException("Attempting to register a disposal event listener for a disposable that wasn't registered with `Disposer`")
+        }
+        return disposedMap.getOrPut(disposable) { EventEmitter() }
     }
 
     /**
@@ -240,6 +257,7 @@ object Disposer {
             throw DisposableException("Attempting to dispose a pre-disposed disposable")
         }
         disposable.dispose()
+        disposedMap.remove(disposable)?.let { disposed -> disposed(disposable) }
     }
 
     /**

@@ -1,5 +1,7 @@
 package dev.bitspittle.kross2d.core.memory
 
+import dev.bitspittle.kross2d.core.event.Event
+
 class DisposableException(msg: String) : Exception(msg)
 
 /**
@@ -27,6 +29,8 @@ abstract class Disposable(autoRegister: Boolean = true) {
 
     var isDisposed: Boolean = false
         private set
+
+    val disposed: Event<Disposable> get() = Disposer.disposed(this)
 
     // This should ONLY be called by [Disposer.dispose]
     internal fun dispose() {
