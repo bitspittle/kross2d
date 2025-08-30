@@ -30,11 +30,11 @@ class Asset<D: Disposable>(parent: Disposable, val path: String) : Disposable() 
             if (field == State.LOADED) {
                 fireOnLoaded(this.data!!)
             }
-            _onLoaded.clear()
+            _loaded.clear()
         }
 
-    private val _onLoaded = EventEmitter<D> { data?.let { fireOnLoaded(it) } }
-    val onLoaded: Event<D> = _onLoaded
+    private val _loaded = EventEmitter<D> { data?.let { fireOnLoaded(it) } }
+    val loaded: Event<D> = _loaded
 
     /**
      * The value of this handle. Will only be non-null if the current [state] is [State.LOADED]
@@ -63,8 +63,8 @@ class Asset<D: Disposable>(parent: Disposable, val path: String) : Disposable() 
     }
 
     private fun fireOnLoaded(data: D) {
-        _onLoaded(data)
-        _onLoaded.clear()
+        _loaded(data)
+        _loaded.clear()
     }
 
     internal fun notifyFailure() {

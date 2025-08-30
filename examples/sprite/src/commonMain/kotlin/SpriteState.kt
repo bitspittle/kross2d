@@ -97,7 +97,7 @@ class SpriteState : GameState {
 
     override fun enter(ctx: EnterContext) {
         grassAsset = ctx.assetLoader.loadImage("grass.png")
-        ctx.assetLoader.loadImage("player.png").onLoaded += { image ->
+        ctx.assetLoader.loadImage("player.png").loaded += { image ->
             player = Player(Tiles(image, Vec2(16, 16))).apply { init(ctx) }
         }
     }

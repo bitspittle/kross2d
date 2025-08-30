@@ -52,9 +52,9 @@ class SoundsState : GameState {
             "slide_whistle.wav",
             "thunk.wav")
             .map { filename -> ctx.assetLoader.loadSound(filename) }
-        ctx.assetLoader.loadFont("square.ttf").onLoaded += { font = it; fontLarge = it.derive(24f) }
+        ctx.assetLoader.loadFont("square.ttf").loaded += { font = it; fontLarge = it.derive(24f) }
         music = ctx.assetLoader.loadMusic("battle.ogg")
-        music.onLoaded += { it.play() }
+        music.loaded += { it.play() }
     }
 
     override fun update(ctx: UpdateContext) {

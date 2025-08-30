@@ -3,7 +3,6 @@ package dev.bitspittle.kross2d.engine.app
 import dev.bitspittle.kross2d.core.event.Event
 import dev.bitspittle.kross2d.core.event.EventEmitter
 import dev.bitspittle.kross2d.core.graphics.Color
-import dev.bitspittle.kross2d.core.math.MutablePt2
 import dev.bitspittle.kross2d.core.math.Pt2
 import dev.bitspittle.kross2d.core.math.Vec2
 import dev.bitspittle.kross2d.engine.graphics.DrawSurface

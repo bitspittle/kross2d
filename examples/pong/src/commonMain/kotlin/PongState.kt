@@ -38,7 +38,7 @@ class PongState : GameState {
     private val scoreBoard = ScoreBoard()
 
     override fun enter(ctx: EnterContext) {
-        ctx.assetLoader.loadFont("font/square.ttf").onLoaded += ScopedObserver(ctx.scopes.currState) {
+        ctx.assetLoader.loadFont("font/square.ttf").loaded += ScopedObserver(ctx.scopes.currState) {
             val font = it.derive(16f)
             for (side in listOf(Side.LEFT, Side.RIGHT)) {
                 world.createEntity().apply {
@@ -47,7 +47,7 @@ class PongState : GameState {
                 }
             }
         }
-        ctx.assetLoader.loadImage("image/pong.png").onLoaded += ScopedObserver(ctx.scopes.currState) {
+        ctx.assetLoader.loadImage("image/pong.png").loaded += ScopedObserver(ctx.scopes.currState) {
             val spritePaddle = it.subimage(Pt2.Zero, Vec2(4, 16))
             val spriteBall = it.subimage(Pt2(4, 0), Vec2(4, 4))
 
