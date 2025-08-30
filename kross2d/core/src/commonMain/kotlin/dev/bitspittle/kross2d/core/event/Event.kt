@@ -9,18 +9,26 @@ import dev.bitspittle.kross2d.core.memory.register
 /**
  * The part of an event responsible for registering listeners but not firing. This can safely be exposed publicly.
  *
- * Here, `onKeyPressed` would be exposed as an [Event]:
+ * Here, `keyPressed` would be exposed as an [Event]:
  *
  * ```
- * interface Keyboard {
- *    val onKeyPressed: ObservableEvent<Key>
+ * class Keyboard {
+ *    val keyPressed: Event<Key> = ...
  * }
  *
- * keyboard.onKeyPressed += { (key) -> ... }
+ * keyboard.keyPressed += { (key) -> ... }
  * ```
  *
- * Then, a class that implemented that Keyboard interface would internally create an [EventEmitter] which allows the
- * caller to trigger it.
+ * NOTE: We suggest a naming convention for events which does NOT begin with `on`. For example, above we use
+ * `keyPressed` and *not* `onKeyPressed`. This is consistent with how properties are generally named. If you wanted to
+ * create and store a listener behind a variable, that could be a good place to use `on`, as in
+ *
+ * ```
+ * val onKeyPressed: (Key) -> Unit = { ... }`
+ * keyboard.keyPressed += onKeyPressed
+ *```
+ *
+ * See [EventEmitter] for more information about triggering an event.
  *
  * @param onAdded A callback registered by the event owner which will be triggered everytime a new event handler is
  * added, allowing the event owner to trigger it immediately (e.g. if the event listener is added *after* the initial
@@ -58,15 +66,35 @@ abstract class Event<P>(private val onAdded: ((P) -> Unit) -> Unit) {
  * A class with an event should use the common pattern:
  *
  * ```
- * private val Event<EventParams> _event = Event<EventParams>()
- * public val ObservableEvent<EventParams> event = _event
+ * private val _event = EventEmitter<EventParams>()
+ * val Event<EventParams> event = _event
  *
  * fun funcThatFiresEvent() {
  *   ...
  *   val params = EventParams(...)
  *   _event(params)
  * }
+ * ```
  *
+ * We recommend using the progressive tense for events that are just about to happen (and perhaps the user can
+ * update params to prevent or affect what will occur) and past tense for events that just happened.
+ *
+ * For example:
+ *
+ * ```
+ * private val _closing = EventEmitter<ClosingParams>()
+ * val closing: Event<ClosingParams> = _closing
+ *
+ * private val _closed = EventEmitter<ClosedParams>()
+ * val closed: Event<ClosedParams> = _closed
+ *
+ * fun close() {
+ *   val closingParams = ClosingParams()
+ *   _closing(closingParams)
+ *   if (closingParams.shouldAbort) return
+ *
+ *   _closed(ClosedParams(...))
+ * }
  * ```
  *
  * See also: [Event]
@@ -84,18 +112,18 @@ class EventEmitter<P>(onAdded: ((P) -> Unit) -> Unit = {}) : Event<P>(onAdded) {
 /**
  * Create an observer that will get automatically cleaned up when it goes out of scope.
  *
- * This is particularly useful in game states:
+ * This is particularly useful for automatically releasing listeners when game states change:
  *
  * ```
  * // In enter
  * // Prefer this:
- * globalLives.onChanged += ScopedObserver(ctx.scopes.state) { updateUi() }
+ * user.healthChanged += ScopedObserver(ctx.scopes.currState) { health -> updateLifeBar(health) }
  *
  * // Over this:
- * // globalLives.onChanged += { updateUi() }
+ * // val onHealthChanged: (Int) -> Unit = { health -> updateLifeBar(health) }
+ * // user.healthChanged += onHealthChanged
+ * // ... later, in dispose ...
+ * // user.healthChanged -= onHealthChanged
  * ```
- *
- * to ensure that listeners won't stay attached after the current state exits, as well as to
- * prevent multiple listeners from being added if `enter` is called multiple times.
  */
 class ScopedObserver<P>(internal val scope: Disposable, internal val observer: (P) -> Unit)
