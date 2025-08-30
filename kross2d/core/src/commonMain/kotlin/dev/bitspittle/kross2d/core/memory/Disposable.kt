@@ -9,13 +9,22 @@ class DisposableException(msg: String) : Exception(msg)
  *
  * Disposable objects should be registered using [Disposer.register] and cleaned up by calling
  * [Disposer.dispose], if necessary (often, you can rely on a parent disposable being cleaned up
- * for you).
+ * for you). If [autoRegister] is passed in with true, then [Disposer.register] will be called
+ * automatically.
  *
  * In *Kross2D*, every `GameState` as well as the parent application (accessible via `ctx.app`
  * depending on the context) are disposable containers, so if you register your disposable
  * against them, they will be automatically cleaned up when those objects go out of scope.
+ *
+ * @param autoRegister Set true to automatically call [Disposer.register] on creation of this
+ *   disposable. You are encouraged to change this disposable's parent after registering using
+ *   [Disposer.setParent].
  */
-abstract class Disposable  {
+abstract class Disposable(autoRegister: Boolean = true) {
+    init {
+        if (autoRegister) Disposer.register(this)
+    }
+
     var disposed: Boolean = false
         private set
 
@@ -40,7 +49,7 @@ abstract class Disposable  {
  *
  * Once created, it still needs to be explicitly registered via [Disposer.register].
  */
-inline fun disposableOf(crossinline block: () -> Unit = {}) = object : Disposable() {
+inline fun disposableOf(crossinline block: () -> Unit = {}) = object : Disposable(autoRegister = false) {
     override fun onDisposed() {
         block()
     }

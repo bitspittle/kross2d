@@ -34,7 +34,7 @@ class Rc<D: Disposable>(private val create: () -> D) {
         }
 
         if (toRegister != null) {
-            Disposer.register(toRegister)
+            Disposer.register(toRegister, Disposer.AlreadyRegisteredStrategy.IGNORE)
         }
     }
 

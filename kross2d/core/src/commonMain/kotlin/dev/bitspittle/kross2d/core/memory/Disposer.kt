@@ -36,6 +36,16 @@ import dev.bitspittle.kross2d.core.concurrency.synchronized
  * This class is thread-safe, and calling relevant methods will block until completed.
  */
 object Disposer {
+    enum class AlreadyRegisteredStrategy {
+        REREGISTER,
+        ERROR,
+        IGNORE;
+
+        companion object {
+            val DEFAULT = ERROR
+        }
+    }
+
     private val lock = Any()
 
     private val roots = mutableListOf<Disposable>()
@@ -52,8 +62,8 @@ object Disposer {
      * Usually, it's better to register a disposable underneath a parent, so you can chain their release at the same
      * time. You can still call [setParent] later to move it.
      */
-    fun <D : Disposable> register(disposable: D) = synchronized(lock) {
-        register(null, disposable)
+    fun <D : Disposable> register(disposable: D, alreadyRegisteredStrategy: AlreadyRegisteredStrategy = AlreadyRegisteredStrategy.DEFAULT) = synchronized(lock) {
+        register(null, disposable, alreadyRegisteredStrategy)
     }
 
     /**
@@ -64,8 +74,18 @@ object Disposer {
      * it (as long as doing so doesn't cause an infinite cycle, e.g. setting your kid as your
      * parent)
      */
-    fun <D1 : Disposable, D2 : Disposable> register(parent: D1?, child: D2) = synchronized(lock) {
-        verifyNewDisposable(child)
+    fun <D1 : Disposable, D2 : Disposable> register(parent: D1?, child: D2, alreadyRegisteredStrategy: AlreadyRegisteredStrategy = AlreadyRegisteredStrategy.DEFAULT) = synchronized(lock) {
+        if (isRegistered(child)) {
+            when (alreadyRegisteredStrategy) {
+                AlreadyRegisteredStrategy.REREGISTER -> unregister(child)
+                AlreadyRegisteredStrategy.ERROR -> throw DisposableException("A disposable can only be registered once")
+                AlreadyRegisteredStrategy.IGNORE -> return@synchronized
+            }
+        }
+        if (child.disposed) {
+            throw DisposableException("Can't register a disposable that's been previously disposed")
+        }
+
         if (parent != null) {
             setParent(parent, child)
         } else {
@@ -73,18 +93,9 @@ object Disposer {
         }
     }
 
-    fun isRegistered(disposable: Disposable): Boolean = synchronized(lock) {
+    // Exposed for testing
+    internal fun isRegistered(disposable: Disposable): Boolean = synchronized(lock) {
         return roots.contains(disposable) || parentOf.contains(disposable)
-    }
-
-    private fun <D : Disposable> verifyNewDisposable(disposable: D) {
-        if (isRegistered(disposable)) {
-            throw DisposableException("A disposable can only be registered once")
-        }
-
-        if (disposable.disposed) {
-            throw DisposableException("Can't register a disposable that's been previously disposed")
-        }
     }
 
     /**
@@ -95,9 +106,7 @@ object Disposer {
      * If [child] already has a parent, it will be changed.
      */
     fun <D1 : Disposable, D2 : Disposable> setParent(newParent: D1, child: D2): Unit = synchronized(lock) {
-        if (!isRegistered(newParent)) {
-            register(newParent)
-        }
+        register(newParent, AlreadyRegisteredStrategy.IGNORE)
 
         if (newParent.disposed) {
             throw DisposableException("Tried to reparent onto a disposable that's been previously disposed")
@@ -118,12 +127,14 @@ object Disposer {
             }
         }
 
-        removeFromSiblings(child)
+        unregister(child)
 
         parentOf[child] = newParent
         childrenOf.getOrPut(newParent) { mutableListOf() }.add(child)
     }
 
+    // Exposed for testing
+    internal fun parentOf(disposable: Disposable): Disposable? = synchronized(lock) { parentOf[disposable] }
 
     /**
      * Move all children from one owner to another.
@@ -159,7 +170,7 @@ object Disposer {
         }
 
         handleDisposeChildren(disposable)
-        removeFromSiblings(disposable)
+        unregister(disposable)
         handleDispose(disposable)
     }
 
@@ -175,15 +186,16 @@ object Disposer {
         }
     }
 
-    private fun removeFromSiblings(child: Disposable) {
-        parentOf.remove(child)?.let { parent ->
-            childrenOf[parent]!!.let { siblings ->
-                siblings.remove(child)
-                if (siblings.isEmpty()) {
+    // IMPORTANT: This should only be called within a synchronized lock
+    private fun unregister(disposable: Disposable) {
+        parentOf.remove(disposable)?.let { parent ->
+            childrenOf[parent]!!.let { children ->
+                children.remove(disposable)
+                if (children.isEmpty()) {
                     childrenOf.remove(parent)
                 }
             }
-        } ?: roots.remove(child)
+        } ?: roots.remove(disposable)
     }
 
     /**
@@ -281,7 +293,7 @@ fun <D: Disposable> D.setParent(parent: Disposable): D {
  */
 inline fun <D: Disposable> D.use(block: (D) -> Unit) {
     if (disposed) { throw DisposableException("Attempting to `use` a disposed disposable") }
-    if (!Disposer.isRegistered(this)) Disposer.register(this)
+    Disposer.register(this, Disposer.AlreadyRegisteredStrategy.IGNORE)
     try {
         block(this)
     }
