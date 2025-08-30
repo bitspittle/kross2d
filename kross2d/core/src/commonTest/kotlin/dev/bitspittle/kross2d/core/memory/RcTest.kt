@@ -29,10 +29,10 @@ class RcTest {
             }
             assertThat(rc.value!!).isSameAs(d)
 
-            assertThat(d.disposed).isFalse()
+            assertThat(d.isDisposed).isFalse()
 
             rc.dec()
-            assertThat(d.disposed).isTrue()
+            assertThat(d.isDisposed).isTrue()
 
             assertThat(rc.value).isNull()
 

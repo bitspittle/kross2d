@@ -43,7 +43,7 @@ class Asset<D: Disposable>(parent: Disposable, val path: String) : Disposable() 
         private set
 
     internal fun setData(data: D?) {
-        if (this.disposed) {
+        if (this.isDisposed) {
             // It's possible that this asset shell already got disposed by the time we finished
             // loading the underlying data. This probably won't happen in practice, but just in
             // case, let's handle it by consuming the data.
@@ -68,7 +68,7 @@ class Asset<D: Disposable>(parent: Disposable, val path: String) : Disposable() 
     }
 
     internal fun notifyFailure() {
-        if (this.disposed) {
+        if (this.isDisposed) {
             // We got disposed before the target data had a chance to fail loading. This probably
             // won't happen in practice, but if it does, who cares! Let's just ignore it.
             return

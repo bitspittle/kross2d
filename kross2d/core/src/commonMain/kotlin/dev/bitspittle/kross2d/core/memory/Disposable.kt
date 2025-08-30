@@ -25,12 +25,12 @@ abstract class Disposable(autoRegister: Boolean = true) {
         if (autoRegister) Disposer.register(this)
     }
 
-    var disposed: Boolean = false
+    var isDisposed: Boolean = false
         private set
 
     // This should ONLY be called by [Disposer.dispose]
     internal fun dispose() {
-        disposed = true
+        isDisposed = true
         onDisposed()
     }
 

@@ -60,16 +60,16 @@ class DisposableTest {
         val d1 = TestDisposable()
         val d2 = TestDisposable()
 
-        assertThat(d1.disposed).isFalse()
-        assertThat(d2.disposed).isFalse()
+        assertThat(d1.isDisposed).isFalse()
+        assertThat(d2.isDisposed).isFalse()
 
         Disposer.dispose(d2)
-        assertThat(d1.disposed).isFalse()
-        assertThat(d2.disposed).isTrue()
+        assertThat(d1.isDisposed).isFalse()
+        assertThat(d2.isDisposed).isTrue()
 
         Disposer.dispose(d1)
-        assertThat(d1.disposed).isTrue()
-        assertThat(d2.disposed).isTrue()
+        assertThat(d1.isDisposed).isTrue()
+        assertThat(d2.isDisposed).isTrue()
     }
 
     @Test
@@ -135,19 +135,19 @@ class DisposableTest {
 
         Disposer.dispose(b111)
 
-        assertThat(b1.disposed).isFalse()
-        assertThat(b11.disposed).isFalse()
-        assertThat(b111.disposed).isTrue()
-        assertThat(b1111.disposed).isTrue()
-        assertThat(b2.disposed).isFalse()
+        assertThat(b1.isDisposed).isFalse()
+        assertThat(b11.isDisposed).isFalse()
+        assertThat(b111.isDisposed).isTrue()
+        assertThat(b1111.isDisposed).isTrue()
+        assertThat(b2.isDisposed).isFalse()
 
         Disposer.dispose(b1)
-        assertThat(b1.disposed).isTrue()
-        assertThat(b11.disposed).isTrue()
-        assertThat(b2.disposed).isFalse()
+        assertThat(b1.isDisposed).isTrue()
+        assertThat(b11.isDisposed).isTrue()
+        assertThat(b2.isDisposed).isFalse()
 
         Disposer.dispose(b2)
-        assertThat(b2.disposed).isTrue()
+        assertThat(b2.isDisposed).isTrue()
     }
 
     @Test
@@ -157,7 +157,7 @@ class DisposableTest {
             var onDisposed = false
             val d = disposableOf { onDisposed = true }
             d.use {}
-            assertThat(d.disposed).isTrue()
+            assertThat(d.isDisposed).isTrue()
             assertThat(onDisposed).isTrue()
         }
 
@@ -170,7 +170,7 @@ class DisposableTest {
                     throw RuntimeException()
                 }
             }
-            assertThat(d.disposed).isTrue()
+            assertThat(d.isDisposed).isTrue()
             assertThat(onDisposed).isTrue()
         }
     }
@@ -197,14 +197,14 @@ class DisposableTest {
         Disposer.transferChildren(from = parent1, to = parent2)
 
         Disposer.dispose(parent1)
-        assertThat(child1.disposed).isFalse()
-        assertThat(child2.disposed).isFalse()
-        assertThat(child3.disposed).isFalse()
+        assertThat(child1.isDisposed).isFalse()
+        assertThat(child2.isDisposed).isFalse()
+        assertThat(child3.isDisposed).isFalse()
 
         Disposer.dispose(parent2)
-        assertThat(child1.disposed).isTrue()
-        assertThat(child2.disposed).isTrue()
-        assertThat(child3.disposed).isTrue()
+        assertThat(child1.isDisposed).isTrue()
+        assertThat(child2.isDisposed).isTrue()
+        assertThat(child3.isDisposed).isTrue()
 
         // All disposables should have been removed
         Disposer.freeRemaining { fail(it) }
@@ -221,9 +221,9 @@ class DisposableTest {
         Disposer.transferChildren(from = parent, to = parent)
 
         Disposer.dispose(parent)
-        assertThat(child1.disposed).isTrue()
-        assertThat(child2.disposed).isTrue()
-        assertThat(child3.disposed).isTrue()
+        assertThat(child1.isDisposed).isTrue()
+        assertThat(child2.isDisposed).isTrue()
+        assertThat(child3.isDisposed).isTrue()
     }
 
     @Test

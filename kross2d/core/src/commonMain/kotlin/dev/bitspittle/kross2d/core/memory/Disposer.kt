@@ -82,7 +82,7 @@ object Disposer {
                 AlreadyRegisteredStrategy.IGNORE -> return@synchronized
             }
         }
-        if (child.disposed) {
+        if (child.isDisposed) {
             throw DisposableException("Can't register a disposable that's been previously disposed")
         }
 
@@ -108,11 +108,11 @@ object Disposer {
     fun <D1 : Disposable, D2 : Disposable> setParent(newParent: D1, child: D2): Unit = synchronized(lock) {
         register(newParent, AlreadyRegisteredStrategy.IGNORE)
 
-        if (newParent.disposed) {
+        if (newParent.isDisposed) {
             throw DisposableException("Tried to reparent onto a disposable that's been previously disposed")
         }
 
-        if (child.disposed) {
+        if (child.isDisposed) {
             throw DisposableException("Tried to reparent a disposable that's been previously disposed")
         }
 
@@ -236,7 +236,7 @@ object Disposer {
     }
 
     private fun handleDispose(disposable: Disposable) {
-        if (disposable.disposed) {
+        if (disposable.isDisposed) {
             throw DisposableException("Attempting to dispose a pre-disposed disposable")
         }
         disposable.dispose()
@@ -292,7 +292,7 @@ fun <D: Disposable> D.setParent(parent: Disposable): D {
  * Convenience method for scoping a disposable to a block. After the block is finished, the disposable will be disposed.
  */
 inline fun <D: Disposable> D.use(block: (D) -> Unit) {
-    if (disposed) { throw DisposableException("Attempting to `use` a disposed disposable") }
+    if (isDisposed) { throw DisposableException("Attempting to `use` a disposed disposable") }
     Disposer.register(this, Disposer.AlreadyRegisteredStrategy.IGNORE)
     try {
         block(this)

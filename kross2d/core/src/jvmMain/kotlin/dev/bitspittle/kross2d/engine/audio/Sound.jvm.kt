@@ -97,7 +97,7 @@ actual class Sound(stream: InputStream) : Disposable() {
      */
     private fun disposeStoppedSounds() {
         handles.forEach { if (it.isStopped()) Disposer.dispose(it) }
-        handles.removeAll { it.disposed }
+        handles.removeAll { it.isDisposed }
     }
 
     override fun onDisposed() {
