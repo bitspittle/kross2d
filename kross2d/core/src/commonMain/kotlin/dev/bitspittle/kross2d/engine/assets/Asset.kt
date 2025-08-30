@@ -15,7 +15,7 @@ import dev.bitspittle.kross2d.core.memory.use
  */
 class Asset<D: Disposable>(parent: Disposable, val path: String) : Disposable() {
     init {
-        Disposer.register(parent, this)
+        Disposer.register(parent, this, Disposer.AlreadyRegisteredStrategy.REREGISTER)
     }
 
     enum class State {

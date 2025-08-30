@@ -9,7 +9,7 @@ import kotlin.test.fail
 // Disposer.register assigned to vars even if not needed, for readability
 @Suppress("UNUSED_VARIABLE")
 class DisposableTest {
-    class TestDisposable(parent: TestDisposable? = null, private val displayName: String? = null) : Disposable() {
+    class TestDisposable(parent: TestDisposable? = null, private val displayName: String? = null) : Disposable(autoRegister = false) {
         init {
             Disposer.register(parent, this)
         }
@@ -25,18 +25,34 @@ class DisposableTest {
     }
 
     @Test
-    fun disposablesAutomaticallyRegisteredAndCallingTwiceThrows() {
-        val d1 = TestDisposable()
-        val d2 = TestDisposable()
+    fun canControlRegistrationStrategyWhenAlreadyRegistered() {
+        val root = TestDisposable()
+        val d1 = TestDisposable(root)
+        val d2 = TestDisposable(root)
 
-        // Normally, `register` is internal so users can't call it themselves, but just in
-        // case, we verify if we make a logic mistake in this library, we'd throw
+        val newParent = TestDisposable()
+
+        assertThat(Disposer.isRegistered(d1)).isTrue()
+        assertThat(Disposer.isRegistered(d2)).isTrue()
+        assertThat(Disposer.parentOf(d1)).isSameAs(root)
+        assertThat(Disposer.parentOf(d2)).isSameAs(root)
+
         assertThrows<DisposableException> {
-            Disposer.register(d1)
+            Disposer.register(d1, Disposer.AlreadyRegisteredStrategy.ERROR)
         }
         assertThrows<DisposableException> {
-            Disposer.register(d1, d2)
+            Disposer.register(newParent, d2, Disposer.AlreadyRegisteredStrategy.ERROR)
         }
+
+        Disposer.register(d1, Disposer.AlreadyRegisteredStrategy.REREGISTER)
+        assertThat(Disposer.parentOf(d1)).isNull()
+        Disposer.register(newParent, d2, Disposer.AlreadyRegisteredStrategy.REREGISTER)
+        assertThat(Disposer.parentOf(d2)).isSameAs(newParent)
+
+        Disposer.register(root, d1, Disposer.AlreadyRegisteredStrategy.IGNORE)
+        assertThat(Disposer.parentOf(d1)).isNull()
+        Disposer.register(root, d2, Disposer.AlreadyRegisteredStrategy.IGNORE)
+        assertThat(Disposer.parentOf(d2)).isSameAs(newParent)
     }
 
     @Test
