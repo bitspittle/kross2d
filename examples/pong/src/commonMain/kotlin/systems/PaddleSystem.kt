@@ -2,7 +2,6 @@ package systems
 
 import components.Paddle
 import dev.bitspittle.kross2d.core.math.Vec2
-import dev.bitspittle.kross2d.core.math.clamp
 import dev.bitspittle.kross2d.engine.context.UpdateContext
 import dev.bitspittle.kross2d.extras.ecs.Entity
 import dev.bitspittle.kross2d.extras.ecs.Family
@@ -14,6 +13,6 @@ class PaddleSystem(private val arenaSize: Vec2) : UpdateSystem(Family.all(Paddle
         val paddle = entity.get<Paddle>()
 
         paddle.shape.pos += (paddle.vel * ctx.timer.lastFrame.secs.toFloat())
-        paddle.shape.y = paddle.shape.y.clamp(0f, arenaSize.y - paddle.shape.h)
+        paddle.shape.y = paddle.shape.y.coerceIn(0f, arenaSize.y - paddle.shape.h)
     }
 }

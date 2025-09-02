@@ -81,8 +81,8 @@ class SpriteState : GameState {
 
             (ctx.screen.size - drawSize).let { bounds ->
                 pos += vel
-                pos.x = pos.x.clamp(0f, bounds.x)
-                pos.y = pos.y.clamp(0f, bounds.y)
+                pos.x = pos.x.coerceIn(0f, bounds.x)
+                pos.y = pos.y.coerceIn(0f, bounds.y)
             }
         }
 

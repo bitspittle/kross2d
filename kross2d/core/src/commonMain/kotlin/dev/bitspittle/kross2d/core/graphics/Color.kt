@@ -1,6 +1,5 @@
 package dev.bitspittle.kross2d.core.graphics
 
-import dev.bitspittle.kross2d.core.math.clamp
 import kotlin.math.roundToInt
 
 private const val A_MASK: Int = 0xFF000000.toInt() // toInt required to avoid being treated as Long
@@ -44,8 +43,8 @@ fun Color(argb: Int): Color = MutableColor(argb)
 fun Color(r: Int, g: Int, b: Int, a: Int = 255): Color = MutableColor(r, g, b, a)
 fun Color(r: Float, g: Float, b: Float, a: Float = 1.0f): Color = MutableColor(r, g, b, a)
 
-private fun Int.colorClamped() = this.clamp(0, 255)
-private fun Float.toColorInt() = (255 * this.clamp(0f, 1f)).roundToInt()
+private fun Int.colorClamped() = this.coerceIn(0, 255)
+private fun Float.toColorInt() = (255 * this.coerceIn(0f, 1f)).roundToInt()
 
 class MutableColor(override var argb: Int) : Color {
     constructor(r: Int, g: Int, b: Int, a: Int = 255) : this(a.colorClamped().shl(A_POS).or(r.colorClamped().shl(R_POS)).or(g.colorClamped().shl(G_POS)).or(b.colorClamped().shl(B_POS)))
