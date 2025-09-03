@@ -17,3 +17,8 @@ out
 
 # Mac noise...
 .DS_store
+
+# Kotlin
+
+kotlin-js-store
+.kotlin

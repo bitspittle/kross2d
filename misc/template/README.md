@@ -4,49 +4,49 @@ Follow these steps to convert this template into your own game!
 
 1. Choose a name for your project. Let's go with `Demo` for now.
 
-1. In the root `settings.gradle` file...
+1. In the root `settings.gradle.kts` file...
    1. Rename the two references to `yourgame` 
      * For example,
      ```
        rootProject.name = "demo"
-       include(":demo-common")
+       include(":demo")
      ```
 
-1. Rename base directories from `yourname` to your name.
-   * For example, `demo-common`, `demo-jvm`, and `demo-js`
+1. Rename child directory from `yourname` to your name.
+   * For example, `demo`
 
-1. In `common`...
+1. In `commonMain`...
    1. Rename `src/commonMain/kotlin/YourGameState.kt`
       * For example, `DemoState.kt`
    1. Rename the class name inside the file
       * For example, `class DemoState : GameState`
-   1. In `build.gradle`, rename the group to something unique that represents
-      you
+   1. In `build.gradle.kts`, rename the group to something unique that represents
+      an group ID for your software.
       * See also [Maven's naming conventions](https://maven.apache.org/guides/mini/guide-naming-conventions.html)
 
-1. In `jvm`...
-   1. Rename `src/main/kotlin/YourGameRunner.kt`
-      * For example, `DemoRunner.kt`
-   1. In `build.gradle`...
-      1. Update the `common` build dependency
-         * For example, `compile project(":demo-common")`
-      1. Update the main class name
-         * For example, `def mainClass = 'DemoRunnerKt`
+1. In `jvmMain`...
+   1. Rename the application title in `src/jvmMain/kotlin/main.kt`
+      * For example, `"Your Game"` -> `"Demo"`
+   1. Update the state class to what you named it in `commonMain`
+      * For example, `YourGameState` -> `DemoState`
 
-1. In `js`...
-   1. Rename `src/main/kotlin/YourGameRunner.kt`
-   1. In `build.gradle`...
-      1. Update the `common` build dependency
-   1. In `web/index.html`...
-      1. Change the `Your Game` title
-      1. Change the `yourgame` includes
+1. In `jsMain`...
+   1. In `src/jsMain/resources/index.html`...
+       1. Change the `Your Game` title
+       1. Change the `/yourgame.js` script name
+   1. In `src/jsMain/kotlin/main.kt`
+      1. Update the state class to what you named it in `commonMain`
+          * For example, `YourGameState` -> `DemoState`
 
 1. To test that everything is working, run the following commands in the root
    directory:
 
    ```
-   $ ./gradlew run
-   $ ./gradlew runWeb
+   $ ./gradlew runJvm
+   $ ./gradlew jsBroswerProductionRun
    ```
 
- 1. And *finally*, delete these `README.md`! You don't need it anymore.
+1. If you decide you don't want any particular target, remove it from the `build.gradle.kts` file as well as delete the
+   corresponding ${target}Main folder.
+
+1. And *finally*, delete this `README.md`! You don't need it anymore.

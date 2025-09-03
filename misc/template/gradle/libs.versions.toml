@@ -1,0 +1,11 @@
+[versions]
+kotlin = "2.2.10"
+kross2d-core = "+" # TODO: Cement down to a specific version
+kross2d-ecs = "+" # TODO: Cement down to a specific version
+
+[libraries]
+kross2d-core = { module = "dev.bitspittle.kross2d:kross2d", version.ref = "kross2d-core" }
+kross2d-ecs = { module = "dev.bitspittle.kross2d:kross2d-ecs", version.ref = "kross2d-ecs" }
+
+[plugins]
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
