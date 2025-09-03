@@ -84,17 +84,6 @@ class DisposableTest {
     }
 
     @Test
-    fun cannotDisposeIfAlreadyDisposed() {
-        val d = TestDisposable()
-        Disposer.dispose(d)
-        assertThrows<DisposableException> {
-            Disposer.dispose(d)
-        }
-
-        assertThat(Disposer.tryDispose(d)).isFalse()
-    }
-
-    @Test
     fun reparentingAllowedIfNoParadox() {
         val grandparent = TestDisposable()
         val parent = TestDisposable()
@@ -248,6 +237,29 @@ class DisposableTest {
         assertThrows<DisposableException> {
             Disposer.transferChildren(from = parent, to = child2)
         }
+    }
+
+    @Test
+    fun disposalAlgorithmIsRobustToOnDiposeHandlersDisposingOtherDisposables() {
+        val d1 = TestDisposable("d1")
+        val d11 = TestDisposable(d1, "d11")
+        val d111 = TestDisposable(d11, "d111")
+        val d1111 = TestDisposable(d111, "d1111")
+        val d1112 = TestDisposable(d111, "d1112")
+
+        Disposer.register(d1111) { Disposer.dispose(d11) }
+
+        // d122 should trigger disposal of d1221 (child), so far so good
+        // but d1221 will trigger disposable of d12 (parent), this might be a problem!
+        // But Disposer ensures that any disposal requests added during disposal are delayed until the current chain is
+        // finished.
+        Disposer.dispose(d111)
+
+        assertThat(d1.isDisposed).isFalse()
+        assertThat(d11.isDisposed).isTrue()
+        assertThat(d111.isDisposed).isTrue()
+        assertThat(d1111.isDisposed).isTrue()
+        assertThat(d1112.isDisposed).isTrue()
     }
 
     @Test
