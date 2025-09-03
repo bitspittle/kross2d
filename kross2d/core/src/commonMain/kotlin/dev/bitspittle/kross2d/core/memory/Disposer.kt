@@ -182,12 +182,9 @@ object Disposer {
         newChildren.forEach { child -> parentOf[child] = to }
     }
 
-    // Each entry in the greater queue is a smaller queue of related disposables. That is, when you try to delete a new
-    // disposable, a new queue is added, to which the current diposable and all of its children are added, and then
-    // processed. If a new dispose request happens as a side-effect of another element being disposed, it will get added
-    // to its own queue that will only get processed AFTER all the previous group of disposables are done. This prevents
-    // weird errors where a child can try to dispose a parent node out of order.
-    private val toDisposeQueue: MutableList<MutableList<Disposable>> = mutableListOf()
+    // Process dispose requests in a queue, in case disposing one element causes it to request disposing another
+    // in its onDispose handler.
+    private val toDispose: MutableList<Disposable> = mutableListOf()
 
     /**
      * Release the resources held by this boxed [Disposable], as well as all its children.
@@ -203,21 +200,25 @@ object Disposer {
             throw DisposableException("Tried to dispose a value that was never registered")
         }
 
-        val toDispose = mutableListOf<Disposable>()
-        disposable.walkChildrenBreadthFirst { child -> toDispose.add(0, child) }
+        toDispose.add(disposable)
+        if (toDispose.size == 1) {
+            while (toDispose.isNotEmpty()) {
+                // NOTE: Only remove *after* processing all children, so any additional calls to Disposer.dispose will
+                // add their request to the end of `toDispose`
+                val next = toDispose.first()
 
-        toDisposeQueue.add(toDispose)
+                // Not likely but a user could potentially request a disposal for an element that ended up getting
+                // disposed on a previous disposal processing run; just skip it, we're already done
+                if (!next.isDisposed) {
+                    val toDisposeIncludingChildren = mutableListOf<Disposable>()
+                    next.walkChildrenBreadthFirst { child -> toDisposeIncludingChildren.add(0, child) }
 
-        if (toDisposeQueue.size == 1) {
-            while (toDisposeQueue.isNotEmpty()) {
-                toDisposeQueue.first().filter { !it.isDisposed }.forEach { child ->
-                    parentOf.remove(child)
-                    childrenOf.remove(child)
-                    roots.remove(child)
-                    handleDispose(child)
+                    toDisposeIncludingChildren.forEach { child ->
+                        unregister(child)
+                        handleDispose(child)
+                    }
                 }
-
-                toDisposeQueue.removeAt(0)
+                toDispose.removeAt(0)
             }
         }
     }
@@ -238,6 +239,7 @@ object Disposer {
     private fun unregister(disposable: Disposable) {
         parentOf.remove(disposable)?.let { parent ->
             childrenOf[parent]!!.let { children ->
+                children.remove(disposable)
                 if (children.isEmpty()) {
                     childrenOf.remove(parent)
                 }

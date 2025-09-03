@@ -247,7 +247,10 @@ class DisposableTest {
         val d1111 = TestDisposable(d111, "d1111")
         val d1112 = TestDisposable(d111, "d1112")
 
-        Disposer.register(d1111) { Disposer.dispose(d11) }
+        Disposer.register(d1111) {
+            Disposer.dispose(d111) // Make sure we don't run dispose on this twice
+            Disposer.dispose(d11)
+        }
 
         // d122 should trigger disposal of d1221 (child), so far so good
         // but d1221 will trigger disposable of d12 (parent), this might be a problem!
