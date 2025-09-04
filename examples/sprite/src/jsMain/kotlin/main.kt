@@ -4,7 +4,7 @@ import kotlinx.browser.document
 import org.w3c.dom.HTMLCanvasElement
 
 fun main() {
-    val canvas = document.querySelector("#glCanvas") as HTMLCanvasElement
+    val canvas = document.querySelector("#game-canvas") as HTMLCanvasElement
     launch(
         AppParams(canvas),
         initialState = SpriteState())
